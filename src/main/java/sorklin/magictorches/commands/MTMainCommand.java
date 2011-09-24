@@ -43,6 +43,8 @@ public class MTMainCommand implements CommandExecutor{
         
         if(args[0].equalsIgnoreCase("list")) {
             //TODO: list clause
+            //TEMP:
+            sender.sendMessage(pl.g + pl.mt.list(sender, true));
             return true;
         } else
         

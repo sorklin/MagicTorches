@@ -50,6 +50,10 @@ public class TorchArray {
         //return receiverArray.add(loc);
     }
     
+    public Location getLocation(){
+        return this.transmitter;
+    }
+    
     public boolean remove(Block block) {
         return remove(block.getLocation());
     }
@@ -64,6 +68,18 @@ public class TorchArray {
     
     public boolean isReceiver(Location loc){
         return receiverArray.contains(new TorchReceiver(loc));
+    }
+    
+    public boolean isTransmitter(Location loc){
+        return (transmitter != null) ? this.transmitter.equals(loc) : false;
+    }
+    
+    public boolean transmitterSet(){
+        return (transmitter != null);
+    }
+    
+    public boolean receiverSet(){
+        return (!this.receiverArray.isEmpty());
     }
     
     public boolean isValid(){

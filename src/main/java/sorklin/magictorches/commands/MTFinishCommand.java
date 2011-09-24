@@ -36,11 +36,11 @@ public class MTFinishCommand implements CommandExecutor {
         
         if(pl.mt.create(player, args[0])) {
             sender.sendMessage(pl.g + pl.mt.message);
-            return true;
+            pl.mt.setEditMode(player, false);
         } else {
             sender.sendMessage(pl.r + pl.mt.message);
-            return false;
         }
+        return true;
     }
     
 }

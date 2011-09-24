@@ -31,7 +31,7 @@ public class MTPlayerListener extends PlayerListener {
         if(mat == Material.REDSTONE_TORCH_ON || mat == Material.REDSTONE_TORCH_OFF) {
             if(pl.mt.isInEditMode(player)) { //has to have perm_create, or wouldn't be in edit mode.
                 if(act == Action.LEFT_CLICK_BLOCK) {
-                    if(!pl.mt.isMT(block)) {
+                    if(!pl.mt.isSetTransmitter(player, block)) {
                         if(pl.mt.setTransmitter(player, block)){
                             player.sendMessage(pl.g + "Selected transmitter torch.");
                         } else {

@@ -4,8 +4,10 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import java.util.Map.Entry;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import sorklin.magictorches.MagicTorches;
@@ -59,12 +61,19 @@ public final class MTorch {
             plTArray.get(player).setName(name.toLowerCase().trim());
             if(plTArray.get(player).isValid()) {
                 if(saveToDB(plTArray.get(player))) {
-                    this.message = "Successfully created MagicTorch array: " + name.toLowerCase().trim();
+                    this.message = "Successfully created MagicTorch array: " 
+                            + name.toLowerCase().trim();
                     reload(); //reloads the mt array from file.
+                    return true;
                 } else {
                     this.message = "Failed to create MagicTorch array.";
                 }
-                
+            } else {
+                this.message = "MagicTorch array not valid.";
+                if(!plTArray.get(player).transmitterSet())
+                    this.message = this.message + " [transmitter not selected]";
+                if(!plTArray.get(player).receiverSet())
+                    this.message = this.message + " [receivers not selected]";
             }
         }
         return false;
@@ -86,9 +95,17 @@ public final class MTorch {
         return (plEditMode.containsKey(player)) ? plEditMode.get(player) : false;
     }
     
-    public String list(Player player, boolean isAdmin) {
+    public String list(CommandSender sender, boolean isAdmin) {
         //TODO: list
-        return "";
+        //Not sure how I'm doing owner yet.  TEMP:
+        String result = "";
+        if(mtArray.isEmpty()){
+            return "No MT arrays saved.";
+        }
+        for (Entry<Location, TorchArray> entry : mtArray.entrySet()){
+            result = entry.getValue().getName() + ", ";
+        }
+        return result;
     }
     
     public void setEditMode(Player player) {
@@ -126,6 +143,14 @@ public final class MTorch {
         return false;
     }
     
+    public boolean isSetTransmitter(Player player, Block block) {
+        //This is a work around to the double event when the event it cancelled.
+        if(plTArray.containsKey(player)){
+            return plTArray.get(player).isTransmitter(block.getLocation());
+        }
+        return false;
+    }
+    
     public boolean setReceiver(Player player, Block block) {
         return setReceiver(player, block.getLocation());
     }
@@ -153,7 +178,12 @@ public final class MTorch {
     
     private boolean saveToDB(TorchArray t){
         //TODO: save to DB.
-        return true;
+        //Temp:
+        if(t.getLocation() != null) {
+            mtArray.put(t.getLocation(), t);
+            return true;
+        }
+        return false;
     }
     
     private void loadFromDB(){
