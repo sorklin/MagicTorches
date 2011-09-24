@@ -35,7 +35,7 @@ public class MTPlayerListener extends PlayerListener {
                         if(pl.mt.setTransmitter(player, block)){
                             player.sendMessage(pl.g + "Selected transmitter torch.");
                         } else {
-                            player.sendMessage(pl.r + "Could not set transmitter torch.");
+                            player.sendMessage(pl.r + pl.mt.message);
                         }
                     }
                     event.setCancelled(true);
@@ -43,7 +43,7 @@ public class MTPlayerListener extends PlayerListener {
                     if(pl.mt.setReceiver(player, block)) {
                         player.sendMessage(pl.g + pl.mt.message);
                     } else {
-                        player.sendMessage(pl.r + "Could not add receiver torch.");
+                        player.sendMessage(pl.r + pl.mt.message);
                     }
                 }
             }

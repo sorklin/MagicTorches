@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import java.util.Map.Entry;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
@@ -79,6 +78,20 @@ public final class MTorch {
         return false;
     }
     
+    public boolean delete(Block block){
+        return delete(block.getLocation());
+    }
+    
+    public boolean delete(Location loc){
+        //TODO: delete function
+        //This needs to change to removing from dB and reloading.
+        if(mtArray.containsKey(loc)) {
+            this.message = mtArray.get(loc).getName();
+            return (mtArray.remove(loc) != null);
+        }
+        return false;
+    }
+    
     public boolean isMT(Block block) {
         return isMT(block.getLocation());
     }
@@ -97,15 +110,10 @@ public final class MTorch {
     
     public String list(CommandSender sender, boolean isAdmin) {
         //TODO: list
-        //Not sure how I'm doing owner yet.  TEMP:
-        String result = "";
-        if(mtArray.isEmpty()){
-            return "No MT arrays saved.";
+        for (Map.Entry<Location, TorchArray> entry : mtArray.entrySet()) {
+            pl.spam(entry.getValue().toString());
         }
-        for (Entry<Location, TorchArray> entry : mtArray.entrySet()){
-            result = entry.getValue().getName() + ", ";
-        }
-        return result;
+        return "";
     }
     
     public void setEditMode(Player player) {
@@ -123,8 +131,8 @@ public final class MTorch {
     public void setEditMode(Player player, boolean mode, byte nextType) {
         if(mode) {
             plEditMode.put(player, mode);
-            plTArray.put(player, new TorchArray()); //lets initialize a raw TArray -- NOT SURE ABOUT THIS
-            plNextLinkType.put(player, TorchArray.DIRECT);
+            plTArray.put(player, new TorchArray());
+            plNextLinkType.put(player, nextType);
         } else {
             removePLVars(player);
         }
@@ -136,10 +144,14 @@ public final class MTorch {
     
     public boolean setTransmitter(Player player, Location loc) {
         if(plTArray.containsKey(player)) {
+            if(mtArray.containsKey(loc)) {
+                this.message = "This torch is already an existing transmitter.";
+                return false;
+            }
             plTArray.get(player).setTransmitter(loc);
-            //pl.spam("plTArray: " + plTArray.get(player).toString());
             return true;
         }
+        this.message = "Cannot set transmitter. Not in edit mode.";
         return false;
     }
     
@@ -169,6 +181,7 @@ public final class MTorch {
                 return true;
             }
         }
+        this.message = "Cannot set receiver. Not in edit mode.";
         return false;
     }
     

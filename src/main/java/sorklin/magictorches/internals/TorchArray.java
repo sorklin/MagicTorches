@@ -120,10 +120,10 @@ public class TorchArray {
     
     @Override
     public String toString() {
-        String result = (this.transmitter == null) 
+        String result = "Name{" + arrayName + "};";
+        result = result + ((this.transmitter == null) 
                 ? "Transmitter{NULL};" 
-                : "Transmitter{" + this.transmitter.toString() + "};";
-        
+                : "Transmitter{" + this.transmitter.toString() + "};");
         if(!receiverArray.isEmpty()) {
             ListIterator it = receiverArray.listIterator();
             while(it.hasNext()) {

@@ -43,7 +43,7 @@ public class TorchReceiver implements Cloneable {
     public String toString() {
         String result;
         result = this.torchLocation.toString();
-        result = result + ";Type{" + String.valueOf(this.torchType) + "}";
+        result = result + ":Type{" + String.valueOf(this.torchType) + "}";
         return result;
     }
     
