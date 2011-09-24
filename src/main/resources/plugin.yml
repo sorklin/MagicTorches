@@ -1,0 +1,17 @@
+name: MagicTorches
+main: sorklin.magictorches.magicTorches
+version: 0.1
+authors: [Sorklin]
+description: MagicTorches creates linked array of wireless torches.
+commands:
+  mtcreate:
+    description: Begin creating a MagicTorch array.
+#    permission: magictorch.create
+    usage: /<command> [direct|inverse|delay]
+  mtfinish:
+    description: Finish creating a MagicTorch array.
+#    permission: magictorch.create
+    usage: /<command> <name>
+  mt:
+    description: Information and commands regarding magicbuttons.
+    usage: /<command> <cancel | delete <name> | help | list | reload>
