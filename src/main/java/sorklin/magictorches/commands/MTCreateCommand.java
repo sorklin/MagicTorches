@@ -29,9 +29,9 @@ public class MTCreateCommand implements CommandExecutor{
             //Assume a DIRECT type of linkage
             pl.mt.setEditMode(player, false); //reset the plvars, if they exist.
             pl.mt.setEditMode(player);
-            sender.sendMessage(pl.g + "Creating a MagicTorch array. Left click on a torch to set it as");
-            sender.sendMessage(pl.g + "a transmitter. Right click on torches to add/remove them from");
-            sender.sendMessage(pl.g + "the receiver array.");
+            sender.sendMessage(pl.g + "Creating a MagicTorch array. " + pl.w + "Left click on a torch to set it as");
+            sender.sendMessage("a transmitter. Right click on torches to add/remove them from");
+            sender.sendMessage("the receiver array.");
             return true;
         } else
         
@@ -55,9 +55,9 @@ public class MTCreateCommand implements CommandExecutor{
                 return false;
             }
             
-            sender.sendMessage(pl.g + "Creating a MagicTorch array. Left click on a torch to set it as");
-            sender.sendMessage(pl.g + "a transmitter. Right click on torches to add/remove them from");
-            sender.sendMessage(pl.g + "the receiver array.");
+            sender.sendMessage(pl.g + "Creating a MagicTorch array. " + pl.w + "Left click on a torch to set it as");
+            sender.sendMessage("a transmitter. Right click on torches to add/remove them from");
+            sender.sendMessage("the receiver array.");
             return true;
         } else
             

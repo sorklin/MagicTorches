@@ -1,10 +1,19 @@
 package sorklin.magictorches.internals;
 
+import com.mini.Arguments;
+import com.mini.Mini;
+
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import java.util.Map.Entry;
+import java.util.regex.*;
+
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -15,53 +24,41 @@ public final class MTorch {
     
     //transmitter to TorchArray:
     private Map<Location, TorchArray> mtArray = new HashMap<Location, TorchArray>();
+    private Map<Location, String> mtNameArray = new HashMap<Location, String>();
     
-    //These three are for magic creation by different players (simultaneously).
+    //These three are for magic creation by different players.
     private Map<Player, TorchArray> plTArray = new HashMap<Player, TorchArray>();
     private Map<Player, Boolean> plEditMode = new HashMap<Player, Boolean>();
-    private Map<Player, Byte> plNextLinkType = new HashMap<Player, Byte>(); //the next link type
-
+    private Map<Player, Byte> plNextLinkType = new HashMap<Player, Byte>();
     
-//    private Mini mb_database;
+    private Mini mb_database;
     private MagicTorches pl;
     private int defaultCooldown;
     private File miniDB;
+    private double maxDistance; //TODO: drive this with a config setting.
     
     public String message = "";
     
-    public MTorch (MagicTorches instance) {
-        //TODO: Remove this when i hve implemented db
-        miniDB = null;
-        //mb_database = new Mini(miniDB.getParent(), miniDB.getName());
-        pl = instance;
-        //reload(); //give it a shot if we're not in MV.
-    }
-    
     public MTorch (File db, MagicTorches instance) {
         miniDB = db;
-        //mb_database = new Mini(miniDB.getParent(), miniDB.getName());
+        mb_database = new Mini(miniDB.getParent(), miniDB.getName());
         pl = instance;
-        //reload(); //give it a shot if we're not in MV.
+        maxDistance = 100.0;
     }
     
-    public boolean reload(){
-        //Loads from MiniDB or other source
-        //TODO: implement reload
-        return true;
-    }
-    
-    public void close() {
-        //This closes the class by saving an updated TorchArray to DB.
-        //TODO: implement close
+    public MTorch (File db, MagicTorches instance, double distance) {
+        miniDB = db;
+        mb_database = new Mini(miniDB.getParent(), miniDB.getName());
+        pl = instance;
+        maxDistance = distance;
     }
     
     public boolean create(Player player, String name){
         if(plTArray.containsKey(player)) {
             plTArray.get(player).setName(name.toLowerCase().trim());
             if(plTArray.get(player).isValid()) {
-                if(saveToDB(plTArray.get(player))) {
-                    this.message = "Successfully created MagicTorch array: " 
-                            + name.toLowerCase().trim();
+                if(saveToDB(player, plTArray.get(player))) {
+                    this.message = name.toLowerCase().trim();
                     reload(); //reloads the mt array from file.
                     return true;
                 } else {
@@ -85,11 +82,22 @@ public final class MTorch {
     public boolean delete(Location loc){
         //TODO: delete function
         //This needs to change to removing from dB and reloading.
-        if(mtArray.containsKey(loc)) {
-            this.message = mtArray.get(loc).getName();
-            return (mtArray.remove(loc) != null);
+        if(mtArray.containsKey(loc) && mtNameArray.containsKey(loc)) {
+            this.message = mtNameArray.get(loc);
+            return ((mtArray.remove(loc) != null) && (mtNameArray.remove(loc) != null));
         }
         return false;
+    }
+    
+    public boolean delete(String name){
+        //TODO delete by name.
+        
+        //pl.spam ("Removed torch x");
+        return false;
+    }
+    
+    public boolean isInEditMode(Player player) {
+        return (plEditMode.containsKey(player)) ? plEditMode.get(player) : false;
     }
     
     public boolean isMT(Block block) {
@@ -100,20 +108,36 @@ public final class MTorch {
         return mtArray.containsKey(loc);
     }
     
-    public boolean transmit(Location loc) {
-        return (isMT(loc)) ? mtArray.get(loc).transmit() : false;
-    }
-    
-    public boolean isInEditMode(Player player) {
-        return (plEditMode.containsKey(player)) ? plEditMode.get(player) : false;
-    }
-    
-    public String list(CommandSender sender, boolean isAdmin) {
-        //TODO: list
-        for (Map.Entry<Location, TorchArray> entry : mtArray.entrySet()) {
-            pl.spam(entry.getValue().toString());
+    public boolean isSetTransmitter(Player player, Block block) {
+        //This is a work around to the double event when the event it cancelled.
+        if(plTArray.containsKey(player)){
+            return plTArray.get(player).isTransmitter(block.getLocation());
         }
-        return "";
+        return false;
+    }
+        
+    public String list(CommandSender sender, boolean isAdmin) {
+        String result = "";
+        String comma = "";
+        
+        if(mtNameArray.isEmpty())
+            result = "No MagicTorch Arrays found.";
+        
+        for (Entry<Location, String> entry : mtNameArray.entrySet()) {
+            result = result + comma + entry.getValue();
+            //result += "[" + trLocationFromData(mtArray.get(entry.getKey()).toString()) + "]";
+            comma = ", ";
+        }
+        return result;
+    }
+    
+    public void reload(){
+        clearCache();
+        
+        //force a reload of the minidb.
+        mb_database = null;
+        mb_database = new Mini(miniDB.getParent(), miniDB.getName());
+        loadFromDB();
     }
     
     public void setEditMode(Player player) {
@@ -138,6 +162,31 @@ public final class MTorch {
         }
     }
     
+    public void setNextType(Player player, byte type) {
+        plNextLinkType.put(player, type);
+    }
+    
+    public boolean setReceiver(Player player, Block block) {
+        return setReceiver(player, block.getLocation());
+    }
+    
+    public boolean setReceiver(Player player, Location loc) {
+        if(plTArray.containsKey(player)) {
+            if(!plTArray.get(player).isReceiver(loc)){
+                //TODO: distance check.  Requires Transmitter to be set.
+                plTArray.get(player).add(loc, plNextLinkType.get(player));
+                this.message = "Added receiver torch.";
+                return true;
+            } else {
+                plTArray.get(player).remove(loc);
+                this.message = "Removed receiver torch.";
+                return true;
+            }
+        }
+        this.message = "Cannot set receiver. Not in edit mode.";
+        return false;
+    }
+    
     public boolean setTransmitter(Player player, Block block) {
         return setTransmitter(player, block.getLocation());
     }
@@ -155,61 +204,168 @@ public final class MTorch {
         return false;
     }
     
-    public boolean isSetTransmitter(Player player, Block block) {
-        //This is a work around to the double event when the event it cancelled.
-        if(plTArray.containsKey(player)){
-            return plTArray.get(player).isTransmitter(block.getLocation());
-        }
-        return false;
+    public boolean transmit(Location loc) {
+        return (isMT(loc)) ? mtArray.get(loc).transmit() : false;
     }
     
-    public boolean setReceiver(Player player, Block block) {
-        return setReceiver(player, block.getLocation());
+    
+    /****************************** PRIVATE ************************************/
+    
+    private void clearCache() {
+        mtArray.clear();
+        this.message = "";
     }
     
-    public boolean setReceiver(Player player, Location loc) {
-        if(plTArray.containsKey(player)) {
-            if(!plTArray.get(player).isReceiver(loc)){
-                plTArray.get(player).add(loc, plNextLinkType.get(player));
-                this.message = "Added receiver torch.";
-                //pl.spam("plTArray: " + plTArray.get(player).toString());
-                return true;
-            } else {
-                plTArray.get(player).remove(loc);
-                this.message = "Removed receiver torch.";
-                //pl.spam("plTArray: " + plTArray.get(player).toString());
-                return true;
-            }
-        }
-        this.message = "Cannot set receiver. Not in edit mode.";
-        return false;
-    }
-    
-    public void setNextType(Player player, byte type) {
-        plNextLinkType.put(player, type);
-    }
-    
-    private boolean saveToDB(TorchArray t){
-        //TODO: save to DB.
-        //Temp:
-        if(t.getLocation() != null) {
-            mtArray.put(t.getLocation(), t);
-            return true;
-        }
+    private boolean isOwner(Player player, Location loc) {
+        //TODO: isOwner
         return false;
     }
     
     private void loadFromDB(){
-        //TODO: load from DB.
+        String data = "";
+        Location loc;
+        TorchArray ta;
+        
+        for(String name: mb_database.getIndices().keySet()) {
+            Arguments entry = mb_database.getArguments(name);
+            data = entry.getValue("data");
+            loc = trLocationFromData(data);
+            ta = torchArrayFromData(data, name);
+            if(loc != null && ta != null) {
+                mtArray.put(loc, ta);
+                mtNameArray.put(loc, name);
+            } else {
+                //TODO: Deal with deleting the malformed entry here.
+                this.message = name + "'s entry was malformed, or the transmitting"
+                        + "torch is missing. Deleting entry from DB.";
+                delete(name); //pretend delete at the moment.
+            }
+        }
+    }
+    
+    private Location locationFromString(String data){
+        //World: (?<=name=)\w+ 
+        //Coords: (?<==)\d+\.\d+  (returns 5 matches (x, y, z, yaw, pitch).
+
+        String world = "";
+        List<String> coords = new ArrayList<String>();
+        Location result = null;
+        
+        Pattern p = Pattern.compile("(?<=name=)\\w+");
+        Matcher m = p.matcher(data);
+        if(m.find()){
+            world = m.group();
+        }
+
+        p = Pattern.compile("(?<==)\\d+\\.\\d+");
+        m = p.matcher(data);
+        if(m != null) {
+            while(m.find()) {
+                coords.add(m.group());
+            }
+        }
+        
+        if(!world.isEmpty() && coords.size() == 5) {
+            //Valid pull data.
+            result = new Location(pl.getServer().getWorld(world), 
+                    Double.valueOf(coords.get(0)), 
+                    Double.valueOf(coords.get(1)), 
+                    Double.valueOf(coords.get(2)));
+        }
+        return result;
     }
     
     private void removePLVars(Player player) {
         plTArray.remove(player);
         plNextLinkType.remove(player);
         plEditMode.remove(player);
+        this.message = "";
     }
     
-    private void clearCache() {
-        mtArray.clear();  
+    private boolean saveToDB(Player player, TorchArray t){
+        if(!t.isValid())
+            return false;
+        
+        String name = t.getName();
+        Location loc = t.getLocation();
+        String data = t.toString();
+        
+        Arguments entry = new Arguments(name.toLowerCase());
+        entry.setValue("owner", player.getName());
+        entry.setValue("data", data);
+        
+        mb_database.addIndex(entry.getKey(), entry);
+        mb_database.update();
+        reload();
+        
+        //temp, until reload is implemented.
+        mtArray.put(loc, t);
+        mtNameArray.put(loc, name);
+        return true;
+    }
+    
+    private Location trLocationFromData(String data){
+        
+        if(!data.contains(";")){
+            return null;
+        }
+        
+        Location result = null;
+        
+        String[] sub = data.split(";");
+        
+        for(int i = 0, length = sub.length; i < length; i++){
+            if(sub[i].contains("Transmitter")){
+                result = locationFromString(sub[i]);
+            }
+        }
+        return result;
+    }
+    
+    private TorchArray torchArrayFromData(String data, String name){
+        
+        if(!data.contains(";"))
+            return null; //can't split, this is malformed string
+        
+        String[] sub = data.split(";");
+        if(sub.length < 3)
+            return null; //Less than three segments is malformed.
+                
+        TorchArray ta = new TorchArray();
+        ta.setName(name);
+        
+        for(int i=0, length = sub.length; i < length; i++) {
+            if(sub[i].contains("Transmitter")){
+                //Only set the transmitter location if the location is not null,
+                //AND there is a redstone torch already there.
+                //IF transmitter left unset, the TorchArray will not be valid, causing the 
+                //TA to be deleted from the db. (a good thing)
+                Location loc = locationFromString(sub[i]);
+                if(loc != null){
+                    Material m = loc.getBlock().getType();
+                    if(m.equals(Material.REDSTONE_TORCH_OFF) 
+                            || m.equals(Material.REDSTONE_TORCH_ON)) {
+                        ta.setTransmitter(loc);
+                    }
+                }
+            } else 
+            
+            if(sub[i].contains("Receiver")){
+                ta.add(locationFromString(sub[i]), typeFromString(sub[i]));
+            }
+        }
+        return ((ta.isValid()) ? ta : null);
+    }
+    
+    private byte typeFromString(String data){
+        //type: (?<=Type{)\d{1,2}
+        byte result = TorchArray.DIRECT; //Default to direct.
+
+        Pattern p = Pattern.compile("(?<=Type\\{)\\d{1,2}");
+        Matcher m = p.matcher(data);
+        if(m.find()){
+            result = Byte.parseByte(m.group());
+        }
+        return result;
     }
 }

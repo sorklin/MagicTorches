@@ -5,17 +5,17 @@ import org.bukkit.event.server.ServerListener;
 import sorklin.magictorches.MagicTorches;
 
 public class MTPluginListener extends ServerListener {
-    private final MagicTorches mt;
+    private final MagicTorches pl;
 
     public MTPluginListener(MagicTorches mt) {
-        this.mt = mt;
+        this.pl = mt;
     }
 
     @Override
     public void onPluginEnable(PluginEnableEvent event) {
         if("Multiverse-Core".equals(event.getPlugin().getDescription().getName())) {
-            //mButton.log.info ("[MagicButtons] Found Multiverse.  Reloading db.");
-            //pl.mb.reload();
+            pl.spam("Connected to Multiverse.  Loading db.");
+            pl.mt.reload();
         }
     }
     
