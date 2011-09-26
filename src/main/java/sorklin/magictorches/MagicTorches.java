@@ -38,8 +38,10 @@ public class MagicTorches extends JavaPlugin {
     
     public MTorch mt;
     
-    protected static final String perm_create = "magictorches.create";
-    protected static final String perm_admin = "magictorches.admin";
+    public static final String perm_create = "magictorches.create";
+    public static final String perm_admin = "magictorches.admin";
+    
+    public static long delayTime = 1500;  //TODO: drive this by config file.
     
     public final ChatColor g = ChatColor.GOLD;
     public final ChatColor r = ChatColor.DARK_RED;
@@ -65,10 +67,12 @@ public class MagicTorches extends JavaPlugin {
         }
         
         //TODO: config to contain Multiverse: true/false.  Then I test.
+        //TODO: config for last used default time.
+        //TODO: distance in config setting.
+        
         spam("db found or created.  Initializing MagicTorches.");
         mt = new MTorch(dbFile, this);
         
-        //TODO: Figure out how to do aliases.
         getCommand("mtcreate").setExecutor(new MTCreateCommand(this));
         getCommand("mtfinish").setExecutor(new MTFinishCommand(this));
         getCommand("mt").setExecutor(new MTMainCommand(this));
@@ -79,7 +83,7 @@ public class MagicTorches extends JavaPlugin {
             if(pm.getPlugin("Multiverse-Core").isEnabled()) {
                 mt.reload();
             } else {
-                pm.registerEvent(Type.PLUGIN_ENABLE, pluginListener, Priority.Low, this);
+                pm.registerEvent(Type.PLUGIN_ENABLE, pluginListener, Priority.Monitor, this);
             }
         } else {
             mt.reload();
@@ -88,6 +92,7 @@ public class MagicTorches extends JavaPlugin {
         pm.registerEvent(Type.PLAYER_INTERACT , playerListener, Priority.Normal, this);
         pm.registerEvent(Type.BLOCK_PHYSICS, physicsListener, Priority.High, this); //cancel redstone physics for the torches.
         pm.registerEvent(Type.BLOCK_BREAK, blockListener, Priority.Normal, this);
+        pm.registerEvent(Type.REDSTONE_CHANGE, blockListener, Priority.Normal, this);
         spam("Plugin initialized.");
     }
     

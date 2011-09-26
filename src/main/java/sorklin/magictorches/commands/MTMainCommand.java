@@ -1,14 +1,9 @@
 package sorklin.magictorches.commands;
 
 import java.util.ArrayList;
-import java.util.List;
-
-import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandException;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 
 import sorklin.magictorches.MagicTorches;
@@ -22,7 +17,7 @@ public class MTMainCommand implements CommandExecutor{
     
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if(args.length == 0) {
-            sender.sendMessage(pl.g + "Incorrect number of parameters.");
+            sender.sendMessage(pl.r + "Incorrect number of parameters.");
             return false;
         }
         //<cancel | delete <name> | help | list | reload>
@@ -38,8 +33,15 @@ public class MTMainCommand implements CommandExecutor{
         } else
         
         if(args[0].equalsIgnoreCase("delete")) {
-            //TODO: delete clause
-            return true;
+            if(args.length == 2){
+                if (pl.mt.delete(args[1].toLowerCase().trim())) {
+                    sender.sendMessage(pl.g + "Deleted MagicTorch Array: " + 
+                            pl.b + args[1].toLowerCase().trim());
+                }
+                return true;
+            }
+            sender.sendMessage(pl.r + "Incorrect number of parameters.");
+            return false;
         } else
         
         if(args[0].equalsIgnoreCase("help")) {
@@ -48,9 +50,10 @@ public class MTMainCommand implements CommandExecutor{
         } else
         
         if(args[0].equalsIgnoreCase("list")) {
-            //TODO: list clause
-            //TEMP:
-            sender.sendMessage(pl.g + pl.mt.list(sender, true));
+            if(sender.hasPermission(MagicTorches.perm_create) 
+                    || sender.hasPermission(MagicTorches.perm_admin)){
+                sender.sendMessage(pl.g + pl.mt.list(sender, sender.hasPermission(MagicTorches.perm_admin)));
+            }
             return true;
         } else
         
@@ -61,28 +64,31 @@ public class MTMainCommand implements CommandExecutor{
         } else
         
         if(args[0].equalsIgnoreCase("test")) {
-            //whatever i need
+            sender.sendMessage(pl.mt.listRecievers(sender));
             return true;
         } else
         
-//        if(args[0].equalsIgnoreCase("create")) {
-//            List<String> argArray = new ArrayList<String>();
-//            for(int i=1, length = args.length; i < length; i++){
-//                argArray.add(args[i]);
-//            }
-//            try {
-//                PluginCommand cmd = Bukkit.getServer().getPluginCommand("create");
-//                return cmd.execute(sender, label, argArray.toArray(new String[0]));
-//            } catch (CommandException e) {
-//                pl.spam("Exception: " + e.toString());
-//            }
-//            return true;
-//        } else
+        if(args[0].equalsIgnoreCase("create")) {
+            ArrayList<String> argArray = new ArrayList<String>();
+            for(int i=1, length = args.length; i < length; i++){
+                argArray.add(args[i]);
+            }
+            MTCreateCommand mt = new MTCreateCommand(pl);
+            String[] a = new String[argArray.size()];
+            a = argArray.toArray(a);
+            return mt.createExecute(sender, a);
+        } else
         
-//        if(args[0].equalsIgnoreCase("finish")) {
-//            //whatever i need
-//            return true;
-//        } else
+        if(args[0].equalsIgnoreCase("finish")) {
+            ArrayList<String> argArray = new ArrayList<String>();
+            for(int i=1, length = args.length; i < length; i++){
+                argArray.add(args[i]);
+            }
+            MTFinishCommand mt = new MTFinishCommand(pl);
+            String[] a = new String[argArray.size()];
+            a = argArray.toArray(a);
+            return mt.finish(sender, a);
+        } else
             
         {
             sender.sendMessage(pl.r + "Unrecognized parameter.");

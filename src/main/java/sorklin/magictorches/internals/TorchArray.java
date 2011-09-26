@@ -1,9 +1,9 @@
 package sorklin.magictorches.internals;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.ListIterator;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 
 public class TorchArray {
@@ -16,28 +16,10 @@ public class TorchArray {
     
     private String arrayName;
     private Location transmitter;
-    private List<TorchReceiver> receiverArray = new ArrayList<TorchReceiver>();
-    //private ArrayList<Location> receiverArray;
+    private ArrayList<TorchReceiver> receiverArray = new ArrayList<TorchReceiver>();
     
     public TorchArray() {
         arrayName = String.valueOf(this.hashCode());
-    }
-    
-    public TorchArray(String savedTorches) {        
-        arrayName = String.valueOf(this.hashCode()); //this should change to the saved name.
-        //this will convert a properly formed STring to an array of 
-        // torchReceivers and transmitter.
-        //Make sure that receivers and transmitters exist.
-        
-        //TODO: code to convert from STring into something usuable.
-    }
-    
-    public void setTransmitter(Location loc){
-        this.transmitter = loc;
-    }
-    
-    public void setName(String name){
-        this.arrayName = name;
     }
     
     public boolean add(Block block, byte type) {
@@ -54,6 +36,37 @@ public class TorchArray {
         return this.transmitter;
     }
     
+    public String getName() {
+        return this.arrayName;
+    }
+    
+    public ArrayList getReceiverArray(){
+        ArrayList<Location> result = new ArrayList<Location>(receiverArray.size());
+        ListIterator<TorchReceiver> tr = receiverArray.listIterator();
+        while(tr.hasNext()) {
+            result.add(tr.next().getLocation());
+        }
+        return result;
+    }
+    
+    public boolean isReceiver(Location loc){
+        return receiverArray.contains(new TorchReceiver(loc));
+    }
+    
+    public boolean isTransmitter(Location loc){
+        return (transmitter != null) ? this.transmitter.equals(loc) : false;
+    }
+    
+    public boolean isValid(){
+        return (this.transmitter != null && 
+                !this.receiverArray.isEmpty() &&
+                this.arrayName != null);
+    }
+    
+    public boolean receiverSet(){
+        return (!this.receiverArray.isEmpty());
+    }
+    
     public boolean remove(Block block) {
         return remove(block.getLocation());
     }
@@ -66,26 +79,12 @@ public class TorchArray {
         return false;
     }
     
-    public boolean isReceiver(Location loc){
-        return receiverArray.contains(new TorchReceiver(loc));
+    public void setName(String name){
+        this.arrayName = name;
     }
     
-    public boolean isTransmitter(Location loc){
-        return (transmitter != null) ? this.transmitter.equals(loc) : false;
-    }
-    
-    public boolean transmitterSet(){
-        return (transmitter != null);
-    }
-    
-    public boolean receiverSet(){
-        return (!this.receiverArray.isEmpty());
-    }
-    
-    public boolean isValid(){
-        return (this.transmitter != null && 
-                !this.receiverArray.isEmpty() &&
-                this.arrayName != null);
+    public void setTransmitter(Location loc){
+        this.transmitter = loc;
     }
     
     public boolean setType(Block block, byte type) {
@@ -100,22 +99,6 @@ public class TorchArray {
             return true;
         }
         return false;
-    }
-    
-    public boolean transmit(){
-        boolean transmitted = false;
-        //ListIterator<torchReceiver> tr = receiverArray.listIterator();
-        //while(tr.hasNext()) {
-            //TODO: implement transmit
-            //tr.next().getLocation()
-            //If the button is a delay do the setUsed and LastUsed to 
-            // deterimine if the torch state should change.
-            
-            //Make sure it tests for torch at receiver spot.  If not there, 
-            // remove from Array.
-        //}
-        
-        return transmitted;
     }
     
     @Override
@@ -134,7 +117,30 @@ public class TorchArray {
         return result;
     }
     
-    public String getName() {
-        return this.arrayName;
+    public boolean transmit(){
+        if(transmitter == null) 
+            return false;
+        
+        boolean signal;
+        
+        //Do this to make sure its one or the other (or return false for transmit)
+        if(transmitter.getBlock().getType().equals(Material.REDSTONE_TORCH_ON)){
+            signal = true;
+        } else
+        if(transmitter.getBlock().getType().equals(Material.REDSTONE_TORCH_OFF)){
+            signal = false;
+        } else {
+            return false;
+        }
+        
+        ListIterator<TorchReceiver> tr = receiverArray.listIterator();
+        while(tr.hasNext()) {
+            tr.next().receive(signal);
+        }
+        return true;
+    }
+    
+    public boolean transmitterSet(){
+        return (transmitter != null);
     }
 }

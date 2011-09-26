@@ -16,6 +16,10 @@ public class MTCreateCommand implements CommandExecutor{
     }
 
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        return createExecute(sender, args);
+    }
+    
+    public boolean createExecute(CommandSender sender, String[] args) {
         if(!(sender instanceof Player)) {
             sender.sendMessage(pl.r + "You must be a player to use this command.");
             return true;  //only works for playahs.

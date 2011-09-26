@@ -15,6 +15,10 @@ public class MTFinishCommand implements CommandExecutor {
     }
     
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        return finish(sender, args);
+    }
+    
+    public boolean finish(CommandSender sender, String[] args){
         if(!(sender instanceof Player)) {
             sender.sendMessage(pl.r + "You must be a player to use this command.");
             return true;  //only works for playahs.

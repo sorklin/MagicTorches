@@ -5,6 +5,7 @@ import org.bukkit.block.Block;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockListener;
 
+import org.bukkit.event.block.BlockRedstoneEvent;
 import sorklin.magictorches.MagicTorches;
 
 public class MTBlockListener extends BlockListener {
@@ -32,4 +33,10 @@ public class MTBlockListener extends BlockListener {
             }
         }
     }
+
+    @Override
+    public void onBlockRedstoneChange(BlockRedstoneEvent event) {
+        super.onBlockRedstoneChange(event);
+        //TODO: redstone transmit triggers.
+    }   
 }

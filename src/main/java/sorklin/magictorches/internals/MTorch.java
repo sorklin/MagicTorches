@@ -7,6 +7,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 
 import java.util.Map.Entry;
@@ -26,6 +27,8 @@ public final class MTorch {
     private Map<Location, TorchArray> mtArray = new HashMap<Location, TorchArray>();
     private Map<Location, String> mtNameArray = new HashMap<Location, String>();
     
+    private ArrayList<Location> allReceiverArray = new ArrayList<Location>();
+    
     //These three are for magic creation by different players.
     private Map<Player, TorchArray> plTArray = new HashMap<Player, TorchArray>();
     private Map<Player, Boolean> plEditMode = new HashMap<Player, Boolean>();
@@ -33,7 +36,6 @@ public final class MTorch {
     
     private Mini mb_database;
     private MagicTorches pl;
-    private int defaultCooldown;
     private File miniDB;
     private double maxDistance; //TODO: drive this with a config setting.
     
@@ -58,8 +60,8 @@ public final class MTorch {
             plTArray.get(player).setName(name.toLowerCase().trim());
             if(plTArray.get(player).isValid()) {
                 if(saveToDB(player, plTArray.get(player))) {
-                    this.message = name.toLowerCase().trim();
                     reload(); //reloads the mt array from file.
+                    this.message = name.toLowerCase().trim();
                     return true;
                 } else {
                     this.message = "Failed to create MagicTorch array.";
@@ -80,19 +82,16 @@ public final class MTorch {
     }
     
     public boolean delete(Location loc){
-        //TODO: delete function
-        //This needs to change to removing from dB and reloading.
-        if(mtArray.containsKey(loc) && mtNameArray.containsKey(loc)) {
-            this.message = mtNameArray.get(loc);
-            return ((mtArray.remove(loc) != null) && (mtNameArray.remove(loc) != null));
-        }
-        return false;
+        return (mtNameArray.containsKey(loc)) ? delete(mtNameArray.get(loc)) : false;
     }
     
     public boolean delete(String name){
-        //TODO delete by name.
-        
-        //pl.spam ("Removed torch x");
+        if(mb_database.hasIndex(name)) {
+            mb_database.removeIndex(name);
+            mb_database.update();
+            reload();
+            return true;
+        }
         return false;
     }
     
@@ -106,6 +105,14 @@ public final class MTorch {
     
     public boolean isMT(Location loc) {
         return mtArray.containsKey(loc);
+    }
+    
+    public boolean isReciever(Block block){
+        return isReciever(block.getLocation());
+    }
+    
+    public boolean isReciever(Location loc){
+        return allReceiverArray.contains(loc);
     }
     
     public boolean isSetTransmitter(Player player, Block block) {
@@ -131,9 +138,24 @@ public final class MTorch {
         return result;
     }
     
+    public String listRecievers(CommandSender sender){
+        String result = "";
+        String comma = "";
+        
+        if(allReceiverArray.isEmpty())
+            return "No Receivers found.";
+        
+        ListIterator<Location> it = allReceiverArray.listIterator();
+        
+        while(it.hasNext()){
+            result += (comma + it.next().toString());
+            comma = ", ";
+        }
+        return result;
+    }
+    
     public void reload(){
         clearCache();
-        
         //force a reload of the minidb.
         mb_database = null;
         mb_database = new Mini(miniDB.getParent(), miniDB.getName());
@@ -213,11 +235,22 @@ public final class MTorch {
     
     private void clearCache() {
         mtArray.clear();
+        mtNameArray.clear();
+        allReceiverArray.clear();
         this.message = "";
     }
     
     private boolean isOwner(Player player, Location loc) {
-        //TODO: isOwner
+        if(mtNameArray.containsKey(loc)){
+            String name = mtNameArray.get(loc);
+            if(name != null) {
+                Arguments entry = null;
+                entry = mb_database.getArguments(name);
+                if(entry != null) {
+                    return (entry.getValue("owner").equals(player.getName()));
+                }
+            }
+        }
         return false;
     }
     
@@ -234,11 +267,12 @@ public final class MTorch {
             if(loc != null && ta != null) {
                 mtArray.put(loc, ta);
                 mtNameArray.put(loc, name);
+                allReceiverArray.addAll(ta.getReceiverArray());
             } else {
-                //TODO: Deal with deleting the malformed entry here.
+                pl.spam("Deleting malformed entry: " + name);
                 this.message = name + "'s entry was malformed, or the transmitting"
                         + "torch is missing. Deleting entry from DB.";
-                delete(name); //pretend delete at the moment.
+                delete(name);
             }
         }
     }

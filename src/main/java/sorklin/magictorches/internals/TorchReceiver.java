@@ -1,6 +1,9 @@
 package sorklin.magictorches.internals;
 
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import sorklin.magictorches.MagicTorches;
 
 
 public class TorchReceiver implements Cloneable {
@@ -31,13 +34,58 @@ public class TorchReceiver implements Cloneable {
         this.torchType = type;
     }
     
-    public void setUsed() {
-        this.lastUsed = System.currentTimeMillis();
+    public boolean receive(boolean signal){ //On = true, off = false
+        //Return true if I can process signal, else false to indicate
+        //something wrong with this torch receiver.
+        
+        //Lets check for a location and a torch at that location.
+        if(this.torchLocation == null)
+            return false;
+        Block torch = torchLocation.getBlock();
+        if(!(torch.getType().equals(Material.REDSTONE_TORCH_OFF) ||
+                torch.getType().equals(Material.REDSTONE_TORCH_ON))) {
+            return false;
+        }
+        
+        switch(torchType) {
+            case TorchArray.NONE:
+                return false;
+                
+            case TorchArray.DIRECT:
+                if(signal){
+                    torch.setType(Material.REDSTONE_TORCH_ON);
+                } else {
+                    torch.setType(Material.REDSTONE_TORCH_OFF);
+                }
+                lastUsed = System.currentTimeMillis();
+                break;
+                
+            case TorchArray.INVERSE:
+                if(signal){
+                    torch.setType(Material.REDSTONE_TORCH_OFF);
+                } else {
+                    torch.setType(Material.REDSTONE_TORCH_ON);
+                }
+                lastUsed = System.currentTimeMillis();
+                break;
+                
+            case TorchArray.DELAY:
+                if(System.currentTimeMillis() > (MagicTorches.delayTime + lastUsed)){
+                    //Okay to use.  Acts as toggle, so flip the torch data.
+                    if(torch.getType().equals(Material.REDSTONE_TORCH_OFF)) {
+                        torch.setType(Material.REDSTONE_TORCH_ON);
+                    } else
+                    
+                    if(torch.getType().equals(Material.REDSTONE_TORCH_ON)) {
+                        torch.setType(Material.REDSTONE_TORCH_OFF);
+                    }
+                    lastUsed = System.currentTimeMillis();
+                }
+                break;
+        }
+        return true;
     }
     
-    public long lastUsed() {
-        return this.lastUsed;
-    }
     
     @Override
     public String toString() {
