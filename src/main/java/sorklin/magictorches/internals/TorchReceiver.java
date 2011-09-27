@@ -42,7 +42,7 @@ public class TorchReceiver implements Cloneable {
         if(this.torchLocation == null)
             return false;
         Block torch = torchLocation.getBlock();
-        if(!(torch.getType().equals(Material.REDSTONE_TORCH_OFF) ||
+        if(!(torch.getType().equals(Material.TORCH) ||
                 torch.getType().equals(Material.REDSTONE_TORCH_ON))) {
             return false;
         }
@@ -56,7 +56,7 @@ public class TorchReceiver implements Cloneable {
                 if(signal){
                     torch.setType(Material.REDSTONE_TORCH_ON);
                 } else {
-                    torch.setType(Material.REDSTONE_TORCH_OFF);
+                    torch.setType(Material.TORCH);
                 }
                 lastUsed = System.currentTimeMillis();
                 break;
@@ -64,7 +64,7 @@ public class TorchReceiver implements Cloneable {
             case TorchArray.INVERSE:
                 //MagicTorches.spamt("Inverse receive");
                 if(signal){
-                    torch.setType(Material.REDSTONE_TORCH_OFF);
+                    torch.setType(Material.TORCH);
                 } else {
                     torch.setType(Material.REDSTONE_TORCH_ON);
                 }
@@ -75,12 +75,12 @@ public class TorchReceiver implements Cloneable {
                 //MagicTorches.spamt("Delay receive");
                 if(System.currentTimeMillis() > (MagicTorches.delayTime + lastUsed)){
                     //Okay to use.  Acts as toggle, so flip the torch data.
-                    if(torch.getType().equals(Material.REDSTONE_TORCH_OFF)) {
+                    if(torch.getType().equals(Material.TORCH)) {
                         torch.setType(Material.REDSTONE_TORCH_ON);
                     } else
                     
                     if(torch.getType().equals(Material.REDSTONE_TORCH_ON)) {
-                        torch.setType(Material.REDSTONE_TORCH_OFF);
+                        torch.setType(Material.TORCH);
                     }
                     lastUsed = System.currentTimeMillis();
                 }

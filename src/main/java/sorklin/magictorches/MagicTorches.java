@@ -91,7 +91,7 @@ public class MagicTorches extends JavaPlugin {
         }
         
         pm.registerEvent(Type.PLAYER_INTERACT , playerListener, Priority.Normal, this);
-        pm.registerEvent(Type.BLOCK_PHYSICS, physicsListener, Priority.High, this); //cancel redstone physics for the torches.
+        //pm.registerEvent(Type.BLOCK_PHYSICS, physicsListener, Priority.High, this); //cancel redstone physics for the torches.
         pm.registerEvent(Type.BLOCK_BREAK, blockListener, Priority.Normal, this);
         pm.registerEvent(Type.REDSTONE_CHANGE, blockListener, Priority.Normal, this);
         spam("Plugin initialized.");
