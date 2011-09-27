@@ -99,7 +99,7 @@ public class MagicTorches extends JavaPlugin {
     
     public void spam(String msg) {
         log.info(plugName + msg);
-        Bukkit.getServer().broadcastMessage("[MT]" + msg);
+        //Bukkit.getServer().broadcastMessage("[MT]" + msg);
     }
     
     public static void spamt(String msg) {

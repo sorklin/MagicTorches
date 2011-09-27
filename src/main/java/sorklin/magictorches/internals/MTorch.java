@@ -269,6 +269,7 @@ public final class MTorch {
         for(String name: mb_database.getIndices().keySet()) {
             Arguments entry = mb_database.getArguments(name);
             data = entry.getValue("data");
+            pl.spam("LoadDB data: " + data);
             loc = trLocationFromData(data);
             ta = torchArrayFromData(data, name);
             if(loc != null && ta != null) {
@@ -285,8 +286,8 @@ public final class MTorch {
     }
     
     private Location locationFromString(String data){
-        //World: (?<=name=)\w+ 
-        //Coords: (?<==)\d+\.\d+  (returns 5 matches (x, y, z, yaw, pitch).
+        //World: (?<=name=)\w+
+        //Coords: (?<==)-?\d+\.\d+  (returns 5 matches (x, y, z, yaw, pitch).
 
         String world = "";
         List<String> coords = new ArrayList<String>();
@@ -298,7 +299,7 @@ public final class MTorch {
             world = m.group();
         }
 
-        p = Pattern.compile("(?<==)\\d+\\.\\d+");
+        p = Pattern.compile("(?<==)-?\\d+\\.\\d+");
         m = p.matcher(data);
         if(m != null) {
             while(m.find()) {
@@ -328,9 +329,9 @@ public final class MTorch {
             return false;
         
         String name = t.getName();
-        Location loc = t.getLocation();
+//        Location loc = t.getLocation();
         String data = t.toString();
-        
+        pl.spam("Saving to DB:" + t.getName() + ", " + t.toString());
         Arguments entry = new Arguments(name.toLowerCase());
         entry.setValue("owner", player.getName());
         entry.setValue("data", data);
@@ -338,10 +339,6 @@ public final class MTorch {
         mb_database.addIndex(entry.getKey(), entry);
         mb_database.update();
         reload();
-        
-        //temp, until reload is implemented.
-        mtArray.put(loc, t);
-        mtNameArray.put(loc, name);
         return true;
     }
     
