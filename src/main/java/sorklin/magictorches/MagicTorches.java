@@ -102,8 +102,8 @@ public class MagicTorches extends JavaPlugin {
         //Bukkit.getServer().broadcastMessage("[MT]" + msg);
     }
     
-    public static void spamt(String msg) {
-        log.info("[MT]" + msg);
-        Bukkit.getServer().broadcastMessage("[MT]" + msg);
-    }
+//    public static void spamt(String msg) {
+//        log.info("[MT]" + msg);
+//        Bukkit.getServer().broadcastMessage("[MT]" + msg);
+//    }
 }

@@ -21,6 +21,8 @@ import org.bukkit.entity.Player;
 
 import sorklin.magictorches.MagicTorches;
 
+//TODO: make sure settransmitter != setreciever (they cannot be the same torch).
+
 public final class MTorch {
     
     //transmitter to TorchArray:

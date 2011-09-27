@@ -137,7 +137,7 @@ public class TorchArray {
         
         //MagicTorches.spamt("Transmit Current: " + transmitter.getBlock().getBlockPower());
         //Do this to make sure its one or the other (or return false for transmit)
-        MagicTorches.spamt("Transmitting " + current);
+        //MagicTorches.spamt("Transmitting " + current);
         ListIterator<TorchReceiver> tr = receiverArray.listIterator();
         while(tr.hasNext()) {
             tr.next().receive(current);
