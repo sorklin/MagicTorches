@@ -228,13 +228,17 @@ public final class MTorch {
         return false;
     }
     
+    public boolean transmit(Location loc, boolean current){
+        return (isMT(loc)) ? mtArray.get(loc).transmit(current) : false;
+    }
+    
     public boolean transmit(Location loc) {
         return (isMT(loc)) ? mtArray.get(loc).transmit() : false;
     }
     
     public void transmitAll(){
         for (Entry<Location, TorchArray> entry : mtArray.entrySet()) {
-            entry.getValue().transmit();
+            transmit(entry.getKey());
         }
     }
     

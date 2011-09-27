@@ -34,7 +34,7 @@ public class TorchReceiver implements Cloneable {
         this.torchType = type;
     }
     
-    public boolean receive(boolean signal){ //On = true, off = false
+    public boolean receive(boolean signal){ //torch On = true, off = false
         //Return true if I can process signal, else false to indicate
         //something wrong with this torch receiver.
         
@@ -54,9 +54,9 @@ public class TorchReceiver implements Cloneable {
             case TorchArray.DIRECT:
                 //MagicTorches.spamt("Direct receive");
                 if(signal){
-                    torch.setType(Material.REDSTONE_TORCH_ON);
-                } else {
                     torch.setType(Material.TORCH);
+                } else {
+                    torch.setType(Material.REDSTONE_TORCH_ON);
                 }
                 lastUsed = System.currentTimeMillis();
                 break;
@@ -64,9 +64,9 @@ public class TorchReceiver implements Cloneable {
             case TorchArray.INVERSE:
                 //MagicTorches.spamt("Inverse receive");
                 if(signal){
-                    torch.setType(Material.TORCH);
-                } else {
                     torch.setType(Material.REDSTONE_TORCH_ON);
+                } else {
+                    torch.setType(Material.TORCH);
                 }
                 lastUsed = System.currentTimeMillis();
                 break;
