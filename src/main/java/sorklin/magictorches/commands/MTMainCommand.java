@@ -7,6 +7,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import sorklin.magictorches.MagicTorches;
+import sorklin.magictorches.internals.TorchArray;
 
 public class MTMainCommand implements CommandExecutor{
     private final MagicTorches pl;
@@ -46,6 +47,7 @@ public class MTMainCommand implements CommandExecutor{
         
         if(args[0].equalsIgnoreCase("help")) {
             //TODO: help clause
+            sender.sendMessage(pl.r + "Not yet implemented.  You're on your own, chuck.");
             return true;
         } else
         
@@ -90,7 +92,40 @@ public class MTMainCommand implements CommandExecutor{
             a = argArray.toArray(a);
             return mt.finish(sender, a);
         } else
-            
+        
+        if(args[0].equalsIgnoreCase("direct")) {
+            if(sender instanceof Player) {
+                Player player = (Player)sender;
+                if(pl.mt.isInEditMode(player)){
+                    pl.mt.setNextType(player, TorchArray.DIRECT);
+                    sender.sendMessage(pl.g + "Receiver type set to DIRECT.");
+                }
+            }
+            return true;
+        } else
+        
+        if(args[0].equalsIgnoreCase("inverse")) {
+            if(sender instanceof Player) {
+                Player player = (Player)sender;
+                if(pl.mt.isInEditMode(player)){
+                    pl.mt.setNextType(player, TorchArray.INVERSE);
+                    sender.sendMessage(pl.g + "Receiver type set to INVERSE.");
+                }
+            }
+            return true;
+        } else
+        
+        if(args[0].equalsIgnoreCase("delay")) {
+            if(sender instanceof Player) {
+                Player player = (Player)sender;
+                if(pl.mt.isInEditMode(player)){
+                    pl.mt.setNextType(player, TorchArray.DELAY);
+                    sender.sendMessage(pl.g + "Receiver type set to DELAY.");
+                }
+            }
+            return true;
+        } else
+        
         {
             sender.sendMessage(pl.r + "Unrecognized parameter.");
             return false;

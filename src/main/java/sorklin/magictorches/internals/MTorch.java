@@ -161,6 +161,7 @@ public final class MTorch {
         mb_database = null;
         mb_database = new Mini(miniDB.getParent(), miniDB.getName());
         loadFromDB();
+        transmitAll(); //initial transmit to set all the receivers.
     }
     
     public void setEditMode(Player player) {

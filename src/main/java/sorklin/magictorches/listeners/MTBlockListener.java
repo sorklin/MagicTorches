@@ -39,6 +39,5 @@ public class MTBlockListener extends BlockListener {
         if(pl.mt.isMT(event.getBlock())){
             pl.mt.transmit(event.getBlock().getLocation());
         }
-        //TODO: redstone transmit triggers.
     }   
 }
