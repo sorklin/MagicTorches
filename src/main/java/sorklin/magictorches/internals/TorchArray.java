@@ -5,6 +5,7 @@ import java.util.ListIterator;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import sorklin.magictorches.MagicTorches;
 
 public class TorchArray {
     
@@ -125,14 +126,14 @@ public class TorchArray {
         
         //Do this to make sure its one or the other (or return false for transmit)
         if(transmitter.getBlock().getType().equals(Material.REDSTONE_TORCH_ON)){
-            signal = true;
+            signal = false; //torches are on when not powered.
         } else
         if(transmitter.getBlock().getType().equals(Material.REDSTONE_TORCH_OFF)){
-            signal = false;
+            signal = true;
         } else {
             return false;
         }
-        
+        //MagicTorches.spamt("Transmitting " + signal);
         ListIterator<TorchReceiver> tr = receiverArray.listIterator();
         while(tr.hasNext()) {
             tr.next().receive(signal);

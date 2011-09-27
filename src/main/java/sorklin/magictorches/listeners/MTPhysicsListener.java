@@ -14,14 +14,19 @@ public class MTPhysicsListener extends BlockListener {
 
     @Override
     public void onBlockPhysics(BlockPhysicsEvent event) {
+        boolean handled = false;
         if(event.isCancelled())
             return;
+        if(pl.mt.isReciever(event.getBlock())){
+            event.setCancelled(true);
+            handled = true;
+        }
+        if(!handled && event.getChangedType().equals(Material.REDSTONE_TORCH_ON)) {
+            pl.spam("Unhandled RT_ON");
+        }
         
-        if(event.getChangedType().equals(Material.REDSTONE_TORCH_OFF) ||
-                event.getChangedType().equals(Material.REDSTONE_TORCH_ON)) {
-            if(pl.mt.isReciever(event.getBlock())){
-                event.setCancelled(true);
-            }
+        if(!handled && event.getChangedType().equals(Material.REDSTONE_TORCH_OFF)) {
+            pl.spam("Unhandled RT_OFF");
         }
     }
 }

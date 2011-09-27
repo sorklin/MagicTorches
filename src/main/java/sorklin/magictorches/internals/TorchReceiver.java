@@ -52,6 +52,7 @@ public class TorchReceiver implements Cloneable {
                 return false;
                 
             case TorchArray.DIRECT:
+                //MagicTorches.spamt("Direct receive");
                 if(signal){
                     torch.setType(Material.REDSTONE_TORCH_ON);
                 } else {
@@ -61,6 +62,7 @@ public class TorchReceiver implements Cloneable {
                 break;
                 
             case TorchArray.INVERSE:
+                //MagicTorches.spamt("Inverse receive");
                 if(signal){
                     torch.setType(Material.REDSTONE_TORCH_OFF);
                 } else {
@@ -70,6 +72,7 @@ public class TorchReceiver implements Cloneable {
                 break;
                 
             case TorchArray.DELAY:
+                //MagicTorches.spamt("Delay receive");
                 if(System.currentTimeMillis() > (MagicTorches.delayTime + lastUsed)){
                     //Okay to use.  Acts as toggle, so flip the torch data.
                     if(torch.getType().equals(Material.REDSTONE_TORCH_OFF)) {

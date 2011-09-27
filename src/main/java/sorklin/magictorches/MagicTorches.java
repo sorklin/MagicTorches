@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.logging.Logger;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.event.Event.Priority;
 import org.bukkit.event.Event.Type;
@@ -98,6 +99,11 @@ public class MagicTorches extends JavaPlugin {
     
     public void spam(String msg) {
         log.info(plugName + msg);
-        //Bukkit.getServer().broadcastMessage(plugName + msg);
+        Bukkit.getServer().broadcastMessage("[MT]" + msg);
+    }
+    
+    public static void spamt(String msg) {
+        log.info("[MT]" + msg);
+        Bukkit.getServer().broadcastMessage("[MT]" + msg);
     }
 }

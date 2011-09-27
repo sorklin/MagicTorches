@@ -90,6 +90,7 @@ public final class MTorch {
             mb_database.removeIndex(name);
             mb_database.update();
             reload();
+            this.message = name;
             return true;
         }
         return false;
@@ -230,6 +231,11 @@ public final class MTorch {
         return (isMT(loc)) ? mtArray.get(loc).transmit() : false;
     }
     
+    public void transmitAll(){
+        for (Entry<Location, TorchArray> entry : mtArray.entrySet()) {
+            entry.getValue().transmit();
+        }
+    }
     
     /****************************** PRIVATE ************************************/
     

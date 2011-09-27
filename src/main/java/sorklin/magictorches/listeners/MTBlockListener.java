@@ -36,7 +36,9 @@ public class MTBlockListener extends BlockListener {
 
     @Override
     public void onBlockRedstoneChange(BlockRedstoneEvent event) {
-        super.onBlockRedstoneChange(event);
+        if(pl.mt.isMT(event.getBlock())){
+            pl.mt.transmit(event.getBlock().getLocation());
+        }
         //TODO: redstone transmit triggers.
     }   
 }

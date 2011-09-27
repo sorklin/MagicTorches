@@ -50,10 +50,10 @@ public class MTMainCommand implements CommandExecutor{
         } else
         
         if(args[0].equalsIgnoreCase("list")) {
-            if(sender.hasPermission(MagicTorches.perm_create) 
-                    || sender.hasPermission(MagicTorches.perm_admin)){
+//            if(sender.hasPermission(MagicTorches.perm_create) 
+//                    || sender.hasPermission(MagicTorches.perm_admin)){
                 sender.sendMessage(pl.g + pl.mt.list(sender, sender.hasPermission(MagicTorches.perm_admin)));
-            }
+//            }
             return true;
         } else
         
@@ -64,7 +64,8 @@ public class MTMainCommand implements CommandExecutor{
         } else
         
         if(args[0].equalsIgnoreCase("test")) {
-            sender.sendMessage(pl.mt.listRecievers(sender));
+            //sender.sendMessage(pl.mt.listRecievers(sender));
+            pl.mt.transmitAll();
             return true;
         } else
         
