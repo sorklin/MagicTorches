@@ -121,7 +121,8 @@ public class TorchArray {
     public boolean transmit(){
         if(transmitter == null) 
             return false;
-//        MagicTorches.spamt("block power: " + transmitter.getBlock().getBlockPower() 
+//        MagicTorches.spamt("Block: " + transmitter.getBlock().toString());
+//        MagicTorches.spamt("[" + arrayName + "] block power: " + transmitter.getBlock().getBlockPower() 
 //                + "; isPowered?: " + transmitter.getBlock().isBlockPowered() 
 //                + "; indirectly?: " + transmitter.getBlock().isBlockIndirectlyPowered());
         return transmit(transmitter.getBlock().getBlockPower() != 0);
@@ -135,9 +136,9 @@ public class TorchArray {
                 || torch.equals(Material.REDSTONE_TORCH_OFF)))
             return false;
         
-        //MagicTorches.spamt("Transmit Current: " + transmitter.getBlock().getBlockPower());
+//        MagicTorches.spamt("[" + arrayName + "] Transmit Current: " + transmitter.getBlock().getBlockPower());
         //Do this to make sure its one or the other (or return false for transmit)
-        //MagicTorches.spamt("Transmitting " + current);
+//        MagicTorches.spamt("Transmitting " + current);
         ListIterator<TorchReceiver> tr = receiverArray.listIterator();
         while(tr.hasNext()) {
             tr.next().receive(current);

@@ -6,6 +6,9 @@ import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Event.Priority;
 import org.bukkit.event.Event.Type;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -22,7 +25,7 @@ import sorklin.magictorches.listeners.MTPlayerListener;
 import sorklin.magictorches.listeners.MTPluginListener;
 
 
-//TODO: info tool -- the switch.  Hold it and right click on torch to get any 
+// TODO: info tool -- the switch.  Hold it and right click on torch to get any 
 //      MT info available to you.
 
 public class MagicTorches extends JavaPlugin {
@@ -39,8 +42,8 @@ public class MagicTorches extends JavaPlugin {
     
     public MTorch mt;
     
-    public static final String perm_create = "magictorches.create";
-    public static final String perm_admin = "magictorches.admin";
+    static final String perm_create = "magictorches.create";
+    static final String perm_admin = "magictorches.admin";
     
     public static long delayTime = 1500;  //TODO: drive this by config file.
     
@@ -100,6 +103,14 @@ public class MagicTorches extends JavaPlugin {
     public void spam(String msg) {
         log.info(plugName + msg);
         //Bukkit.getServer().broadcastMessage("[MT]" + msg);
+    }
+    
+    public boolean canCreate(Player player){
+        return (player.hasPermission(perm_create) || player.hasPermission(perm_admin));
+    }
+    
+    public boolean isAdmin(CommandSender sender){
+        return (sender.hasPermission(perm_admin) || (sender instanceof ConsoleCommandSender));
     }
     
 //    public static void spamt(String msg) {

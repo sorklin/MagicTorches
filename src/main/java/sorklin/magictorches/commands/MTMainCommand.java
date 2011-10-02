@@ -21,7 +21,7 @@ public class MTMainCommand implements CommandExecutor{
             sender.sendMessage(pl.r + "Incorrect number of parameters.");
             return false;
         }
-        //<cancel | delete <name> | help | list | reload>
+        
         if(args[0].equalsIgnoreCase("cancel")) {
             if(sender instanceof Player) {
                 pl.mt.setEditMode((Player)sender, false);
@@ -34,15 +34,20 @@ public class MTMainCommand implements CommandExecutor{
         } else
         
         if(args[0].equalsIgnoreCase("delete")) {
-            if(args.length == 2){
-                if (pl.mt.delete(args[1].toLowerCase().trim())) {
-                    sender.sendMessage(pl.g + "Deleted MagicTorch Array: " + 
-                            pl.b + args[1].toLowerCase().trim());
+            //TODO: delete by owner.
+            if(pl.canCreate((Player)sender) || pl.isAdmin(sender)) {
+                if(args.length == 2){
+                    if (pl.mt.delete(args[1].toLowerCase().trim())) {
+                        sender.sendMessage(pl.g + "Deleted MagicTorch Array: " + 
+                                pl.b + args[1].toLowerCase().trim());
+                    }
+                    return true;
                 }
-                return true;
+                sender.sendMessage(pl.r + "Incorrect number of parameters.");
+                return false;
             }
-            sender.sendMessage(pl.r + "Incorrect number of parameters.");
-            return false;
+            sender.sendMessage(pl.r + "Insufficient permissions. Say that three times fast.");
+            return true;
         } else
         
         if(args[0].equalsIgnoreCase("help")) {
@@ -52,26 +57,33 @@ public class MTMainCommand implements CommandExecutor{
         } else
         
         if(args[0].equalsIgnoreCase("list")) {
-//            if(sender.hasPermission(MagicTorches.perm_create) 
-//                    || sender.hasPermission(MagicTorches.perm_admin)){
-                sender.sendMessage(pl.g + pl.mt.list(sender, sender.hasPermission(MagicTorches.perm_admin)));
-//            }
+            if(pl.canCreate((Player)sender) || pl.isAdmin(sender)){
+                String intro = (pl.isAdmin(sender)) ? "All Torches:" : "Your torches:";
+                sender.sendMessage(pl.g + intro);
+                sender.sendMessage(pl.g + pl.mt.list(sender, pl.isAdmin(sender)));
+            } else {
+                sender.sendMessage(pl.r + "Insufficient permissions. Say that three times fast.");
+            }
             return true;
         } else
         
         if(args[0].equalsIgnoreCase("reload")) {
-            sender.sendMessage("Reloading TorchArrays from db.");
-            pl.mt.reload();
+            if(pl.isAdmin(sender)){
+                sender.sendMessage("Reloading TorchArrays from db.");
+                pl.mt.reload();
+                return true;
+            }
+            sender.sendMessage(pl.r + "Insufficient permissions. Say that three times fast.");
             return true;
         } else
         
         if(args[0].equalsIgnoreCase("test")) {
-            //sender.sendMessage(pl.mt.listRecievers(sender));
-            pl.mt.transmitAll();
+            sender.sendMessage(pl.mt.listRecievers(sender));
             return true;
         } else
         
         if(args[0].equalsIgnoreCase("create")) {
+            //Perms handled by that command handler
             ArrayList<String> argArray = new ArrayList<String>();
             for(int i=1, length = args.length; i < length; i++){
                 argArray.add(args[i]);
@@ -83,6 +95,7 @@ public class MTMainCommand implements CommandExecutor{
         } else
         
         if(args[0].equalsIgnoreCase("finish")) {
+            //Perms handled by that command handler
             ArrayList<String> argArray = new ArrayList<String>();
             for(int i=1, length = args.length; i < length; i++){
                 argArray.add(args[i]);
@@ -94,34 +107,28 @@ public class MTMainCommand implements CommandExecutor{
         } else
         
         if(args[0].equalsIgnoreCase("direct")) {
-            if(sender instanceof Player) {
-                Player player = (Player)sender;
-                if(pl.mt.isInEditMode(player)){
-                    pl.mt.setNextType(player, TorchArray.DIRECT);
-                    sender.sendMessage(pl.g + "Receiver type set to DIRECT.");
-                }
+            //Edit mode implies player and permissions.
+            if(pl.mt.isInEditMode((Player)sender)){
+                pl.mt.setNextType((Player)sender, TorchArray.DIRECT);
+                sender.sendMessage(pl.g + "Receiver type set to DIRECT.");
             }
             return true;
         } else
         
         if(args[0].equalsIgnoreCase("inverse")) {
-            if(sender instanceof Player) {
-                Player player = (Player)sender;
-                if(pl.mt.isInEditMode(player)){
-                    pl.mt.setNextType(player, TorchArray.INVERSE);
-                    sender.sendMessage(pl.g + "Receiver type set to INVERSE.");
-                }
+            //Edit mode implies player and permissions.
+            if(pl.mt.isInEditMode((Player)sender)){
+                pl.mt.setNextType((Player)sender, TorchArray.INVERSE);
+                sender.sendMessage(pl.g + "Receiver type set to INVERSE.");
             }
             return true;
         } else
         
         if(args[0].equalsIgnoreCase("delay")) {
-            if(sender instanceof Player) {
-                Player player = (Player)sender;
-                if(pl.mt.isInEditMode(player)){
-                    pl.mt.setNextType(player, TorchArray.DELAY);
-                    sender.sendMessage(pl.g + "Receiver type set to DELAY.");
-                }
+            //Edit mode implies player and permissions.
+            if(pl.mt.isInEditMode((Player)sender)){
+                pl.mt.setNextType((Player)sender, TorchArray.DELAY);
+                sender.sendMessage(pl.g + "Receiver type set to DELAY.");
             }
             return true;
         } else
@@ -130,7 +137,5 @@ public class MTMainCommand implements CommandExecutor{
             sender.sendMessage(pl.r + "Unrecognized parameter.");
             return false;
         }
-        
     }
-    
 }

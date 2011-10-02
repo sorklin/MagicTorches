@@ -88,6 +88,7 @@ public final class MTorch {
     }
     
     public boolean delete(String name){
+        //TODO: insert owner and admin check
         if(mb_database.hasIndex(name)) {
             mb_database.removeIndex(name);
             mb_database.update();
@@ -96,6 +97,12 @@ public final class MTorch {
             return true;
         }
         return false;
+    }
+    
+    public String getName(Block block){
+        return (mtNameArray.containsKey(block.getLocation())) ?
+                mtNameArray.get(block.getLocation()) :
+                null;
     }
     
     public boolean isInEditMode(Player player) {
@@ -134,9 +141,16 @@ public final class MTorch {
             result = "No MagicTorch Arrays found.";
         
         for (Entry<Location, String> entry : mtNameArray.entrySet()) {
-            result = result + comma + entry.getValue();
-            //result += "[" + trLocationFromData(mtArray.get(entry.getKey()).toString()) + "]";
-            comma = ", ";
+            if(isAdmin){
+                result += comma + pl.b + entry.getValue()
+                        + " [" + getOwner(entry.getKey()) + "]";
+                comma = pl.w + ", ";
+            } else {
+                if(isOwner((Player)sender, entry.getKey())){
+                    result = result + comma + pl.b + entry.getValue();
+                    comma = pl.w + ", ";
+                }
+            }
         }
         return result;
     }
@@ -253,6 +267,20 @@ public final class MTorch {
         this.message = "";
     }
     
+    private String getOwner(Location loc) {
+        if(mtNameArray.containsKey(loc)){
+            String name = mtNameArray.get(loc);
+            if(name != null) {
+                Arguments entry = null;
+                entry = mb_database.getArguments(name);
+                if(entry != null) {
+                    return (entry.getValue("owner"));
+                }
+            }
+        }
+        return "";
+    }
+    
     private boolean isOwner(Player player, Location loc) {
         if(mtNameArray.containsKey(loc)){
             String name = mtNameArray.get(loc);
@@ -275,7 +303,7 @@ public final class MTorch {
         for(String name: mb_database.getIndices().keySet()) {
             Arguments entry = mb_database.getArguments(name);
             data = entry.getValue("data");
-            pl.spam("LoadDB data: " + data);
+            //pl.spam("LoadDB data: " + data);
             loc = trLocationFromData(data);
             ta = torchArrayFromData(data, name);
             if(loc != null && ta != null) {
@@ -283,9 +311,9 @@ public final class MTorch {
                 mtNameArray.put(loc, name);
                 allReceiverArray.addAll(ta.getReceiverArray());
             } else {
-                pl.spam("Deleting malformed entry: " + name);
                 this.message = name + "'s entry was malformed, or the transmitting"
                         + "torch is missing. Deleting entry from DB.";
+                pl.spam(this.message);
                 delete(name);
             }
         }
@@ -335,9 +363,8 @@ public final class MTorch {
             return false;
         
         String name = t.getName();
-//        Location loc = t.getLocation();
         String data = t.toString();
-        pl.spam("Saving to DB:" + t.getName() + ", " + t.toString());
+        //pl.spam("Saving to DB:" + t.getName() + ", " + t.toString());
         Arguments entry = new Arguments(name.toLowerCase());
         entry.setValue("owner", player.getName());
         entry.setValue("data", data);

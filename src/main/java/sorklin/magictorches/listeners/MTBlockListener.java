@@ -37,7 +37,8 @@ public class MTBlockListener extends BlockListener {
     @Override
     public void onBlockRedstoneChange(BlockRedstoneEvent event) {
         if(pl.mt.isMT(event.getBlock())){
-            //MagicTorches.spamt("new current: " + event.getNewCurrent() + ", old current: " + event.getOldCurrent());
+//            String name = pl.mt.getName(event.getBlock());
+//            MagicTorches.spamt("[" + name + "] new current: " + event.getNewCurrent() + ", old current: " + event.getOldCurrent());
             pl.mt.transmit(event.getBlock().getLocation(), (event.getNewCurrent() == 0));
         }
     }   

@@ -25,9 +25,10 @@ public class MTCreateCommand implements CommandExecutor{
             return true;  //only works for playahs.
         }
         Player player = (Player)sender;
-//        if(!(player.hasPermission(MagicTorches.perm_create) || player.hasPermission(MagicTorches.perm_admin))) {
-//            return false;
-//        }
+        if(!pl.canCreate(player)){
+            sender.sendMessage(pl.r + "Insufficient permissions. Say that three times fast.");
+            return true;
+        }
         
         if(args.length == 0) {
             //Assume a DIRECT type of linkage
