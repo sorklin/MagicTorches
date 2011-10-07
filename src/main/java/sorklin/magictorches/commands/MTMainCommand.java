@@ -33,11 +33,14 @@ public class MTMainCommand implements CommandExecutor{
             }
         } else
         
+            
         if(args[0].equalsIgnoreCase("delete")) {
-            //TODO: delete by owner.
-            if(pl.canCreate((Player)sender) || pl.isAdmin(sender)) {
+            String name = (MagicTorches.canCreate(sender)) ? sender.getName() : "";
+            boolean isAdmin = MagicTorches.isAdmin(sender);
+            
+            if(!name.isEmpty() || isAdmin) {
                 if(args.length == 2){
-                    if (pl.mt.delete(args[1].toLowerCase().trim())) {
+                    if (pl.mt.delete(args[1].toLowerCase().trim(), name, isAdmin)){
                         sender.sendMessage(pl.g + "Deleted MagicTorch Array: " + 
                                 pl.b + args[1].toLowerCase().trim());
                     }
@@ -50,25 +53,42 @@ public class MTMainCommand implements CommandExecutor{
             return true;
         } else
         
+            
         if(args[0].equalsIgnoreCase("help")) {
             //TODO: help clause
             sender.sendMessage(pl.r + "Not yet implemented.  You're on your own, chuck.");
             return true;
         } else
         
+        
+        if(args[0].equalsIgnoreCase("info")){
+            if(MagicTorches.canCreate(sender) || MagicTorches.isAdmin(sender)){
+                if(args.length < 2){
+                    sender.sendMessage(pl.r + "For general MagicTorch information, equip a lever and");
+                    sender.sendMessage(pl.r + "right click on a torch.  For more specific information, type");
+                    sender.sendMessage(pl.r + "/info <name>.");
+                    return true;
+                }
+                pl.mt.showInfo(args[1], sender, MagicTorches.isAdmin(sender));
+            }
+            return true;
+        } else 
+        
+            
         if(args[0].equalsIgnoreCase("list")) {
-            if(pl.canCreate((Player)sender) || pl.isAdmin(sender)){
-                String intro = (pl.isAdmin(sender)) ? "All Torches:" : "Your torches:";
+            if(MagicTorches.canCreate(sender) || MagicTorches.isAdmin(sender)){
+                String intro = (MagicTorches.isAdmin(sender)) ? "All Torches:" : "Your torches:";
                 sender.sendMessage(pl.g + intro);
-                sender.sendMessage(pl.g + pl.mt.list(sender, pl.isAdmin(sender)));
+                sender.sendMessage(pl.g + pl.mt.list(sender, MagicTorches.isAdmin(sender)));
             } else {
                 sender.sendMessage(pl.r + "Insufficient permissions. Say that three times fast.");
             }
             return true;
         } else
         
+            
         if(args[0].equalsIgnoreCase("reload")) {
-            if(pl.isAdmin(sender)){
+            if(MagicTorches.isAdmin(sender)){
                 sender.sendMessage("Reloading TorchArrays from db.");
                 pl.mt.reload();
                 return true;
@@ -77,11 +97,13 @@ public class MTMainCommand implements CommandExecutor{
             return true;
         } else
         
+            
         if(args[0].equalsIgnoreCase("test")) {
-            sender.sendMessage(pl.mt.listRecievers(sender));
+            MagicTorches.spam(pl.mt.listAllReceivers());
             return true;
         } else
         
+            
         if(args[0].equalsIgnoreCase("create")) {
             //Perms handled by that command handler
             ArrayList<String> argArray = new ArrayList<String>();
@@ -94,6 +116,7 @@ public class MTMainCommand implements CommandExecutor{
             return mt.createExecute(sender, a);
         } else
         
+            
         if(args[0].equalsIgnoreCase("finish")) {
             //Perms handled by that command handler
             ArrayList<String> argArray = new ArrayList<String>();
@@ -106,33 +129,52 @@ public class MTMainCommand implements CommandExecutor{
             return mt.finish(sender, a);
         } else
         
+            
         if(args[0].equalsIgnoreCase("direct")) {
             //Edit mode implies player and permissions.
-            if(pl.mt.isInEditMode((Player)sender)){
-                pl.mt.setNextType((Player)sender, TorchArray.DIRECT);
-                sender.sendMessage(pl.g + "Receiver type set to DIRECT.");
+            if(sender instanceof Player) {
+                if(pl.mt.isInEditMode((Player)sender)){
+                    pl.mt.setNextType((Player)sender, TorchArray.DIRECT);
+                    sender.sendMessage(pl.g + "Receiver type set to DIRECT.");
+                }
+                return true;
+            } else {
+                sender.sendMessage(pl.r + "You must be a player to use this command.");
+                return true;
             }
-            return true;
         } else
         
+            
         if(args[0].equalsIgnoreCase("inverse")) {
             //Edit mode implies player and permissions.
-            if(pl.mt.isInEditMode((Player)sender)){
-                pl.mt.setNextType((Player)sender, TorchArray.INVERSE);
-                sender.sendMessage(pl.g + "Receiver type set to INVERSE.");
+            if(sender instanceof Player) {
+                if(pl.mt.isInEditMode((Player)sender)){
+                    pl.mt.setNextType((Player)sender, TorchArray.INVERSE);
+                    sender.sendMessage(pl.g + "Receiver type set to INVERSE.");
+                }
+                return true;
+            } else {
+                sender.sendMessage(pl.r + "You must be a player to use this command.");
+                return true;
             }
-            return true;
         } else
         
+            
         if(args[0].equalsIgnoreCase("delay")) {
             //Edit mode implies player and permissions.
-            if(pl.mt.isInEditMode((Player)sender)){
-                pl.mt.setNextType((Player)sender, TorchArray.DELAY);
-                sender.sendMessage(pl.g + "Receiver type set to DELAY.");
+            if(sender instanceof Player) {
+                if(pl.mt.isInEditMode((Player)sender)){
+                    pl.mt.setNextType((Player)sender, TorchArray.DELAY);
+                    sender.sendMessage(pl.g + "Receiver type set to DELAY.");
+                }
+                return true;
+            } else {
+                sender.sendMessage(pl.r + "You must be a player to use this command.");
+                return true;
             }
-            return true;
         } else
         
+        //No commands matched
         {
             sender.sendMessage(pl.r + "Unrecognized parameter.");
             return false;

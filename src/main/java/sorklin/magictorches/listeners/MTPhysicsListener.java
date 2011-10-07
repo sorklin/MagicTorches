@@ -17,16 +17,16 @@ public class MTPhysicsListener extends BlockListener {
         boolean handled = false;
         if(event.isCancelled())
             return;
-        if(pl.mt.isReciever(event.getBlock())){
+        if(pl.mt.isReceiver(event.getBlock())){
             event.setCancelled(true);
             handled = true;
         }
         if(!handled && event.getChangedType().equals(Material.REDSTONE_TORCH_ON)) {
-            pl.spam("Unhandled RT_ON");
+            MagicTorches.spam("Unhandled RT_ON");
         }
         
         if(!handled && event.getChangedType().equals(Material.REDSTONE_TORCH_OFF)) {
-            pl.spam("Unhandled RT_OFF");
+            MagicTorches.spam("Unhandled RT_OFF");
         }
     }
 }

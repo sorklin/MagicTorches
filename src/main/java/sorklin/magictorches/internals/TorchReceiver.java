@@ -22,18 +22,35 @@ public class TorchReceiver implements Cloneable {
         this.torchType = type;
     }
     
+    /**
+     * Returns location of Receiver torch.
+     * @return Location of torch
+     */
     public Location getLocation() {
         return torchLocation;
     }
     
+    /**
+     * Returns type of receiver.
+     * @return byte indicating which type the receiver is.
+     */
     public byte getType() {
         return torchType;
     }
     
+    /**
+     * Sets the type of receiver.
+     * @param type they bytecode indicating receiver type.
+     */
     public void setType(byte type) {
         this.torchType = type;
     }
     
+    /**
+     * Receives and processes transmitted signal, per receiver type.
+     * @param signal transmitted signal.
+     * @return <code>true</code> success, <code>false</code> failure.
+     */
     public boolean receive(boolean signal){ //torch On = true, off = false
         //Return true if I can process signal, else false to indicate
         //something wrong with this torch receiver.

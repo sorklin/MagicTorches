@@ -38,7 +38,7 @@ public class MTFinishCommand implements CommandExecutor {
             sender.sendMessage(pl.r + "Incorrect number of arguments.");
             return false;
         }
-        
+
         if(pl.mt.create(player, args[0])) {
             sender.sendMessage(pl.g + "Successfully created MagicTorch array: " + pl.b + pl.mt.message);
             pl.mt.setEditMode(player, false);

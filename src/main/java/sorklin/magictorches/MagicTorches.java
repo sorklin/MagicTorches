@@ -2,6 +2,7 @@ package sorklin.magictorches;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
@@ -25,8 +26,8 @@ import sorklin.magictorches.listeners.MTPlayerListener;
 import sorklin.magictorches.listeners.MTPluginListener;
 
 
-// TODO: info tool -- the switch.  Hold it and right click on torch to get any 
-//      MT info available to you.
+// TODO: syncronize hashmaps and arrays.
+
 
 public class MagicTorches extends JavaPlugin {
     
@@ -37,8 +38,8 @@ public class MagicTorches extends JavaPlugin {
     private PluginDescriptionFile pluginInfo;
     
     static final Logger log = Logger.getLogger("Minecraft");
-    private String plugName;
-    private boolean MV = true;
+    static String plugName;
+
     
     public MTorch mt;
     
@@ -49,7 +50,7 @@ public class MagicTorches extends JavaPlugin {
     
     public final ChatColor g = ChatColor.GOLD;
     public final ChatColor r = ChatColor.DARK_RED;
-    public final ChatColor b = ChatColor.BLUE;
+    public final ChatColor b = ChatColor.AQUA;
     public final ChatColor w = ChatColor.WHITE;
     
     public void onDisable() {
@@ -60,6 +61,7 @@ public class MagicTorches extends JavaPlugin {
         pluginInfo = getDescription();
         plugName = "[" + pluginInfo.getName().toString() + "] ";
         
+        spam("Initializing MagicTorches.");
         /* Load MINI and config here */
         File dbFile = new File(getDataFolder(), "mt.mini");
         if(!dbFile.exists()) {
@@ -70,51 +72,75 @@ public class MagicTorches extends JavaPlugin {
             }
         }
         
-        //TODO: config to contain Multiverse: true/false.  Then I test.
         //TODO: config for last used default time.
         //TODO: distance in config setting.
         
-        spam("db found or created.  Initializing MagicTorches.");
+        spam("MiniDB found or created. Loading DB.");
         mt = new MTorch(dbFile, this);
         
         getCommand("mtcreate").setExecutor(new MTCreateCommand(this));
         getCommand("mtfinish").setExecutor(new MTFinishCommand(this));
         getCommand("mt").setExecutor(new MTMainCommand(this));
         
+        
         PluginManager pm = this.getServer().getPluginManager();
-        //If we're using Multiverse, late load the db, otherwise load now.
-        if(MV) {
-            if(pm.getPlugin("Multiverse-Core").isEnabled()) {
-                mt.reload();
-            } else {
-                pm.registerEvent(Type.PLUGIN_ENABLE, pluginListener, Priority.Monitor, this);
-            }
-        } else {
+        if(pm.getPlugin("Multiverse-Core").isEnabled()) {
             mt.reload();
+        } else {
+            pm.registerEvent(Type.PLUGIN_ENABLE, pluginListener, Priority.Monitor, this);
         }
         
         pm.registerEvent(Type.PLAYER_INTERACT , playerListener, Priority.Normal, this);
-        //pm.registerEvent(Type.BLOCK_PHYSICS, physicsListener, Priority.High, this); //cancel redstone physics for the torches.
-        pm.registerEvent(Type.BLOCK_BREAK, blockListener, Priority.Normal, this);
-        pm.registerEvent(Type.REDSTONE_CHANGE, blockListener, Priority.Normal, this);
+        pm.registerEvent(Type.BLOCK_BREAK, blockListener, Priority.Monitor, this);
+        pm.registerEvent(Type.REDSTONE_CHANGE, blockListener, Priority.Monitor, this);
         spam("Plugin initialized.");
     }
     
-    public void spam(String msg) {
+    /**
+     * Send message to log/players
+     * @param msg 
+     */
+    public static void spam(String msg) {
         log.info(plugName + msg);
-        //Bukkit.getServer().broadcastMessage("[MT]" + msg);
+        Bukkit.getServer().broadcastMessage("[MT]" + msg);
     }
     
-    public boolean canCreate(Player player){
+    /**
+     * Returns if the player has permission to create a TorchArray (or is admin)
+     * @param player
+     * @return <code>true</code> player has permission, <code>false</code> player 
+     * does not have permission.
+     */
+    public static boolean canCreate(Player player){
         return (player.hasPermission(perm_create) || player.hasPermission(perm_admin));
     }
     
-    public boolean isAdmin(CommandSender sender){
-        return (sender.hasPermission(perm_admin) || (sender instanceof ConsoleCommandSender));
+    /**
+     * Returns if the player has permission to create a TorchArray (or is admin)
+     * @param player
+     * @return <code>true</code> player has permission, <code>false</code> player 
+     * does not have permission.
+     */
+    public static boolean canCreate(CommandSender player){
+        if(player instanceof ConsoleCommandSender)
+            return false;
+        return (player.hasPermission(perm_create) || player.hasPermission(perm_admin) 
+                || player.isOp());
     }
     
-//    public static void spamt(String msg) {
-//        log.info("[MT]" + msg);
-//        Bukkit.getServer().broadcastMessage("[MT]" + msg);
-//    }
+    /**
+     * Does player have admin privileges, or is it from the console?
+     * @param sender
+     * @return <code>true</code> Yes, <code>false</code> No.
+     */
+    public static boolean isAdmin(CommandSender sender){
+        return (sender.hasPermission(perm_admin) || (sender instanceof ConsoleCommandSender) ||
+                sender.isOp());
+    }
+    
+    public static void listMessage(CommandSender sender, List<String> lines){
+        for(String li : lines){
+            sender.sendMessage(li);
+        }
+    }
 }
