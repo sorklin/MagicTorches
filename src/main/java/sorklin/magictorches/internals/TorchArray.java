@@ -81,38 +81,6 @@ public class TorchArray {
     }
     
     /**
-     * Returns a list of all Receivers in the array.
-     * @return ArrayList containing Locations of each receiver.
-     */
-//    public ArrayList getReceiverArray(){
-//        ArrayList<Location> result = new ArrayList<Location>(receiverArray.size());
-//        ListIterator<TorchReceiver> tr = receiverArray.listIterator();
-//        while(tr.hasNext()) {
-//            result.add(tr.next().getLocation());
-//        }
-//        return result;
-//    }
-    
-    /**
-     * Returns a list of all Receivers in the array, with type appended
-     * @return ArrayList of strings containing Location string and type of each 
-     * receiver.
-     */
-//    public ArrayList getReceiverTypeArray(){
-//        String trStr = "";
-//        ArrayList<TorchReceiver> result = new ArrayList<TorchReceiver>(receiverArray.size());
-//        ListIterator<TorchReceiver> it = receiverArray.listIterator();
-//        TorchReceiver tr;
-//        while(it.hasNext()) {
-//            tr = it.next();
-//            trStr = tr.getLocation().toString();
-//            trStr += ";" + tr.getType();
-//            result.add(trStr);
-//        }
-//        return result;
-//    }
-    
-    /**
      * Returns whether a torch is a receiver.
      * @param loc the location of the torch being tested
      * @return <code>true</code> is a receiver, <code>false</code> is not.
@@ -195,6 +163,8 @@ public class TorchArray {
      */
     public void setTransmitter(Location loc){
         this.transmitter = loc;
+        if(isReceiver(loc))
+            remove(loc);
     }
     
     /**

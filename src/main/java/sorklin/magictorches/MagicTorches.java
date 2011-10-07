@@ -16,8 +16,6 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import sorklin.magictorches.commands.MTCreateCommand;
-import sorklin.magictorches.commands.MTFinishCommand;
 import sorklin.magictorches.commands.MTMainCommand;
 import sorklin.magictorches.internals.MTorch;
 import sorklin.magictorches.listeners.MTBlockListener;
@@ -78,8 +76,6 @@ public class MagicTorches extends JavaPlugin {
         spam("MiniDB found or created. Loading DB.");
         mt = new MTorch(dbFile, this);
         
-        getCommand("mtcreate").setExecutor(new MTCreateCommand(this));
-        getCommand("mtfinish").setExecutor(new MTFinishCommand(this));
         getCommand("mt").setExecutor(new MTMainCommand(this));
         
         

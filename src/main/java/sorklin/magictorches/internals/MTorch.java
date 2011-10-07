@@ -22,7 +22,6 @@ import org.bukkit.entity.Player;
 
 import sorklin.magictorches.MagicTorches;
 
-//TODO: make sure settransmitter != setreciever (they cannot be the same torch).
 
 public final class MTorch {
     
@@ -90,6 +89,11 @@ public final class MTorch {
      * @return <code>true</code> if the Array was created, <code>false</code> if it was invalid.
      */
     public boolean create(Player player, String name){
+        if(mb_database.hasIndex(name.toLowerCase())){
+            this.message = "A MagicTorch Array of that name already exists.";
+            return false;
+        }
+        
         if(plTArray.containsKey(player)) {
             plTArray.get(player).setName(name.toLowerCase().trim());
             if(plTArray.get(player).isValid()) {
@@ -173,16 +177,32 @@ public final class MTorch {
      * @return ArrayList<String> to be sent to listMessage() proc.
       */
     public List<String> getInfo(Block block){
+        return getInfo(block, "", true, false);
+    }
+    
+    /**
+     * Returns info about a MT (receiver or transmitter) in a List form.
+     * @param block the torch in question
+     * @param player the player requesting info
+     * @param isAdmin if the player has admin perms
+     * @param clicked if the question comes from a click event (versus a command event)
+     * @return 
+     */
+    public List<String> getInfo(Block block, String player, boolean isAdmin, boolean clicked){
         List<String> result = new ArrayList<String>();
         String sb = "";
         Location loc = block.getLocation();
         
         if(isMT(loc)){
-            sb = (pl.g + "Transmitter for the ");
-            sb += (pl.b + getName(block) + pl.g + " array. ");
-            result.add(sb);
-            result.add("Its receivers are: ");
-            result.addAll(listReceivers(loc));
+            if(getOwner(loc).equalsIgnoreCase(player) || isAdmin){ //gets around NPE
+                sb = (clicked) ? 
+                        (pl.g + "Transmitter for the " + pl.b + getName(block) 
+                        + pl.g + " array. ") :
+                        (pl.g + getTransmitterInfo(mtArray.get(loc)));
+                result.add(sb);
+                result.add("Its receivers are: ");
+                result.addAll(listReceivers(loc));
+            }
         } else
 
         if(isReceiver(loc)){
@@ -494,7 +514,7 @@ public final class MTorch {
     public void showInfo(String name, CommandSender sender, boolean isAdmin){
         if(mb_database.hasIndex(name.toLowerCase())){
             Arguments entry = mb_database.getArguments(name.toLowerCase());
-            if(!isAdmin && sender.getName().equalsIgnoreCase(entry.getValue("owner"))){
+            if(!isAdmin && !sender.getName().equalsIgnoreCase(entry.getValue("owner"))){
                 sender.sendMessage("That is not your array.");
                 return;
             }
@@ -505,7 +525,7 @@ public final class MTorch {
                     MagicTorches.listMessage(sender, getInfo(ta.getKey().getBlock()));
                     break;
                 }
-                it.remove(); // avoids a ConcurrentModificationException
+                //it.remove(); // avoids a ConcurrentModificationException
             }
         } else {
             sender.sendMessage(pl.r + "No array by that name is in the db.");
@@ -575,6 +595,18 @@ public final class MTorch {
         sb.append(tr.getLocation().getBlockX()).append(", ");
         sb.append(tr.getLocation().getBlockY()).append(", ");
         sb.append(tr.getLocation().getBlockZ()).append("]");
+        
+        return sb.toString();
+    }
+    
+    private String getTransmitterInfo(TorchArray ta){
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("Transmitter at ");
+        sb.append("[").append(ta.getLocation().getWorld().getName()).append(": ");
+        sb.append(ta.getLocation().getBlockX()).append(", ");
+        sb.append(ta.getLocation().getBlockY()).append(", ");
+        sb.append(ta.getLocation().getBlockZ()).append("]");
         
         return sb.toString();
     }
