@@ -57,11 +57,14 @@ public class MTPlayerListener extends PlayerListener {
                 event.getItem().getType().equals(Material.LEVER)){
                 //MagicTorches.spam("at lever click");
                 if(MagicTorches.canCreate(player)){ //i have create, admin or op perms
-                    //TODO: fix for ownership.  If i can think of an easy way.
                     //MagicTorches.spam("canCreate");
                     MagicTorches.listMessage(player, pl.mt.getInfo(block, player.getName(), 
                             MagicTorches.isAdmin(player), true));
                 }
+            } else 
+            if(act.equals(Action.LEFT_CLICK_BLOCK) && 
+                event.getItem().getType().equals(Material.LEVER)){
+                event.setCancelled(true);//"Only you can prevent accidental breakages."
             }
         }
     }
