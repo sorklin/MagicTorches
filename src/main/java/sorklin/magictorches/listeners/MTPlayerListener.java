@@ -65,6 +65,14 @@ public class MTPlayerListener extends PlayerListener {
             if(act.equals(Action.LEFT_CLICK_BLOCK) && 
                 event.getItem().getType().equals(Material.LEVER)){
                 event.setCancelled(true);//"Only you can prevent accidental breakages."
+            } else
+            
+            if(act.equals(Action.RIGHT_CLICK_BLOCK) &&
+                event.getItem().getType().equals(Material.REDSTONE)){
+                player.sendMessage("Info:");
+                player.sendMessage("getBlockPower(): " + block.getBlockPower());
+                player.sendMessage("isBlockIndirectlyPowered(): " + block.isBlockIndirectlyPowered());
+                player.sendMessage("isBlockPowered(): " + block.isBlockPowered());
             }
         }
     }
