@@ -220,7 +220,9 @@ public class TorchArray {
 //        MagicTorches.spamt("[" + arrayName + "] block power: " + transmitter.getBlock().getBlockPower() 
 //                + "; isPowered?: " + transmitter.getBlock().isBlockPowered() 
 //                + "; indirectly?: " + transmitter.getBlock().isBlockIndirectlyPowered());
-        return transmit(transmitter.getBlock().getBlockPower() != 0);
+        boolean powered = transmitter.getBlock().getType().equals(Material.REDSTONE_TORCH_OFF);
+        return transmit(powered);
+        //return transmit(transmitter.getBlock().getBlockPower() != 0);
     }
     
     /**
