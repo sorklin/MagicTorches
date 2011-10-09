@@ -16,6 +16,7 @@ public class MTPluginListener extends ServerListener {
         if("Multiverse-Core".equals(event.getPlugin().getDescription().getName())) {
             pl.spam("Connected to Multiverse.  Loading db.");
             pl.mt.reload();
+            pl.mt.prune();
         }
     }
     
