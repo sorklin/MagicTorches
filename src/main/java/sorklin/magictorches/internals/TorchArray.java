@@ -17,7 +17,7 @@ public class TorchArray {
     private String arrayName;
     private Location transmitter;
     private String owner;
-    private ArrayList<TorchReceiver> receiverArray = new ArrayList<TorchReceiver>();
+    private final ArrayList<TorchReceiver> receiverArray = new ArrayList<TorchReceiver>();
     
     public TorchArray(String owner) {
         arrayName = String.valueOf(this.hashCode());
@@ -40,12 +40,11 @@ public class TorchArray {
      * @param type  the type of receiver being added.
      * @return <code>true</code> success, <code>false</code> failure.
      */
-    public boolean add(Location loc, byte type) {
+    public synchronized boolean add(Location loc, byte type) {
         if(this.transmitter.equals(loc))
             return false;
         TorchReceiver tr = new TorchReceiver(loc, type);
-        return receiverArray.add(tr);
-        //return receiverArray.add(loc);
+        return this.receiverArray.add(tr);
     }
     
     /**

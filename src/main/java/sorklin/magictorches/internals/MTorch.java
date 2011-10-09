@@ -26,15 +26,15 @@ import sorklin.magictorches.MagicTorches;
 public final class MTorch {
     
     //transmitter to TorchArray:
-    private Map<Location, TorchArray> mtArray = new HashMap<Location, TorchArray>();
-    private Map<Location, String> mtNameArray = new HashMap<Location, String>();
+    private final Map<Location, TorchArray> mtArray = new HashMap<Location, TorchArray>();
+    private final Map<Location, String> mtNameArray = new HashMap<Location, String>();
     
-    private ArrayList<TorchReceiver> allReceiverArray = new ArrayList<TorchReceiver>();
+    private final ArrayList<TorchReceiver> allReceiverArray = new ArrayList<TorchReceiver>();
     
     //These three are for magic creation by different players.
-    private Map<Player, TorchArray> plTArray = new HashMap<Player, TorchArray>();
-    private Map<Player, Boolean> plEditMode = new HashMap<Player, Boolean>();
-    private Map<Player, Byte> plNextLinkType = new HashMap<Player, Byte>();
+    private final Map<Player, TorchArray> plTArray = new HashMap<Player, TorchArray>();
+    private final Map<Player, Boolean> plEditMode = new HashMap<Player, Boolean>();
+    private final Map<Player, Byte> plNextLinkType = new HashMap<Player, Byte>();
     
     private Mini mb_database;
     private MagicTorches pl;
@@ -54,12 +54,7 @@ public final class MTorch {
         mb_database = new Mini(miniDB.getParent(), miniDB.getName());
         pl = instance;
         maxDistance = 100.0;
-        try {
-            reload();
-        } catch (NullPointerException npe) {
-            //don't worry about it.  It will trow NPE if MV isn't loaded.  
-            MagicTorches.spam("Cannot load from DB. Perhaps Multiverse is not yet loaded?");
-        }
+        reload();
     }
     
     /**
@@ -73,12 +68,7 @@ public final class MTorch {
         mb_database = new Mini(miniDB.getParent(), miniDB.getName());
         pl = instance;
         maxDistance = distance;
-        try {
-            reload();
-        } catch (NullPointerException npe) {
-            //don't worry about it.  It will trow NPE if MV isn't loaded.  
-            MagicTorches.spam("Cannot load from DB. Perhaps Multiverse is not yet loaded?");
-        }
+        reload();
     }
     
     /**
@@ -158,11 +148,8 @@ public final class MTorch {
                 if(player.equalsIgnoreCase(entry.getValue("owner")) || isAdmin){
                     mb_database.removeIndex(name);
                     mb_database.update();
-                    try {
-                        reload();
-                    } catch (NullPointerException npe) {
-                        MagicTorches.spam("NPE error loading DB.");
-                    }
+                    reload();
+                    prune();
                     this.message = name;
                     return true;
                 }
@@ -371,6 +358,21 @@ public final class MTorch {
     }
     
     /**
+     * Prunes database of unloaded MTs.
+     */
+    public synchronized void prune(){
+        for(String name: mb_database.getIndices().keySet()) {
+            if(!mtNameArray.containsValue(name)){
+                MagicTorches.spam(pl.g + "Could not find " + pl.b + name + pl.g 
+                        + " in active torch arrays.");
+                MagicTorches.spam(pl.g + "Pruning it from DB.");
+                mb_database.removeIndex(name);
+            }
+        }
+        mb_database.update();
+    }
+    
+    /**
      * Reloads the MagicTorches from file.
      */
     public void reload(){
@@ -419,7 +421,7 @@ public final class MTorch {
      * mode off.
      * @param nextType the type for the next selected receivers.
      */
-    public void setEditMode(Player player, boolean mode, byte nextType) {
+    public synchronized void setEditMode(Player player, boolean mode, byte nextType) {
         if(mode) {
             plEditMode.put(player, mode);
             plTArray.put(player, new TorchArray(player.getName()));
@@ -435,7 +437,9 @@ public final class MTorch {
      * @param type receiver type.
      */
     public void setNextType(Player player, byte type) {
-        plNextLinkType.put(player, type);
+        synchronized(plNextLinkType){
+            plNextLinkType.put(player, type);
+        }
     }
     
     /**
@@ -564,7 +568,7 @@ public final class MTorch {
     
     /****************************** PRIVATE ************************************/
     
-    private void clearCache() {
+    private synchronized void clearCache() {
         mtArray.clear();
         mtNameArray.clear();
         allReceiverArray.clear();
@@ -618,7 +622,7 @@ public final class MTorch {
             return false;
     }
     
-    private void loadFromDB(){
+    private synchronized void loadFromDB(){
         String data = "";
         String owner = "";
         Location loc;
@@ -629,19 +633,23 @@ public final class MTorch {
             owner = entry.getValue("owner");
             data = entry.getValue("data");
             //pl.spam("LoadDB data: " + data);
-
-            loc = trLocationFromData(data);
-            ta = torchArrayFromData(data, name, owner);
-            if(loc != null && ta != null) {
-                mtArray.put(loc, ta);
-                mtNameArray.put(loc, name);
-                allReceiverArray.addAll(ta.getReceiverArray());
-            } else {
-                this.message = name + "'s entry was malformed, or the transmitting"
-                        + "torch is missing. Deleting entry from DB.";
-                pl.spam(this.message);
-                delete(name);
-            }
+            try {
+                loc = trLocationFromData(data);
+                ta = torchArrayFromData(data, name, owner);
+                if(loc != null && ta != null) {
+                    mtArray.put(loc, ta);
+                    mtNameArray.put(loc, name);
+                    allReceiverArray.addAll(ta.getReceiverArray());
+                    MagicTorches.spam("Loaded torch: " + name);
+                } else {
+                    this.message = name + "'s entry was malformed, or the transmitting"
+                            + "torch is missing. Deleting entry from DB.";
+                    MagicTorches.spam(this.message);
+                    delete(name);
+                }
+            } catch (NullPointerException npe) {
+                MagicTorches.spam("NPE on torch: " + name);
+            } // just ignore for now
         }
     }
     
@@ -679,14 +687,14 @@ public final class MTorch {
         return result;
     }
     
-    private void removePLVars(Player player) {
+    private synchronized void removePLVars(Player player) {
         plTArray.remove(player);
         plNextLinkType.remove(player);
         plEditMode.remove(player);
         this.message = "";
     }
     
-    private boolean saveToDB(Player player, TorchArray t){
+    private synchronized boolean saveToDB(Player player, TorchArray t){
         if(!t.isValid())
             return false;
         
@@ -696,7 +704,6 @@ public final class MTorch {
         Arguments entry = new Arguments(name.toLowerCase());
         entry.setValue("owner", player.getName());
         entry.setValue("data", data);
-        
         mb_database.addIndex(entry.getKey(), entry);
         mb_database.update();
         //Now push onto working cache:

@@ -24,8 +24,6 @@ import sorklin.magictorches.listeners.MTPlayerListener;
 import sorklin.magictorches.listeners.MTPluginListener;
 
 
-// TODO: syncronize hashmaps and arrays.
-
 
 public class MagicTorches extends JavaPlugin {
     
@@ -82,6 +80,7 @@ public class MagicTorches extends JavaPlugin {
         PluginManager pm = this.getServer().getPluginManager();
         if(pm.getPlugin("Multiverse-Core").isEnabled()) {
             mt.reload();
+            mt.prune();
         } else {
             pm.registerEvent(Type.PLUGIN_ENABLE, pluginListener, Priority.Monitor, this);
         }
@@ -98,7 +97,7 @@ public class MagicTorches extends JavaPlugin {
      */
     public static void spam(String msg) {
         log.info(plugName + msg);
-        Bukkit.getServer().broadcastMessage("[MT]" + msg);
+        //Bukkit.getServer().broadcastMessage("[MT]" + msg);
     }
     
     /**
@@ -118,7 +117,7 @@ public class MagicTorches extends JavaPlugin {
      * does not have permission.
      */
     public static boolean canCreate(CommandSender player){
-        if(player instanceof ConsoleCommandSender)
+        if(!(player instanceof Player))
             return false;
         return (player.hasPermission(perm_create) || player.hasPermission(perm_admin) 
                 || player.isOp());

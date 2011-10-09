@@ -168,11 +168,21 @@ public class MTMainCommand implements CommandExecutor{
             return true;
         } else
         
+        
+        if(args[0].equalsIgnoreCase("prune")){
+            if(MagicTorches.isAdmin(sender)){
+                sender.sendMessage(pl.g + "Pruning db.");
+                pl.mt.prune();
+            }
+            return true;
+        } else
+        
             
         if(args[0].equalsIgnoreCase("reload")) {
             if(MagicTorches.isAdmin(sender)){
                 sender.sendMessage("Reloading TorchArrays from db.");
                 pl.mt.reload();
+                pl.mt.prune();
                 return true;
             }
             sender.sendMessage(pl.r + "Insufficient permissions. Say that three times fast.");
