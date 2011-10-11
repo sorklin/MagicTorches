@@ -76,9 +76,9 @@ public class MagicTorches extends JavaPlugin {
         
         getCommand("mt").setExecutor(new MTMainCommand(this));
         
-        
+        //Attempts to load and prune if MV is on.
         PluginManager pm = this.getServer().getPluginManager();
-        if(pm.getPlugin("Multiverse-Core").isEnabled()) {
+        if(pm.isPluginEnabled("Multiverse-Core")) {
             mt.reload();
             mt.prune();
         } else {
