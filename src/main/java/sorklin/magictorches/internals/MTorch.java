@@ -544,7 +544,7 @@ public final class MTorch {
      * <code>false</code> if signal could not be transmitted.
      */
     public boolean transmit(Location loc, boolean current){
-        return (isMT(loc)) ? mtArray.get(loc).transmit(current) : false;
+        return (isMT(loc)) ? mtArray.get(loc).transmit(current, true) : false;
     }
     
     /**
@@ -709,6 +709,7 @@ public final class MTorch {
         //Now push onto working cache:
         mtArray.put(t.getLocation(), t);
         mtNameArray.put(t.getLocation(),t.getName());
+        transmit(t.getLocation());
         return true;
     }
     

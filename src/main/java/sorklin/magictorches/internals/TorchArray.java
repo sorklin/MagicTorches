@@ -215,34 +215,29 @@ public class TorchArray {
     public boolean transmit(){
         if(transmitter == null) 
             return false;
-//        MagicTorches.spamt("Block: " + transmitter.getBlock().toString());
-//        MagicTorches.spamt("[" + arrayName + "] block power: " + transmitter.getBlock().getBlockPower() 
-//                + "; isPowered?: " + transmitter.getBlock().isBlockPowered() 
-//                + "; indirectly?: " + transmitter.getBlock().isBlockIndirectlyPowered());
+
         boolean powered = transmitter.getBlock().getType().equals(Material.REDSTONE_TORCH_OFF);
-        return transmit(powered);
-        //return transmit(transmitter.getBlock().getBlockPower() != 0);
+        return transmit(powered, false);
     }
     
     /**
      * Transmit current to all receivers.
      * @param current the current that should be transmitted (i.e., on or off)
+     * @param toggle if this transmit should toggle the delay torch
      * @return <code>true</code> success, <code>false</code> failure.
      */
-    public boolean transmit(boolean current){
+    public boolean transmit(boolean current, boolean toggle){
         if(transmitter == null) 
             return false;
+        
         Material torch = transmitter.getBlock().getType();
         if(!(torch.equals(Material.REDSTONE_TORCH_ON) 
                 || torch.equals(Material.REDSTONE_TORCH_OFF)))
             return false;
         
-//        MagicTorches.spamt("[" + arrayName + "] Transmit Current: " + transmitter.getBlock().getBlockPower());
-        //Do this to make sure its one or the other (or return false for transmit)
-//        MagicTorches.spamt("Transmitting " + current);
         ListIterator<TorchReceiver> tr = receiverArray.listIterator();
         while(tr.hasNext()) {
-            tr.next().receive(current);
+            tr.next().receive(current, toggle);
         }
         return true;
     }

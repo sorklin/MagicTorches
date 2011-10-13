@@ -22,8 +22,9 @@ public class MTMainCommand implements CommandExecutor{
             sender.sendMessage(pl.r + "Incorrect number of parameters.");
             return false;
         }
+        final String cmd = args[0];
         
-        if(args[0].equalsIgnoreCase("cancel")) {
+        if(cmd.equalsIgnoreCase("cancel")) {
             if(sender instanceof Player) {
                 pl.mt.setEditMode((Player)sender, false);
                 sender.sendMessage(pl.g + "MagicTorch setup cancelled.");
@@ -34,7 +35,7 @@ public class MTMainCommand implements CommandExecutor{
             }
         } else
         
-        if(args[0].equalsIgnoreCase("create")) {
+        if(cmd.equalsIgnoreCase("create")) {
             //Perms handled by that command handler
             ArrayList<String> argArray = new ArrayList<String>();
             for(int i=1, length = args.length; i < length; i++){
@@ -45,7 +46,7 @@ public class MTMainCommand implements CommandExecutor{
             return create(sender, a);
         } else
                 
-        if(args[0].equalsIgnoreCase("delete")) {
+        if(cmd.equalsIgnoreCase("delete")) {
             String name = (MagicTorches.canCreate(sender)) ? sender.getName() : "";
             boolean isAdmin = MagicTorches.isAdmin(sender);
             
@@ -65,7 +66,7 @@ public class MTMainCommand implements CommandExecutor{
         } else
         
         
-        if(args[0].equalsIgnoreCase("direct")) {
+        if(cmd.equalsIgnoreCase("direct")) {
             //Edit mode implies player and permissions.
             if(sender instanceof Player) {
                 if(pl.mt.isInEditMode((Player)sender)){
@@ -80,7 +81,7 @@ public class MTMainCommand implements CommandExecutor{
         } else
             
             
-        if(args[0].equalsIgnoreCase("finish")) {
+        if(cmd.equalsIgnoreCase("finish")) {
             //Perms handled by that command handler
             ArrayList<String> argArray = new ArrayList<String>();
             for(int i=1, length = args.length; i < length; i++){
@@ -92,7 +93,7 @@ public class MTMainCommand implements CommandExecutor{
         } else
             
             
-        if(args[0].equalsIgnoreCase("help")) {
+        if(cmd.equalsIgnoreCase("help")) {
             if(!MagicTorches.canCreate(sender) && !MagicTorches.isAdmin(sender))
                 return true;
             
@@ -128,7 +129,7 @@ public class MTMainCommand implements CommandExecutor{
         } else
         
         
-        if(args[0].equalsIgnoreCase("info")){
+        if(cmd.equalsIgnoreCase("info")){
             if(MagicTorches.canCreate(sender) || MagicTorches.isAdmin(sender)){
                 if(args.length < 2){
                     sender.sendMessage(pl.r + "For general MagicTorch information, equip a lever and");
@@ -142,7 +143,7 @@ public class MTMainCommand implements CommandExecutor{
         } else 
         
             
-        if(args[0].equalsIgnoreCase("inverse")) {
+        if(cmd.equalsIgnoreCase("inverse")) {
             //Edit mode implies player and permissions.
             if(sender instanceof Player) {
                 if(pl.mt.isInEditMode((Player)sender)){
@@ -157,7 +158,7 @@ public class MTMainCommand implements CommandExecutor{
         } else
                 
                 
-        if(args[0].equalsIgnoreCase("list")) {
+        if(cmd.equalsIgnoreCase("list")) {
             if(MagicTorches.canCreate(sender) || MagicTorches.isAdmin(sender)){
                 String intro = (MagicTorches.isAdmin(sender)) ? "All Torches:" : "Your torches:";
                 sender.sendMessage(pl.g + intro);
@@ -169,7 +170,7 @@ public class MTMainCommand implements CommandExecutor{
         } else
         
         
-        if(args[0].equalsIgnoreCase("prune")){
+        if(cmd.equalsIgnoreCase("prune")){
             if(MagicTorches.isAdmin(sender)){
                 sender.sendMessage(pl.g + "Pruning db.");
                 pl.mt.prune();
@@ -178,7 +179,7 @@ public class MTMainCommand implements CommandExecutor{
         } else
         
             
-        if(args[0].equalsIgnoreCase("reload")) {
+        if(cmd.equalsIgnoreCase("reload")) {
             if(MagicTorches.isAdmin(sender)){
                 sender.sendMessage("Reloading TorchArrays from db.");
                 pl.mt.reload();
@@ -190,13 +191,14 @@ public class MTMainCommand implements CommandExecutor{
         } else
         
             
-        if(args[0].equalsIgnoreCase("test")) {
+        if(cmd.equalsIgnoreCase("test")) {
             MagicTorches.spam(pl.mt.listAllReceivers());
+            pl.mt.transmitAll();
             return true;
         } else
             
             
-        if(args[0].equalsIgnoreCase("delay")) {
+        if(cmd.equalsIgnoreCase("delay")) {
             //Edit mode implies player and permissions.
             if(sender instanceof Player) {
                 if(pl.mt.isInEditMode((Player)sender)){
@@ -270,16 +272,11 @@ public class MTMainCommand implements CommandExecutor{
     }
     
     public boolean finish(CommandSender sender, String[] args){
-        if(!(sender instanceof Player)) {
-            sender.sendMessage(pl.r + "You must be a player to use this command.");
-            return true;  //only works for playahs.
-        }
-        Player player = (Player)sender;
-        if(!pl.canCreate(player)){
-            sender.sendMessage(pl.r + "Insufficient permissions. Say that three times fast.");
+        if(!MagicTorches.canCreate(sender)){
             return true;
         }
         
+        Player player = (Player)sender;
         if(!pl.mt.isInEditMode(player)) {
             sender.sendMessage(pl.r + "You are not in edit mode. Type /mtcreate to begin.");
             return false;

@@ -13,7 +13,8 @@ public class MTPluginListener extends ServerListener {
 
     @Override
     public void onPluginEnable(PluginEnableEvent event) {
-        if("Multiverse-Core".equals(event.getPlugin().getDescription().getName())) {
+        String name = event.getPlugin().getDescription().getName();
+        if(name.equals("Multiverse-Core") || name.equals("Multiverse")) {
             pl.spam("Connected to Multiverse.  Loading db.");
             pl.mt.reload();
             pl.mt.prune();

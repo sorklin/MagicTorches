@@ -1,6 +1,6 @@
 name: MagicTorches
 main: sorklin.magictorches.MagicTorches
-version: 0.24
+version: 0.26
 author: Sorklin
 description: MagicTorches creates linked array of wireless torches.
 commands:

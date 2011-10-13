@@ -49,9 +49,10 @@ public class TorchReceiver implements Cloneable {
     /**
      * Receives and processes transmitted signal, per receiver type.
      * @param signal transmitted signal.
+     * @param toggle whether the Delay torch should be toggled.
      * @return <code>true</code> success, <code>false</code> failure.
      */
-    public boolean receive(boolean signal){ //torch On = true, off = false
+    public boolean receive(boolean signal, boolean toggle){ //torch On = true, off = false
         //Return true if I can process signal, else false to indicate
         //something wrong with this torch receiver.
         
@@ -90,16 +91,18 @@ public class TorchReceiver implements Cloneable {
                 
             case TorchArray.DELAY:
                 //MagicTorches.spamt("Delay receive");
-                if(System.currentTimeMillis() > (MagicTorches.delayTime + lastUsed)){
-                    //Okay to use.  Acts as toggle, so flip the torch data.
-                    if(torch.getType().equals(Material.TORCH)) {
-                        torch.setType(Material.REDSTONE_TORCH_ON);
-                    } else
-                    
-                    if(torch.getType().equals(Material.REDSTONE_TORCH_ON)) {
-                        torch.setType(Material.TORCH);
+                if(toggle){
+                    if(System.currentTimeMillis() > (MagicTorches.delayTime + lastUsed)){
+                        //Okay to use.  Acts as toggle, so flip the torch data.
+                        if(torch.getType().equals(Material.TORCH)) {
+                            torch.setType(Material.REDSTONE_TORCH_ON);
+                        } else
+
+                        if(torch.getType().equals(Material.REDSTONE_TORCH_ON)) {
+                            torch.setType(Material.TORCH);
+                        }
+                        lastUsed = System.currentTimeMillis();
                     }
-                    lastUsed = System.currentTimeMillis();
                 }
                 break;
         }

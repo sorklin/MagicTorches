@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.logging.Logger;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -19,7 +18,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import sorklin.magictorches.commands.MTMainCommand;
 import sorklin.magictorches.internals.MTorch;
 import sorklin.magictorches.listeners.MTBlockListener;
-import sorklin.magictorches.listeners.MTPhysicsListener;
 import sorklin.magictorches.listeners.MTPlayerListener;
 import sorklin.magictorches.listeners.MTPluginListener;
 
@@ -27,7 +25,6 @@ import sorklin.magictorches.listeners.MTPluginListener;
 
 public class MagicTorches extends JavaPlugin {
     
-    private final MTPhysicsListener physicsListener = new MTPhysicsListener(this);
     private final MTPlayerListener playerListener = new MTPlayerListener(this);
     private final MTPluginListener pluginListener = new MTPluginListener(this);
     private final MTBlockListener blockListener = new MTBlockListener(this);
@@ -78,7 +75,7 @@ public class MagicTorches extends JavaPlugin {
         
         //Attempts to load and prune if MV is on.
         PluginManager pm = this.getServer().getPluginManager();
-        if(pm.isPluginEnabled("Multiverse-Core")) {
+        if(pm.isPluginEnabled("Multiverse-Core") || pm.isPluginEnabled("Multiverse")) {
             mt.reload();
             mt.prune();
         } else {
@@ -97,7 +94,7 @@ public class MagicTorches extends JavaPlugin {
      */
     public static void spam(String msg) {
         log.info(plugName + msg);
-        //Bukkit.getServer().broadcastMessage("[MT]" + msg);
+        //Bukkit.getServer().broadcastMessage("[MT] " + msg);
     }
     
     /**
