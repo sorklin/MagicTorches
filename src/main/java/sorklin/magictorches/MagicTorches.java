@@ -21,7 +21,11 @@ import sorklin.magictorches.listeners.MTBlockListener;
 import sorklin.magictorches.listeners.MTPlayerListener;
 import sorklin.magictorches.listeners.MTPluginListener;
 
-
+//TODO: new torch receiver: delay (true delay) waits some amount of time then acts upon signal.
+//TODO: new torch receiver: toggle (got to get a better name).  acts like a timed torch -- 
+//      toggles itself, then after a timed period, toggles back. 
+//TODO: support Register (and the economy systems)
+//TODO: add YAML config for settable options.
 
 public class MagicTorches extends JavaPlugin {
     

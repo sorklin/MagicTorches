@@ -26,6 +26,15 @@ public class MTPlayerListener extends PlayerListener {
         Action act = event.getAction();
         Block block = event.getClickedBlock();
         Material mat = block.getType();
+        Material item = Material.AIR;
+        
+        try {
+            item = event.getItem().getType();
+        } catch (NullPointerException npe) {
+            //Do nothing because it means we have nothing in our hands, and we've
+            //already defined it as air. 
+        }
+        
         
         boolean rst = (mat.equals(Material.REDSTONE_TORCH_ON) || mat.equals(Material.REDSTONE_TORCH_OFF));
         
@@ -54,7 +63,7 @@ public class MTPlayerListener extends PlayerListener {
         if(rst || mat.equals(Material.TORCH)){
             //MagicTorches.spam("at rst || torch");
             if(act.equals(Action.RIGHT_CLICK_BLOCK) && 
-                event.getItem().getType().equals(Material.LEVER)){
+                item.equals(Material.LEVER)){
                 //MagicTorches.spam("at lever click");
                 if(MagicTorches.canCreate(player)){ //i have create, admin or op perms
                     //MagicTorches.spam("canCreate");
@@ -63,12 +72,12 @@ public class MTPlayerListener extends PlayerListener {
                 }
             } else 
             if(act.equals(Action.LEFT_CLICK_BLOCK) && 
-                event.getItem().getType().equals(Material.LEVER)){
+                item.equals(Material.LEVER)){
                 event.setCancelled(true);//"Only you can prevent accidental breakages."
             } else
             
             if(act.equals(Action.RIGHT_CLICK_BLOCK) &&
-                event.getItem().getType().equals(Material.REDSTONE)){
+                item.equals(Material.REDSTONE)){
                 player.sendMessage("Info:");
                 player.sendMessage("getBlockPower(): " + block.getBlockPower());
                 player.sendMessage("isBlockIndirectlyPowered(): " + block.isBlockIndirectlyPowered());
