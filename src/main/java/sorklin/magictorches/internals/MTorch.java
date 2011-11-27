@@ -12,6 +12,7 @@ import java.util.ListIterator;
 import java.util.Map;
 
 import java.util.Map.Entry;
+import java.util.logging.Level;
 import java.util.regex.*;
 
 import org.bukkit.Location;
@@ -363,9 +364,9 @@ public final class MTorch {
     public synchronized void prune(){
         for(String name: mb_database.getIndices().keySet()) {
             if(!mtNameArray.containsValue(name)){
-                MagicTorches.spam(pl.g + "Could not find " + pl.b + name + pl.g 
+                MagicTorches.log(Level.FINE, pl.g + "Could not find " + pl.b + name + pl.g 
                         + " in active torch arrays.");
-                MagicTorches.spam(pl.g + "Pruning it from DB.");
+                MagicTorches.log(Level.FINE, pl.g + "Pruning it from DB.");
                 mb_database.removeIndex(name);
             }
         }
@@ -623,6 +624,7 @@ public final class MTorch {
     }
     
     private synchronized void loadFromDB(){
+        int torches = 0;
         String data = "";
         String owner = "";
         Location loc;
@@ -632,7 +634,7 @@ public final class MTorch {
             Arguments entry = mb_database.getArguments(name);
             owner = entry.getValue("owner");
             data = entry.getValue("data");
-            //pl.spam("LoadDB data: " + data);
+            MagicTorches.log(Level.FINER, "LoadDB data: " + data);
             try {
                 loc = trLocationFromData(data);
                 ta = torchArrayFromData(data, name, owner);
@@ -640,17 +642,19 @@ public final class MTorch {
                     mtArray.put(loc, ta);
                     mtNameArray.put(loc, name);
                     allReceiverArray.addAll(ta.getReceiverArray());
-                    MagicTorches.spam("Loaded torch: " + name);
+                    torches++;
+                    MagicTorches.log(Level.FINE, "Loaded torch: " + name);
                 } else {
                     this.message = name + "'s entry was malformed, or the transmitting"
                             + "torch is missing. Deleting entry from DB.";
-                    MagicTorches.spam(this.message);
+                    MagicTorches.log(Level.INFO, this.message);
                     delete(name);
                 }
             } catch (NullPointerException npe) {
-                MagicTorches.spam("NPE on torch: " + name);
+                MagicTorches.log(Level.WARNING, "NPE on torch: " + name);
             } // just ignore for now
         }
+        MagicTorches.log(Level.INFO, "Loaded " + torches + " magictorch arrays.");
     }
     
     private Location locationFromString(String data) throws NullPointerException {
@@ -700,7 +704,7 @@ public final class MTorch {
         
         String name = t.getName();
         String data = t.toString();
-        //pl.spam("Saving to DB:" + t.getName() + ", " + t.toString());
+        MagicTorches.log(Level.FINER, "Saving to DB:" + t.getName() + ", " + t.toString());
         Arguments entry = new Arguments(name.toLowerCase());
         entry.setValue("owner", player.getName());
         entry.setValue("data", data);

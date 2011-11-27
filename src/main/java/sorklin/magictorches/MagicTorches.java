@@ -3,6 +3,7 @@ package sorklin.magictorches;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.bukkit.ChatColor;
@@ -34,8 +35,8 @@ public class MagicTorches extends JavaPlugin {
     private final MTBlockListener blockListener = new MTBlockListener(this);
     private PluginDescriptionFile pluginInfo;
     
-    static final Logger log = Logger.getLogger("Minecraft");
-    static String plugName;
+    private static final Logger logr = Logger.getLogger("Minecraft");
+    private static String plugName;
 
     
     public MTorch mt;
@@ -51,28 +52,28 @@ public class MagicTorches extends JavaPlugin {
     public final ChatColor w = ChatColor.WHITE;
     
     public void onDisable() {
-        spam("Plugin disabled.");
+        log(Level.INFO, "Plugin disabled.");
     }
 
     public void onEnable() {
         pluginInfo = getDescription();
         plugName = "[" + pluginInfo.getName().toString() + "] ";
         
-        spam("Initializing MagicTorches.");
+        log(Level.INFO, "Initializing MagicTorches.");
         /* Load MINI and config here */
         File dbFile = new File(getDataFolder(), "mt.mini");
         if(!dbFile.exists()) {
             try {
                 dbFile.createNewFile();
             } catch (IOException ex) {
-                log.severe(plugName + "Error: " + ex.getMessage());
+                log(Level.SEVERE, plugName + "Error: " + ex.getMessage());
             }
         }
         
         //TODO: config for last used default time.
         //TODO: distance in config setting.
         
-        spam("MiniDB found or created. Loading DB.");
+        log(Level.INFO, "MiniDB found or created. Loading DB.");
         mt = new MTorch(dbFile, this);
         
         getCommand("mt").setExecutor(new MTMainCommand(this));
@@ -89,7 +90,7 @@ public class MagicTorches extends JavaPlugin {
         pm.registerEvent(Type.PLAYER_INTERACT , playerListener, Priority.Normal, this);
         pm.registerEvent(Type.BLOCK_BREAK, blockListener, Priority.Monitor, this);
         pm.registerEvent(Type.REDSTONE_CHANGE, blockListener, Priority.Monitor, this);
-        spam("Plugin initialized.");
+        log(Level.INFO, "Plugin initialized.");
     }
     
     /**
@@ -97,7 +98,7 @@ public class MagicTorches extends JavaPlugin {
      * @param msg 
      */
     public static void spam(String msg) {
-        log.info(plugName + msg);
+        log(Level.INFO, msg);
         //Bukkit.getServer().broadcastMessage("[MT] " + msg);
     }
     
@@ -138,5 +139,9 @@ public class MagicTorches extends JavaPlugin {
         for(String li : lines){
             sender.sendMessage(li);
         }
+    }
+    
+    public static void log(Level l, String msg){
+        logr.log(l, plugName + msg);
     }
 }

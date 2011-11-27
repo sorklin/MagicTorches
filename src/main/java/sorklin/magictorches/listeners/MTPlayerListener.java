@@ -1,5 +1,6 @@
 package sorklin.magictorches.listeners;
 
+import java.util.logging.Level;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -61,20 +62,20 @@ public class MTPlayerListener extends PlayerListener {
         
         //Lets check for a switch in the hand (which indicates info request).
         if(rst || mat.equals(Material.TORCH)){
-            //MagicTorches.spam("at rst || torch");
+            MagicTorches.log(Level.FINEST, "at rst || torch");
             if(act.equals(Action.RIGHT_CLICK_BLOCK) && 
                 item.equals(Material.LEVER)){
-                //MagicTorches.spam("at lever click");
+                MagicTorches.log(Level.FINEST, "at lever click");
                 if(MagicTorches.canCreate(player)){ //i have create, admin or op perms
-                    //MagicTorches.spam("canCreate");
+                    MagicTorches.log(Level.FINEST, "canCreate");
                     MagicTorches.listMessage(player, pl.mt.getInfo(block, player.getName(), 
                             MagicTorches.isAdmin(player), true));
                 }
             } else 
-            if(act.equals(Action.LEFT_CLICK_BLOCK) && 
-                item.equals(Material.LEVER)){
-                event.setCancelled(true);//"Only you can prevent accidental breakages."
-            } else
+//            if(act.equals(Action.LEFT_CLICK_BLOCK) && 
+//                item.equals(Material.LEVER)){
+//                event.setCancelled(true);//"Only you can prevent accidental breakages."
+//            } else
             
             if(act.equals(Action.RIGHT_CLICK_BLOCK) &&
                 item.equals(Material.REDSTONE)){

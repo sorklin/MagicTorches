@@ -2,6 +2,7 @@ name: MagicTorches
 main: sorklin.magictorches.MagicTorches
 version: 0.27
 author: Sorklin
+softdepend: [Multiverse]
 description: MagicTorches creates linked array of wireless torches.
 commands:
   mt:
@@ -10,15 +11,3 @@ commands:
     usage: |
            /<command> <parameter> [optional arguments]
            Type "/mt help" for more information.
-permissions:
-  magictorches.*:
-    description: Gives access to all MT commands
-    children:
-      magictorches.create: true
-      magictorches.admin: true
-  magictorches.create:
-    description: Allows you to create and edit MagicTorch arrays.
-    default: true
-  magictorches.admin:
-    description: Allows you to see and edit all MagicTorch arrays.
-    default: op
