@@ -8,11 +8,7 @@ import org.bukkit.block.Block;
 
 public class TorchArray {
     
-    //types of torch relationships.
-    public static final byte NONE = 0x0;       //0000000
-    public static final byte DIRECT = 0x1;     //0000001
-    public static final byte INVERSE = 0x2;    //0000010
-    public static final byte DELAY  = 0x4;     //0000100
+
     
     private String arrayName;
     private Location transmitter;
@@ -40,7 +36,7 @@ public class TorchArray {
      * @param type  the type of receiver being added.
      * @return <code>true</code> success, <code>false</code> failure.
      */
-    public synchronized boolean add(Location loc, byte type) {
+    public boolean add(Location loc, byte type) {
         if(this.transmitter.equals(loc))
             return false;
         TorchReceiver tr = new TorchReceiver(loc, type);

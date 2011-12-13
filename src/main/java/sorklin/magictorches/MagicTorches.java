@@ -22,10 +22,27 @@ import sorklin.magictorches.listeners.MTBlockListener;
 import sorklin.magictorches.listeners.MTPlayerListener;
 import sorklin.magictorches.listeners.MTPluginListener;
 
+/**
+* Copyright (C) 2011 Sorklin <sorklin@gmail.com>
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 2 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
+
 //TODO: new torch receiver: delay (true delay) waits some amount of time then acts upon signal.
 //TODO: new torch receiver: toggle (got to get a better name).  acts like a timed torch -- 
 //      toggles itself, then after a timed period, toggles back. 
-//TODO: support Register (and the economy systems)
+//TODO: support Vault (and the economy systems)
 //TODO: add YAML config for settable options.
 
 public class MagicTorches extends JavaPlugin {
@@ -37,6 +54,7 @@ public class MagicTorches extends JavaPlugin {
     
     private static final Logger logr = Logger.getLogger("Minecraft");
     private static String plugName;
+    private static MagicTorches instance;
 
     
     public MTorch mt;
@@ -56,6 +74,7 @@ public class MagicTorches extends JavaPlugin {
     }
 
     public void onEnable() {
+        MagicTorches.instance = this;
         pluginInfo = getDescription();
         plugName = "[" + pluginInfo.getName().toString() + "] ";
         
@@ -143,5 +162,9 @@ public class MagicTorches extends JavaPlugin {
     
     public static void log(Level l, String msg){
         logr.log(l, plugName + msg);
+    }
+    
+    public static MagicTorches getPluginInstance(){
+        return instance;
     }
 }

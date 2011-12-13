@@ -361,7 +361,7 @@ public final class MTorch {
     /**
      * Prunes database of unloaded MTs.
      */
-    public synchronized void prune(){
+    public void prune(){
         for(String name: mb_database.getIndices().keySet()) {
             if(!mtNameArray.containsValue(name)){
                 MagicTorches.log(Level.FINE, pl.g + "Could not find " + pl.b + name + pl.g 
@@ -422,7 +422,7 @@ public final class MTorch {
      * mode off.
      * @param nextType the type for the next selected receivers.
      */
-    public synchronized void setEditMode(Player player, boolean mode, byte nextType) {
+    public void setEditMode(Player player, boolean mode, byte nextType) {
         if(mode) {
             plEditMode.put(player, mode);
             plTArray.put(player, new TorchArray(player.getName()));
@@ -438,9 +438,7 @@ public final class MTorch {
      * @param type receiver type.
      */
     public void setNextType(Player player, byte type) {
-        synchronized(plNextLinkType){
             plNextLinkType.put(player, type);
-        }
     }
     
     /**
@@ -569,7 +567,7 @@ public final class MTorch {
     
     /****************************** PRIVATE ************************************/
     
-    private synchronized void clearCache() {
+    private void clearCache() {
         mtArray.clear();
         mtNameArray.clear();
         allReceiverArray.clear();
@@ -623,7 +621,7 @@ public final class MTorch {
             return false;
     }
     
-    private synchronized void loadFromDB(){
+    private void loadFromDB(){
         int torches = 0;
         String data = "";
         String owner = "";
@@ -691,14 +689,14 @@ public final class MTorch {
         return result;
     }
     
-    private synchronized void removePLVars(Player player) {
+    private void removePLVars(Player player) {
         plTArray.remove(player);
         plNextLinkType.remove(player);
         plEditMode.remove(player);
         this.message = "";
     }
     
-    private synchronized boolean saveToDB(Player player, TorchArray t){
+    private boolean saveToDB(Player player, TorchArray t){
         if(!t.isValid())
             return false;
         
