@@ -26,18 +26,12 @@ import sorklin.magictorches.internals.TorchArray;
  *
  * @author Sorklin <sorklin at gmail.com>
  */
-public class DelayReceiver extends Receiver {
+public class DelayReciever extends Receiver {
     
-    private int delayTask;
-    private long delayTime = 0;
+    private long lastUsed = 0;
     
-    public DelayReceiver (Location loc){
+    public DelayReciever (Location loc){
         super(loc);
-    }
-    
-    public DelayReceiver (Location loc, long delay){
-        super(loc);
-        this.delayTime = delay;
     }
     
     /**
@@ -47,55 +41,39 @@ public class DelayReceiver extends Receiver {
      */
     @Override
     public boolean receive(boolean signal){ //torch On = true, off = false
+        //Return true if I can process signal, else false to indicate
+        //something wrong with this torch receiver.
         
         //Lets check for a location and a torch at that location.
         if(this.torchLocation == null)
             return false;
-        
-        final Block torch = torchLocation.getBlock();
-        final Material originalMat = torch.getType();
-        
-        if(!(originalMat.equals(Material.TORCH) ||
-                originalMat.equals(Material.REDSTONE_TORCH_ON))) {
+        Block torch = torchLocation.getBlock();
+        if(!(torch.getType().equals(Material.TORCH) ||
+                torch.getType().equals(Material.REDSTONE_TORCH_ON))) {
             return false;
         }
-       
-        MagicTorches mt = MagicTorches.getPluginInstance();
         
-        if(originalMat.equals(Material.TORCH)) {
-            torch.setType(Material.REDSTONE_TORCH_ON);
-        } else
+        if(System.currentTimeMillis() > (MagicTorches.delayTime + lastUsed)){
+            if(torch.getType().equals(Material.TORCH)) {
+                torch.setType(Material.REDSTONE_TORCH_ON);
+            } else
 
-        if(originalMat.equals(Material.REDSTONE_TORCH_ON)
-                || originalMat.equals(Material.REDSTONE_TORCH_OFF)) {
-            torch.setType(Material.TORCH);
-        }
-        
-        //If the delay is already functioning, ignore the received signal.
-        if(!mt.getServer().getScheduler().isCurrentlyRunning(delayTask)){
-            this.delayTask = mt.getServer().getScheduler().scheduleSyncDelayedTask(mt, new Runnable() {
-                public void run() {
-                    torch.setType(originalMat);
-                }
-            }, delayTime);
+            if(torch.getType().equals(Material.REDSTONE_TORCH_ON)
+                    || torch.getType().equals(Material.REDSTONE_TORCH_OFF)) {
+                torch.setType(Material.TORCH);
+            }
+            lastUsed = System.currentTimeMillis();
         }
         
         return true;
     }
     
-    /**
-     * Sets the delay time for the torch.
-     * @param delay Time in millis.
-     */
-    public void setDelay(long delay){
-        this.delayTime = delay;
-    }
     
     @Override
     public String toString() {
         String result;
         result = this.torchLocation.toString();
-        result = result + ":Type{"+ TorchArray.DELAY +"}";
+        result = result + ":Type{"+ TorchArray.TOGGLE +"}";
         return result;
     }
 }
