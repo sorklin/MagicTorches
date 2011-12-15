@@ -20,7 +20,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import sorklin.magictorches.MagicTorches;
-import sorklin.magictorches.internals.TorchArray;
+import sorklin.magictorches.internals.Properties;
 
 /**
  *
@@ -33,11 +33,12 @@ public class TimerReceiver extends Receiver {
     
     public TimerReceiver (Location loc){
         super(loc);
+        this.delayTime = Properties.toMillis(Properties.timerDelay);
     }
     
-    public TimerReceiver (Location loc, long delay){
+    public TimerReceiver (Location loc, double delay){
         super(loc);
-        this.delayTime = delay;
+        this.delayTime = Properties.toMillis(delay);
     }
     
     /**
@@ -85,17 +86,17 @@ public class TimerReceiver extends Receiver {
     
     /**
      * Sets the delay time for the torch.
-     * @param delay Time in millis.
+     * @param delay Time in seconds.
      */
-    public void setDelay(long delay){
-        this.delayTime = delay;
+    public void setDelay(double delay){
+        this.delayTime = Properties.toMillis(delay);
     }
     
     @Override
     public String toString() {
         String result;
         result = this.torchLocation.toString();
-        result = result + ":Type{"+ TorchArray.DELAY +"}";
+        result = result + ":Type{"+ Properties.TIMER +"}";
         return result;
     }
 }

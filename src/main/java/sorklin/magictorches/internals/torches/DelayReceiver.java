@@ -19,18 +19,17 @@ package sorklin.magictorches.internals.torches;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import sorklin.magictorches.MagicTorches;
-import sorklin.magictorches.internals.TorchArray;
+import sorklin.magictorches.internals.Properties;
 
 /**
  *
  * @author Sorklin <sorklin at gmail.com>
  */
-public class DelayReciever extends Receiver {
+public class DelayReceiver extends Receiver {
     
     private long lastUsed = 0;
     
-    public DelayReciever (Location loc){
+    public DelayReceiver (Location loc){
         super(loc);
     }
     
@@ -53,7 +52,8 @@ public class DelayReciever extends Receiver {
             return false;
         }
         
-        if(System.currentTimeMillis() > (MagicTorches.delayTime + lastUsed)){
+        if(System.currentTimeMillis() > 
+                (Properties.toMillis(Properties.toggleDelay) + lastUsed)){
             if(torch.getType().equals(Material.TORCH)) {
                 torch.setType(Material.REDSTONE_TORCH_ON);
             } else
@@ -73,7 +73,7 @@ public class DelayReciever extends Receiver {
     public String toString() {
         String result;
         result = this.torchLocation.toString();
-        result = result + ":Type{"+ TorchArray.TOGGLE +"}";
+        result = result + ":Type{"+ Properties.DELAY +"}";
         return result;
     }
 }

@@ -17,7 +17,7 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import sorklin.magictorches.commands.MTMainCommand;
-import sorklin.magictorches.internals.MTorch;
+import sorklin.magictorches.internals.MTorchHandler;
 import sorklin.magictorches.listeners.MTBlockListener;
 import sorklin.magictorches.listeners.MTPlayerListener;
 import sorklin.magictorches.listeners.MTPluginListener;
@@ -57,12 +57,10 @@ public class MagicTorches extends JavaPlugin {
     private static MagicTorches instance;
 
     
-    public MTorch mt;
+    public MTorchHandler mt;
     
     static final String perm_create = "magictorches.create";
     static final String perm_admin = "magictorches.admin";
-    
-    public static long delayTime = 1500;  //TODO: drive this by config file.
     
     public final ChatColor g = ChatColor.GOLD;
     public final ChatColor r = ChatColor.DARK_RED;
@@ -93,7 +91,7 @@ public class MagicTorches extends JavaPlugin {
         //TODO: distance in config setting.
         
         log(Level.INFO, "MiniDB found or created. Loading DB.");
-        mt = new MTorch(dbFile, this);
+        mt = new MTorchHandler(dbFile, this);
         
         getCommand("mt").setExecutor(new MTMainCommand(this));
         

@@ -19,7 +19,7 @@ package sorklin.magictorches.internals.torches;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import sorklin.magictorches.internals.TorchArray;
+import sorklin.magictorches.internals.Properties;
 
 /**
  *
@@ -64,7 +64,7 @@ public class InverseReceiver extends Receiver {
     public String toString() {
         String result;
         result = this.torchLocation.toString();
-        result = result + ":Type{"+ TorchArray.INVERSE +"}";
+        result = result + ":Type{"+ Properties.INVERSE +"}";
         return result;
     }
 }

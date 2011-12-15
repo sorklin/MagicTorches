@@ -16,22 +16,31 @@
  */
 package sorklin.magictorches.internals;
 
-/**
- *
- * @author Sorklin <sorklin at gmail.com>
- */
+import sorklin.magictorches.internals.interfaces.MTStorage;
+
 public class Properties {
     
+    /*
+     * We'll store other properties here, including those we load from config.yml.
+     */
+    
     //types of torch relationships.
+    public static final byte NONE = 0x0;
+    public static final byte DIRECT = 0x1;
+    public static final byte INVERSE = 0x2;
+    public static final byte DELAY  = 0x4;
+    public static final byte TIMER = 0x8;
     
+    public static MTStorage db; //will be instantiated in main routine
     
-    public static enum TorchType {
-        NONE (0x0),
-        DIRECT (0x1),
-        INVERSE (0x2),
-        TOGGLE  (0x4),
-        DELAY (0x8);
-        
-        
+    //From config.yml, when implemented.
+    public static boolean loadChunkOnReceive = false;
+    public static double toggleDelay = 1.5; //in seconds
+    public static double timerDelay = 5; //in seconds
+    private double maxDistance = 100.0; //TODO: drive this with a config setting.
+    
+    //Utility
+    public static long toMillis(double seconds){
+        return (long) seconds * 1000;
     }
 }

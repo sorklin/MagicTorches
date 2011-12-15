@@ -5,15 +5,17 @@ import java.util.ListIterator;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import sorklin.magictorches.internals.torches.DelayReceiver;
+import sorklin.magictorches.internals.torches.InverseReceiver;
+import sorklin.magictorches.internals.torches.Receiver;
+import sorklin.magictorches.internals.torches.TimerReceiver;
 
 public class TorchArray {
-    
-
     
     private String arrayName;
     private Location transmitter;
     private String owner;
-    private final ArrayList<TorchReceiver> receiverArray = new ArrayList<TorchReceiver>();
+    private final ArrayList receiverArray = new ArrayList();
     
     public TorchArray(String owner) {
         arrayName = String.valueOf(this.hashCode());
@@ -39,7 +41,20 @@ public class TorchArray {
     public boolean add(Location loc, byte type) {
         if(this.transmitter.equals(loc))
             return false;
-        TorchReceiver tr = new TorchReceiver(loc, type);
+        
+        Receiver tr = null;
+        
+        switch(type) {
+            case Properties.DELAY:
+                tr = new DelayReceiver(loc);
+            case Properties.DIRECT:
+                tr = new Receiver(loc);
+            case Properties.INVERSE:
+                tr = new InverseReceiver(loc);
+            case Properties.TIMER:
+                tr = new TimerReceiver(loc);
+        }
+        
         return this.receiverArray.add(tr);
     }
     
@@ -71,7 +86,7 @@ public class TorchArray {
      * Returns a list of all Receivers in the array.
      * @return ArrayList containing TR.
      */
-    public ArrayList getReceiverArray(){
+    public ArrayList<? extends Receiver> getReceiverArray(){
         return this.receiverArray;
     }
     
@@ -81,7 +96,7 @@ public class TorchArray {
      * @return <code>true</code> is a receiver, <code>false</code> is not.
      */
     public boolean isReceiver(Location loc){
-        return receiverArray.contains(new TorchReceiver(loc));
+        return receiverArray.contains(new Receiver(loc));
     }
     
     /**
@@ -129,7 +144,7 @@ public class TorchArray {
      * not remove a receiver (either not there or not able to remove).
      */
     public boolean remove(Location loc) {
-        TorchReceiver torch = new TorchReceiver(loc);
+        Receiver torch = new Receiver(loc);
         if (receiverArray.contains(torch)) {
             return receiverArray.remove(torch);
         }
@@ -168,9 +183,9 @@ public class TorchArray {
      * @param type type to change receiver to.
      * @return <code>true</code> success, <code>false</code> failure.
      */
-    public boolean setType(Block block, byte type) {
-        return setType(block.getLocation(), type);
-    }
+//    public boolean setType(Block block, byte type) {
+//        return setType(block.getLocation(), type);
+//    }
     
     /**
      * Set the receiver type for the block given. [Unused at this point]
@@ -178,15 +193,15 @@ public class TorchArray {
      * @param type type to change receiver to.
      * @return <code>true</code> success, <code>false</code> failure.
      */
-    public boolean setType(Location loc, byte type) {
-        //Not sure this will ever be used.  If not, I'll remove it.
-        TorchReceiver torch = new TorchReceiver(loc);
-        if(receiverArray.contains(torch)) { 
-            receiverArray.get(receiverArray.indexOf(torch)).setType(type);
-            return true;
-        }
-        return false;
-    }
+//    public boolean setType(Location loc, byte type) {
+//        //Not sure this will ever be used.  If not, I'll remove it.
+//        TorchReceiver torch = new TorchReceiver(loc);
+//        if(receiverArray.contains(torch)) { 
+//            receiverArray.get(receiverArray.indexOf(torch)).setType(type);
+//            return true;
+//        }
+//        return false;
+//    }
     
     @Override
     public String toString() {
@@ -195,10 +210,10 @@ public class TorchArray {
                 ? "Transmitter{NULL};" 
                 : "Transmitter{" + this.transmitter.toString() + "};");
         if(!receiverArray.isEmpty()) {
-            ListIterator it = receiverArray.listIterator();
+            ListIterator<? extends Receiver> it = receiverArray.listIterator();
             while(it.hasNext()) {
-                TorchReceiver tr = (TorchReceiver)it.next();
-                result = result + "Receiver{" + tr.toString() + "};";
+//                Receiver tr = (Receiver)it.next();
+                result = result + "Receiver{" + it.next().toString() + "};";
             }
         }
         return result;
@@ -231,9 +246,9 @@ public class TorchArray {
                 || torch.equals(Material.REDSTONE_TORCH_OFF)))
             return false;
         
-        ListIterator<TorchReceiver> tr = receiverArray.listIterator();
+        ListIterator<? extends Receiver> tr = receiverArray.listIterator();
         while(tr.hasNext()) {
-            tr.next().receive(current, toggle);
+            tr.next().receive(current);
         }
         return true;
     }

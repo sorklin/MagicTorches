@@ -16,16 +16,20 @@
  */
 package sorklin.magictorches.internals.torches;
 
+import sorklin.magictorches.internals.interfaces.Torch;
+import java.util.logging.Level;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import sorklin.magictorches.internals.TorchArray;
+import org.bukkit.entity.Player;
+import sorklin.magictorches.MagicTorches;
+import sorklin.magictorches.internals.Properties;
 
 /**
  *
  * @author Sorklin <sorklin at gmail.com>
  */
-public class Receiver implements Torch, Cloneable {
+public class Receiver implements Torch {
     
     protected Location torchLocation;
 
@@ -80,7 +84,7 @@ public class Receiver implements Torch, Cloneable {
     public String toString() {
         String result;
         result = this.torchLocation.toString();
-        result = result + ":Type{"+ TorchArray.DIRECT +"}";
+        result = result + ":Type{"+ Properties.DIRECT +"}";
         return result;
     }
     
@@ -88,11 +92,14 @@ public class Receiver implements Torch, Cloneable {
     public boolean equals(Object obj) {
         if(this == obj)
             return true;
-        if(!(obj instanceof Receiver)) {
+//        if(!(obj instanceof Receiver))
+//            MagicTorches.log(Level.INFO, "Obj not instance of Receiver.");
+        try {
+            Receiver objTR = (Receiver)obj;
+            return (this.torchLocation.equals(objTR.torchLocation));
+        } catch (Exception e) {
             return false;
         }
-        Receiver objTR = (Receiver)obj;
-        return (this.torchLocation.equals(objTR.torchLocation));
     }
 
     @Override
@@ -102,15 +109,7 @@ public class Receiver implements Torch, Cloneable {
         return hash;
     }
 
-    @Override
-    public Receiver clone() {
-        try {
-            Receiver l = (Receiver) super.clone();
-            l.torchLocation = torchLocation;
-            return l;
-        } catch (CloneNotSupportedException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }   
+    public void teleportTo(Player player) {
+        player.sendMessage("Not yet implemented.");
+    }
 }

@@ -1,6 +1,7 @@
-package sorklin.magictorches.internals.torches;
+package sorklin.magictorches.internals.interfaces;
 
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 
 /**
 * Copyright (C) 2011 Sorklin <sorklin@gmail.com>
@@ -23,4 +24,5 @@ public interface Torch {
     public Location getLocation();
     public boolean receive(boolean signal);
     public void setLocation(Location loc);
+    public void teleportTo(Player player);
 }

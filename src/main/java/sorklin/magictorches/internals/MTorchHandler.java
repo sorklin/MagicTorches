@@ -22,105 +22,40 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import sorklin.magictorches.MagicTorches;
+import sorklin.magictorches.internals.torches.Receiver;
 
 
-public final class MTorch {
+public final class MTorchHandler {
     
     //transmitter to TorchArray:
-    private final Map<Location, TorchArray> mtArray = new HashMap<Location, TorchArray>();
-    private final Map<Location, String> mtNameArray = new HashMap<Location, String>();
+    private Map<Location, TorchArray> mtArray = new HashMap<Location, TorchArray>();
+//    private Map<Location, String> mtNameArray = new HashMap<Location, String>();
     
-    private final ArrayList<TorchReceiver> allReceiverArray = new ArrayList<TorchReceiver>();
+    private final List<? extends Receiver> allReceiverArray = new ArrayList();
     
     //These three are for magic creation by different players.
-    private final Map<Player, TorchArray> plTArray = new HashMap<Player, TorchArray>();
-    private final Map<Player, Boolean> plEditMode = new HashMap<Player, Boolean>();
-    private final Map<Player, Byte> plNextLinkType = new HashMap<Player, Byte>();
+//    private final Map<Player, TorchArray> plTArray = new HashMap<Player, TorchArray>();
+//    private final Map<Player, Boolean> plEditMode = new HashMap<Player, Boolean>();
+//    private final Map<Player, Byte> plNextLinkType = new HashMap<Player, Byte>();
     
     private Mini mb_database;
     private MagicTorches pl;
     private File miniDB;
-    private double maxDistance; //TODO: drive this with a config setting.
     
     public String message = "";
     
     /**
-     * Instantiates the MTorch class, without a distance parameter.  Defaults to 
+     * Instantiates the MTorchHandler class, without a distance parameter.  Defaults to 
      * a distance radius of 100 blocks (not yet implemented).
      * @param db File object to the MiniDB.
      * @param instance  MagicTorches instance.
      */
-    public MTorch (File db, MagicTorches instance) {
-        miniDB = db;
-        mb_database = new Mini(miniDB.getParent(), miniDB.getName());
-        pl = instance;
-        maxDistance = 100.0;
-        reload();
-    }
-    
-    /**
-     * Instantiates the MTorch class.
-     * @param db File object to the MiniDB.
-     * @param instance MagicTorches instance.
-     * @param distance TorchArray maximum distance radius.
-     */
-    public MTorch (File db, MagicTorches instance, double distance) {
-        miniDB = db;
-        mb_database = new Mini(miniDB.getParent(), miniDB.getName());
-        pl = instance;
-        maxDistance = distance;
-        reload();
-    }
-    
-    /**
-     * Creates a MagicTorch array from the previously input Transmitter and Receiver
-     * selections.
-     * @param player Player object of the person creating the array (the owner).
-     * @param name The name of the array.
-     * @return <code>true</code> if the Array was created, <code>false</code> if it was invalid.
-     */
-    public boolean create(Player player, String name){
-        if(mb_database.hasIndex(name.toLowerCase())){
-            this.message = "A MagicTorch Array of that name already exists.";
-            return false;
-        }
-        
-        if(plTArray.containsKey(player)) {
-            plTArray.get(player).setName(name.toLowerCase().trim());
-            if(plTArray.get(player).isValid()) {
-                if(saveToDB(player, plTArray.get(player))) {
-                    this.message = name.toLowerCase().trim();
-                    return true;
-                } else {
-                    this.message = "Failed to create MagicTorch array.";
-                }
-            } else {
-                this.message = "MagicTorch array not valid.";
-                if(!plTArray.get(player).transmitterSet())
-                    this.message = this.message + " [transmitter not selected]";
-                if(!plTArray.get(player).receiverSet())
-                    this.message = this.message + " [receivers not selected]";
-            }
-        }
-        return false;
-    }
-    
-    /**
-     * Delete a MagicTorch Array.
-     * @param block the transmitter torch's block.
-     * @return <code>true</code> if deleted, <code>false</code> if unable to delete.
-     */
-    public boolean delete(Block block){
-        return delete(block.getLocation());
-    }
-    
-    /**
-     * Delete a MagicTorch Array.
-     * @param loc the transmitter torch's location.
-     * @return <code>true</code> if deleted, <code>false</code> if unable to delete.
-     */
-    public boolean delete(Location loc){
-        return (mtNameArray.containsKey(loc)) ? delete(mtNameArray.get(loc)) : false;
+    public MTorchHandler (File db, MagicTorches instance) {
+        //Move to main routine after initializing storage.
+//        miniDB = db;
+//        mb_database = new Mini(miniDB.getParent(), miniDB.getName());
+//        pl = instance;
+//        reload();
     }
     
     /**
@@ -137,25 +72,16 @@ public final class MTorch {
      * Delete a MagicTorch Array. A delete will delete from the database and issue
      * a reload command.
      * @param name the name of the torch array.
-     * @param plaer the name of the person issuing the delete command.
+     * @param player the name of the person issuing the delete command.
      * @param isAdmin if the person has admin perms.
      * @return <code>true</code> if deleted, <code>false</code> if unable to delete.
      */
     public boolean delete(String name, String player, boolean isAdmin){        
-        Arguments entry;
-        if(mb_database.hasIndex(name)){
-            entry = mb_database.getArguments(name);
-            if(entry != null){
-                if(player.equalsIgnoreCase(entry.getValue("owner")) || isAdmin){
-                    mb_database.removeIndex(name);
-                    mb_database.update();
-                    reload();
-                    prune();
-                    this.message = name;
-                    return true;
+        if(Properties.db.exists(name))
+            if(player.equalsIgnoreCase(Properties.db.getOwner(name)) || isAdmin)
+                if(Properties.db.remove(name)){
+                    mtArray = Properties.db.loadAll();
                 }
-            }
-        }
         return false;
     }
     
@@ -390,7 +316,7 @@ public final class MTorch {
      * @param player 
      */
     public void setEditMode(Player player) {
-        setEditMode(player, true, TorchArray.DIRECT);
+        setEditMode(player, true, Properties.DIRECT);
     }
     
     /**
@@ -411,7 +337,7 @@ public final class MTorch {
      * mode off.
      */
     public void setEditMode(Player player, boolean mode) {
-        setEditMode(player, mode, TorchArray.DIRECT);
+        setEditMode(player, mode, Properties.DIRECT);
     }
     
     /**
@@ -584,11 +510,11 @@ public final class MTorch {
     private String getReceiverInfo(TorchReceiver tr){
         StringBuilder sb = new StringBuilder();
         
-        if(tr.getType() == TorchArray.DIRECT)
+        if(tr.getType() == Properties.DIRECT)
             sb.append("Direct");
-        else if(tr.getType() == TorchArray.INVERSE)
+        else if(tr.getType() == Properties.INVERSE)
             sb.append("Inverse");
-        else if(tr.getType() == TorchArray.DELAY)
+        else if(tr.getType() == Properties.DELAY)
             sb.append("Delay");
         else
             sb.append("Unknown");
@@ -770,7 +696,7 @@ public final class MTorch {
     
     private byte typeFromString(String data){
         //type: (?<=Type{)\d{1,2}
-        byte result = TorchArray.DIRECT; //Default to direct.
+        byte result = Properties.DIRECT; //Default to direct.
 
         Pattern p = Pattern.compile("(?<=Type\\{)\\d{1,2}");
         Matcher m = p.matcher(data);

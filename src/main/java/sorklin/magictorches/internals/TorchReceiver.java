@@ -66,10 +66,10 @@ public class TorchReceiver implements Cloneable {
         }
         
         switch(torchType) {
-            case TorchArray.NONE:
+            case Properties.NONE:
                 return false;
                 
-            case TorchArray.DIRECT:
+            case Properties.DIRECT:
                 //MagicTorches.spamt("Direct receive");
                 if(signal){
                     torch.setType(Material.TORCH);
@@ -79,7 +79,7 @@ public class TorchReceiver implements Cloneable {
                 lastUsed = System.currentTimeMillis();
                 break;
                 
-            case TorchArray.INVERSE:
+            case Properties.INVERSE:
                 //MagicTorches.spamt("Inverse receive");
                 if(signal){
                     torch.setType(Material.REDSTONE_TORCH_ON);
@@ -89,7 +89,7 @@ public class TorchReceiver implements Cloneable {
                 lastUsed = System.currentTimeMillis();
                 break;
                 
-            case TorchArray.DELAY:
+            case Properties.DELAY:
                 //MagicTorches.spamt("Delay receive");
                 if(toggle){
                     if(System.currentTimeMillis() > (MagicTorches.delayTime + lastUsed)){
