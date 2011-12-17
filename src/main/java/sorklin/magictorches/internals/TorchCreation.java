@@ -69,4 +69,20 @@ public class TorchCreation {
         }
         return false;
     }
+    
+        /**
+     * Is the transmitter selected already set?
+     * @param player Player doing the editing.
+     * @param block the transmitter.
+     * @return <code>true</code> if the block is already set as a transmitter.
+     * <code>false</code> if the block is not a transmitter.
+     */
+//    public boolean isSetTransmitter(Player player, Block block) {
+//        //This is a work around to the double event when the event it cancelled.
+//        if(plTArray.containsKey(player)){
+//            return plTArray.get(player).isTransmitter(block.getLocation());
+//        }
+//        return false;
+//    }
+    
 }

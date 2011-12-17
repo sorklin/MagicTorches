@@ -1,46 +1,47 @@
+/*
+ * Copyright (C) 2011 Sorklin <sorklin at gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package sorklin.magictorches.internals;
-
-import com.mini.Arguments;
-import com.mini.Mini;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-
 import java.util.Map.Entry;
-import java.util.logging.Level;
-import java.util.regex.*;
 
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import sorklin.magictorches.MagicTorches;
+import sorklin.magictorches.internals.torches.DelayReceiver;
+import sorklin.magictorches.internals.torches.InverseReceiver;
 import sorklin.magictorches.internals.torches.Receiver;
+import sorklin.magictorches.internals.torches.TimerReceiver;
 
 
 public final class MTorchHandler {
     
-    //transmitter to TorchArray:
+    //Locate a torcharray by Location
     private Map<Location, TorchArray> mtArray = new HashMap<Location, TorchArray>();
-//    private Map<Location, String> mtNameArray = new HashMap<Location, String>();
-    
+    //Locate a receiver by location
     private final List<? extends Receiver> allReceiverArray = new ArrayList();
-    
-    //These three are for magic creation by different players.
-//    private final Map<Player, TorchArray> plTArray = new HashMap<Player, TorchArray>();
-//    private final Map<Player, Boolean> plEditMode = new HashMap<Player, Boolean>();
-//    private final Map<Player, Byte> plNextLinkType = new HashMap<Player, Byte>();
-    
-    private Mini mb_database;
-    private MagicTorches pl;
-    private File miniDB;
     
     public String message = "";
     
@@ -90,9 +91,9 @@ public final class MTorchHandler {
      * @param block
      * @return ArrayList<String> to be sent to listMessage() proc.
       */
-    public List<String> getInfo(Block block){
-        return getInfo(block, "", true, false);
-    }
+//    public List<String> getInfo(Block block){
+//        return getInfo(block, "", true, false);
+//    }
     
     /**
      * Returns info about a MT (receiver or transmitter) in a List form.
@@ -102,38 +103,37 @@ public final class MTorchHandler {
      * @param clicked if the question comes from a click event (versus a command event)
      * @return 
      */
-    public List<String> getInfo(Block block, String player, boolean isAdmin, boolean clicked){
-        List<String> result = new ArrayList<String>();
-        String sb = "";
-        Location loc = block.getLocation();
-        
-        if(isMT(loc)){
-            if(getOwner(loc).equalsIgnoreCase(player) || isAdmin){ //gets around NPE
-                sb = (clicked) ? 
-                        (pl.g + "Transmitter for the " + pl.b + getName(block) 
-                        + pl.g + " array. ") :
-                        (pl.g + getTransmitterInfo(mtArray.get(loc)));
-                result.add(sb);
-                result.add("Its receivers are: ");
-                result.addAll(listReceivers(loc));
-            }
-        } else
-
-        if(isReceiver(loc)){
-            ListIterator<TorchReceiver> it = allReceiverArray.listIterator();
-            TorchReceiver tr;
-            //Not sure why this doesn't find the second instance.
-            while(it.hasNext()){
-                tr = it.next();
-                if(tr.getLocation().equals(loc))
-                    result.add(pl.g + "Receiver: " + pl.w + getReceiverInfo(tr) + ".");
-            }
-            
-        } else {
-            result.add(pl.g + "This is not a MagicTorch.");
-        }
-        return result;
-    }
+//    public List<String> getInfo(Block block, String player, boolean isAdmin, boolean clicked){
+//        List<String> result = new ArrayList<String>();
+//        String sb = "";
+//        Location loc = block.getLocation();
+//        
+//        if(isMT(loc)){
+//            if(getOwner(loc).equalsIgnoreCase(player) || isAdmin){ //gets around NPE
+//                sb = (clicked) ? 
+//                        (pl.g + "Transmitter for the " + pl.b + getName(block) 
+//                        + pl.g + " array. ") :
+//                        (pl.g + getTransmitterInfo(mtArray.get(loc)));
+//                result.add(sb);
+//                result.add("Its receivers are: ");
+//                result.addAll(listReceivers(loc));
+//            }
+//        } else
+//
+//        if(isReceiver(loc)){
+//            ListIterator<? extends Receiver> it = allReceiverArray.listIterator();
+//            //Not sure why this doesn't find the second instance.
+//            while(it.hasNext()){
+//                Receiver tr = it.next();
+//                if(tr.getLocation().equals(loc))
+//                    result.add(pl.g + "Receiver: " + pl.w + getReceiverInfo(tr) + ".");
+//            }
+//            
+//        } else {
+//            result.add(pl.g + "This is not a MagicTorch.");
+//        }
+//        return result;
+//    }
     
     /**
      * Retrieves the name of the TorchArray at the specified block or location.
@@ -142,27 +142,9 @@ public final class MTorchHandler {
      * at the specified block.
      */
     public String getName(Block block){
-        return (mtNameArray.containsKey(block.getLocation())) ?
-                mtNameArray.get(block.getLocation()) :
+        return (mtArray.containsKey(block.getLocation())) ? 
+                mtArray.get(block.getLocation()).getName() :
                 null;
-    }
-    
-    /**
-     * Returns if the player is in edit mode.
-     * @param player 
-     */
-    public boolean isInEditMode(Player player) {
-        return (plEditMode.containsKey(player)) ? plEditMode.get(player) : false;
-    }
-    
-    /**
-     * Returns if the block is a MagicTorch Array transmitter.
-     * @param block
-     * @return <code>true</code> the block is a MT transmitter. <code>false</code>
-     * the block is not a MT transmitter.
-     */
-    public boolean isMT(Block block) {
-        return isMT(block.getLocation());
     }
     
     /**
@@ -177,40 +159,15 @@ public final class MTorchHandler {
     
     /**
      * Returns if the block is a MagicTorch Array receiver.
-     * @param block block to be tested.
-     * @return <code>true</code> the block is a MT receiver. <code>false</code>
-     * the block is not a MT receiver.
-     */
-    public boolean isReceiver(Block block){
-        return isReceiver(block.getLocation());
-    }
-    
-    /**
-     * Returns if the block is a MagicTorch Array receiver.
      * @param loc location of the block to be tested.
      * @return <code>true</code> the block is a MT receiver. <code>false</code>
      * the block is not a MT receiver.
      */
     public boolean isReceiver(Location loc){
-        ListIterator<TorchReceiver> it = allReceiverArray.listIterator();
+        ListIterator<? extends Receiver> it = allReceiverArray.listIterator();
         while(it.hasNext()){
             if(it.next().getLocation().equals(loc))
                 return true;
-        }
-        return false;
-    }
-    
-    /**
-     * Is the transmitter selected already set?
-     * @param player Player doing the editing.
-     * @param block the transmitter.
-     * @return <code>true</code> if the block is already set as a transmitter.
-     * <code>false</code> if the block is not a transmitter.
-     */
-    public boolean isSetTransmitter(Player player, Block block) {
-        //This is a work around to the double event when the event it cancelled.
-        if(plTArray.containsKey(player)){
-            return plTArray.get(player).isTransmitter(block.getLocation());
         }
         return false;
     }
@@ -222,46 +179,48 @@ public final class MTorchHandler {
      * @return String containing all appropriate MT arrays by name.
      */
     public String list(CommandSender sender, boolean isAdmin) {
-        String result = "";
-        String comma = "";
-        
-        if(mtNameArray.isEmpty())
-            result = "No MagicTorch Arrays found.";
-        
-        for (Entry<Location, String> entry : mtNameArray.entrySet()) {
-            if(isAdmin){
-                result += comma + pl.b + entry.getValue()
-                        + " [" + getOwner(entry.getKey()) + "]";
-                comma = pl.w + ", ";
-            } else {
-                if(isOwner((Player)sender, entry.getKey())){
-                    result = result + comma + pl.b + entry.getValue();
-                    comma = pl.w + ", ";
-                }
-            }
-        }
-        return result;
+        //Fix.  Import the PTM(?) page listing routines.
+//        String result = "";
+//        String comma = "";
+//        
+//        if(mtNameArray.isEmpty())
+//            result = "No MagicTorch Arrays found.";
+//        
+//        for (Entry<Location, String> entry : mtNameArray.entrySet()) {
+//            if(isAdmin){
+//                result += comma + pl.b + entry.getValue()
+//                        + " [" + getOwner(entry.getKey()) + "]";
+//                comma = pl.w + ", ";
+//            } else {
+//                if(isOwner((Player)sender, entry.getKey())){
+//                    result = result + comma + pl.b + entry.getValue();
+//                    comma = pl.w + ", ";
+//                }
+//            }
+//        }
+//        return result;
+        return null;
     }
     
     /**
      * List all the receivers loaded. DEV only.
      * @return String containing all receiver locations.
      */
-    public String listAllReceivers(){
-        String result = "";
-        String comma = "";
-        
-        if(allReceiverArray.isEmpty())
-            return "No Receivers found.";
-        
-        ListIterator<TorchReceiver> it = allReceiverArray.listIterator();
-        
-        while(it.hasNext()){
-            result += (comma + it.next().getLocation().toString());
-            comma = ", ";
-        }
-        return result;
-    }
+//    public String listAllReceivers(){
+//        String result = "";
+//        String comma = "";
+//        
+//        if(allReceiverArray.isEmpty())
+//            return "No Receivers found.";
+//        
+//        ListIterator<? extends Receiver> it = allReceiverArray.listIterator();
+//        
+//        while(it.hasNext()){
+//            result += (comma + it.next().getLocation().toString());
+//            comma = ", ";
+//        }
+//        return result;
+//    }
     
     /**
      * Returns a list of receivers for the clicked transmitter.
@@ -270,12 +229,12 @@ public final class MTorchHandler {
      */
     public List<String> listReceivers(Location loc){
         List<String> result = new ArrayList<String>();
-        ArrayList<TorchReceiver> receivers = new ArrayList();
+        ArrayList<? extends Receiver> receivers = new ArrayList();
         
         if(mtArray.containsKey(loc)){
             receivers = mtArray.get(loc).getReceiverArray();
             if(!receivers.isEmpty()){
-                ListIterator<TorchReceiver> it = receivers.listIterator();
+                ListIterator<? extends Receiver> it = receivers.listIterator();
                 while(it.hasNext()){
                     result.add(getReceiverInfo(it.next()));
                 }
@@ -287,37 +246,37 @@ public final class MTorchHandler {
     /**
      * Prunes database of unloaded MTs.
      */
-    public void prune(){
-        for(String name: mb_database.getIndices().keySet()) {
-            if(!mtNameArray.containsValue(name)){
-                MagicTorches.log(Level.FINE, pl.g + "Could not find " + pl.b + name + pl.g 
-                        + " in active torch arrays.");
-                MagicTorches.log(Level.FINE, pl.g + "Pruning it from DB.");
-                mb_database.removeIndex(name);
-            }
-        }
-        mb_database.update();
-    }
+//    public void prune(){
+//        for(String name: mb_database.getIndices().keySet()) {
+//            if(!mtNameArray.containsValue(name)){
+//                MagicTorches.log(Level.FINE, pl.g + "Could not find " + pl.b + name + pl.g 
+//                        + " in active torch arrays.");
+//                MagicTorches.log(Level.FINE, pl.g + "Pruning it from DB.");
+//                mb_database.removeIndex(name);
+//            }
+//        }
+//        mb_database.update();
+//    }
     
     /**
      * Reloads the MagicTorches from file.
      */
-    public void reload(){
-        clearCache();
-        //force a reload of the minidb.
-        mb_database = null;
-        mb_database = new Mini(miniDB.getParent(), miniDB.getName());
-        loadFromDB();
-        transmitAll(); //initial transmit to set all the receivers.
-    }
+//    public void reload(){
+//        clearCache();
+//        //force a reload of the minidb.
+//        mb_database = null;
+//        mb_database = new Mini(miniDB.getParent(), miniDB.getName());
+//        loadFromDB();
+//        transmitAll(); //initial transmit to set all the receivers.
+//    }
     
     /**
      * Sets edit mode for a player to true. Defaults receiver type to <code>DIRECT</code>.
      * @param player 
      */
-    public void setEditMode(Player player) {
-        setEditMode(player, true, Properties.DIRECT);
-    }
+//    public void setEditMode(Player player) {
+//        setEditMode(player, true, Properties.DIRECT);
+//    }
     
     /**
      * Sets edit mode for a player to true. Sets the next receiver torch type to 
@@ -325,9 +284,9 @@ public final class MTorchHandler {
      * @param player
      * @param nextType  the type for the next selected receivers.
      */
-    public void setEditMode(Player player, byte nextType) {
-        setEditMode(player, true, nextType);
-    }
+//    public void setEditMode(Player player, byte nextType) {
+//        setEditMode(player, true, nextType);
+//    }
     
     /**
      * Sets edit mode for player to <code>mode</code>. Defaults receiver type 
@@ -336,9 +295,9 @@ public final class MTorchHandler {
      * @param mode <code>true</code> for edit mode on, <code>false</code> for edit 
      * mode off.
      */
-    public void setEditMode(Player player, boolean mode) {
-        setEditMode(player, mode, Properties.DIRECT);
-    }
+//    public void setEditMode(Player player, boolean mode) {
+//        setEditMode(player, mode, Properties.DIRECT);
+//    }
     
     /**
      * Sets edit mode for player to <code>mode</code>. Sets the receiver type
@@ -348,24 +307,24 @@ public final class MTorchHandler {
      * mode off.
      * @param nextType the type for the next selected receivers.
      */
-    public void setEditMode(Player player, boolean mode, byte nextType) {
-        if(mode) {
-            plEditMode.put(player, mode);
-            plTArray.put(player, new TorchArray(player.getName()));
-            plNextLinkType.put(player, nextType);
-        } else {
-            removePLVars(player);
-        }
-    }
+//    public void setEditMode(Player player, boolean mode, byte nextType) {
+//        if(mode) {
+//            plEditMode.put(player, mode);
+//            plTArray.put(player, new TorchArray(player.getName()));
+//            plNextLinkType.put(player, nextType);
+//        } else {
+//            removePLVars(player);
+//        }
+//    }
     
     /**
      * Sets the next selected receiver type to <code>type</code>.
      * @param player
      * @param type receiver type.
      */
-    public void setNextType(Player player, byte type) {
-            plNextLinkType.put(player, type);
-    }
+//    public void setNextType(Player player, byte type) {
+//            plNextLinkType.put(player, type);
+//    }
     
     /**
      * Sets a torch to be a receiver in an array.
@@ -374,9 +333,9 @@ public final class MTorchHandler {
      * @return <code>true</code> if the torch was set as a receiver.
      * <code>false</code> if the torch was not set as a receiver.
      */
-    public boolean setReceiver(Player player, Block block) {
-        return setReceiver(player, block.getLocation());
-    }
+//    public boolean setReceiver(Player player, Block block) {
+//        return setReceiver(player, block.getLocation());
+//    }
     
     /**
      * Sets a torch to be a receiver in an array.
@@ -385,22 +344,22 @@ public final class MTorchHandler {
      * @return <code>true</code> if the torch was set as a receiver.
      * <code>false</code> if the torch was not set as a receiver.
      */
-    public boolean setReceiver(Player player, Location loc) {
-        if(plTArray.containsKey(player)) {
-            if(!plTArray.get(player).isReceiver(loc)){
-                //TODO: distance check.  Requires Transmitter to be set.
-                plTArray.get(player).add(loc, plNextLinkType.get(player));
-                this.message = "Added receiver torch.";
-                return true;
-            } else {
-                plTArray.get(player).remove(loc);
-                this.message = "Removed receiver torch.";
-                return true;
-            }
-        }
-        this.message = "Cannot set receiver. Not in edit mode.";
-        return false;
-    }
+//    public boolean setReceiver(Player player, Location loc) {
+//        if(plTArray.containsKey(player)) {
+//            if(!plTArray.get(player).isReceiver(loc)){
+//                //TODO: distance check.  Requires Transmitter to be set.
+//                plTArray.get(player).add(loc, plNextLinkType.get(player));
+//                this.message = "Added receiver torch.";
+//                return true;
+//            } else {
+//                plTArray.get(player).remove(loc);
+//                this.message = "Removed receiver torch.";
+//                return true;
+//            }
+//        }
+//        this.message = "Cannot set receiver. Not in edit mode.";
+//        return false;
+//    }
     
     /**
      * Sets a torch to be a transmitter in an array.
@@ -409,9 +368,9 @@ public final class MTorchHandler {
      * @return <code>true</code> if the torch was set as a transmitter.
      * <code>false</code> if the torch was not set as a transmitter.
      */
-    public boolean setTransmitter(Player player, Block block) {
-        return setTransmitter(player, block.getLocation());
-    }
+//    public boolean setTransmitter(Player player, Block block) {
+//        return setTransmitter(player, block.getLocation());
+//    }
     
     /**
      * Sets a torch to be a transmitter in an array.
@@ -420,18 +379,18 @@ public final class MTorchHandler {
      * @return <code>true</code> if the torch was set as a transmitter.
      * <code>false</code> if the torch was not set as a transmitter.
      */
-    public boolean setTransmitter(Player player, Location loc) {
-        if(plTArray.containsKey(player)) {
-            if(mtArray.containsKey(loc)) {
-                this.message = "This torch is already an existing transmitter.";
-                return false;
-            }
-            plTArray.get(player).setTransmitter(loc);
-            return true;
-        }
-        this.message = "Cannot set transmitter. Not in edit mode.";
-        return false;
-    }
+//    public boolean setTransmitter(Player player, Location loc) {
+//        if(plTArray.containsKey(player)) {
+//            if(mtArray.containsKey(loc)) {
+//                this.message = "This torch is already an existing transmitter.";
+//                return false;
+//            }
+//            plTArray.get(player).setTransmitter(loc);
+//            return true;
+//        }
+//        this.message = "Cannot set transmitter. Not in edit mode.";
+//        return false;
+//    }
     
     /**
      * Displays info about a torch Array to the command sender.
@@ -440,26 +399,26 @@ public final class MTorchHandler {
      * @param isAdmin if the entity is an admin.
      * @return
      */
-    public void showInfo(String name, CommandSender sender, boolean isAdmin){
-        if(mb_database.hasIndex(name.toLowerCase())){
-            Arguments entry = mb_database.getArguments(name.toLowerCase());
-            if(!isAdmin && !sender.getName().equalsIgnoreCase(entry.getValue("owner"))){
-                sender.sendMessage("That is not your array.");
-                return;
-            }
-            Iterator it = mtNameArray.entrySet().iterator();
-            while (it.hasNext()) {
-                Map.Entry<Location,String> ta = (Map.Entry<Location,String>)it.next();
-                if(ta.getValue().equals(name.toLowerCase())){
-                    MagicTorches.listMessage(sender, getInfo(ta.getKey().getBlock()));
-                    break;
-                }
-                //it.remove(); // avoids a ConcurrentModificationException
-            }
-        } else {
-            sender.sendMessage(pl.r + "No array by that name is in the db.");
-        }
-    }
+//    public void showInfo(String name, CommandSender sender, boolean isAdmin){
+//        if(mb_database.hasIndex(name.toLowerCase())){
+//            Arguments entry = mb_database.getArguments(name.toLowerCase());
+//            if(!isAdmin && !sender.getName().equalsIgnoreCase(entry.getValue("owner"))){
+//                sender.sendMessage("That is not your array.");
+//                return;
+//            }
+//            Iterator it = mtNameArray.entrySet().iterator();
+//            while (it.hasNext()) {
+//                Map.Entry<Location,String> ta = (Map.Entry<Location,String>)it.next();
+//                if(ta.getValue().equals(name.toLowerCase())){
+//                    MagicTorches.listMessage(sender, getInfo(ta.getKey().getBlock()));
+//                    break;
+//                }
+//                //it.remove(); // avoids a ConcurrentModificationException
+//            }
+//        } else {
+//            sender.sendMessage(pl.r + "No array by that name is in the db.");
+//        }
+//    }
     
     /**
      * Sends a transmit signal to the transmitter of an Array.
@@ -468,9 +427,9 @@ public final class MTorchHandler {
      * @return <code>true</code> if signal could be transmitted.
      * <code>false</code> if signal could not be transmitted.
      */
-    public boolean transmit(Location loc, boolean current){
-        return (isMT(loc)) ? mtArray.get(loc).transmit(current, true) : false;
-    }
+//    public boolean transmit(Location loc, boolean current){
+//        return (isMT(loc)) ? mtArray.get(loc).transmit(current) : false;
+//    }
     
     /**
      * Sends a transmit signal to the transmitter of an Array.
@@ -478,16 +437,16 @@ public final class MTorchHandler {
      * @return <code>true</code> if signal could be transmitted.
      * <code>false</code> if signal could not be transmitted.
      */
-    public boolean transmit(Location loc) {
-        return (isMT(loc)) ? mtArray.get(loc).transmit() : false;
-    }
+//    public boolean transmit(Location loc) {
+//        return (isMT(loc)) ? mtArray.get(loc).transmit() : false;
+//    }
     
     /**
      * Iterates through all TorchArrays, sending a transmit signal.
      */
     public void transmitAll(){
         for (Entry<Location, TorchArray> entry : mtArray.entrySet()) {
-            transmit(entry.getKey());
+            entry.getValue().transmit();
         }
     }
     
@@ -495,7 +454,7 @@ public final class MTorchHandler {
     
     private void clearCache() {
         mtArray.clear();
-        mtNameArray.clear();
+//        mtNameArray.clear();
         allReceiverArray.clear();
         this.message = "";
     }
@@ -504,20 +463,20 @@ public final class MTorchHandler {
         if(mtArray.containsKey(loc))
             return mtArray.get(loc).getOwner();
         else
-            return "";
+            return null;
     }
     
-    private String getReceiverInfo(TorchReceiver tr){
+    private String getReceiverInfo(Receiver tr){
         StringBuilder sb = new StringBuilder();
         
-        if(tr.getType() == Properties.DIRECT)
-            sb.append("Direct");
-        else if(tr.getType() == Properties.INVERSE)
+        if(tr instanceof InverseReceiver)
             sb.append("Inverse");
-        else if(tr.getType() == Properties.DELAY)
+        else if(tr instanceof DelayReceiver)
             sb.append("Delay");
-        else
-            sb.append("Unknown");
+        else if(tr instanceof TimerReceiver)
+            sb.append("Delay");
+        else 
+            sb.append("Direct");
         
         sb.append(" receiver at ");
         sb.append("[").append(tr.getLocation().getWorld().getName()).append(": ");
@@ -545,164 +504,5 @@ public final class MTorchHandler {
             return (mtArray.get(loc).getOwner().equals(player.getName()));
         else
             return false;
-    }
-    
-    private void loadFromDB(){
-        int torches = 0;
-        String data = "";
-        String owner = "";
-        Location loc;
-        TorchArray ta;
-        
-        for(String name: mb_database.getIndices().keySet()) {
-            Arguments entry = mb_database.getArguments(name);
-            owner = entry.getValue("owner");
-            data = entry.getValue("data");
-            MagicTorches.log(Level.FINER, "LoadDB data: " + data);
-            try {
-                loc = trLocationFromData(data);
-                ta = torchArrayFromData(data, name, owner);
-                if(loc != null && ta != null) {
-                    mtArray.put(loc, ta);
-                    mtNameArray.put(loc, name);
-                    allReceiverArray.addAll(ta.getReceiverArray());
-                    torches++;
-                    MagicTorches.log(Level.FINE, "Loaded torch: " + name);
-                } else {
-                    this.message = name + "'s entry was malformed, or the transmitting"
-                            + "torch is missing. Deleting entry from DB.";
-                    MagicTorches.log(Level.INFO, this.message);
-                    delete(name);
-                }
-            } catch (NullPointerException npe) {
-                MagicTorches.log(Level.WARNING, "NPE on torch: " + name);
-            } // just ignore for now
-        }
-        MagicTorches.log(Level.INFO, "Loaded " + torches + " magictorch arrays.");
-    }
-    
-    private Location locationFromString(String data) throws NullPointerException {
-        //World: (?<=name=)\w+
-        //Coords: (?<==)-?\d+\.\d+  (returns 5 matches (x, y, z, yaw, pitch).
-        
-        //NPE if the world is NULL i.e., if MV or other multiverse plugin not loaded.
-        
-        String world = "";
-        List<String> coords = new ArrayList<String>();
-        Location result = null;
-        
-        Pattern p = Pattern.compile("(?<=name=)\\w+");
-        Matcher m = p.matcher(data);
-        if(m.find()){
-            world = m.group();
-        }
-
-        p = Pattern.compile("(?<==)-?\\d+\\.\\d+");
-        m = p.matcher(data);
-        if(m != null) {
-            while(m.find()) {
-                coords.add(m.group());
-            }
-        }
-        
-        if(!world.isEmpty() && coords.size() == 5) {
-            //Valid pull data.
-            result = new Location(pl.getServer().getWorld(world), 
-                    Double.valueOf(coords.get(0)), 
-                    Double.valueOf(coords.get(1)), 
-                    Double.valueOf(coords.get(2)));
-        }
-        return result;
-    }
-    
-    private void removePLVars(Player player) {
-        plTArray.remove(player);
-        plNextLinkType.remove(player);
-        plEditMode.remove(player);
-        this.message = "";
-    }
-    
-    private boolean saveToDB(Player player, TorchArray t){
-        if(!t.isValid())
-            return false;
-        
-        String name = t.getName();
-        String data = t.toString();
-        MagicTorches.log(Level.FINER, "Saving to DB:" + t.getName() + ", " + t.toString());
-        Arguments entry = new Arguments(name.toLowerCase());
-        entry.setValue("owner", player.getName());
-        entry.setValue("data", data);
-        mb_database.addIndex(entry.getKey(), entry);
-        mb_database.update();
-        //Now push onto working cache:
-        mtArray.put(t.getLocation(), t);
-        mtNameArray.put(t.getLocation(),t.getName());
-        transmit(t.getLocation());
-        return true;
-    }
-    
-    private Location trLocationFromData(String data){
-        
-        if(!data.contains(";")){
-            return null;
-        }
-        
-        Location result = null;
-        
-        String[] sub = data.split(";");
-        
-        for(int i = 0, length = sub.length; i < length; i++){
-            if(sub[i].contains("Transmitter")){
-                result = locationFromString(sub[i]);
-            }
-        }
-        return result;
-    }
-    
-    private TorchArray torchArrayFromData(String data, String name, String owner){
-        
-        if(!data.contains(";"))
-            return null; //can't split, this is malformed string
-        
-        String[] sub = data.split(";");
-        if(sub.length < 3)
-            return null; //Less than three segments is malformed.
-                
-        TorchArray ta = new TorchArray(owner);
-        ta.setName(name);
-        
-        for(int i=0, length = sub.length; i < length; i++) {
-            if(sub[i].contains("Transmitter")){
-                //Only set the transmitter location if the location is not null,
-                //AND there is a redstone torch already there.
-                //IF transmitter left unset, the TorchArray will not be valid, causing the 
-                //TA to be deleted from the db. (a good thing)
-                Location loc = locationFromString(sub[i]);
-                if(loc != null){
-                    Material m = loc.getBlock().getType();
-                    if(m.equals(Material.REDSTONE_TORCH_OFF) 
-                            || m.equals(Material.REDSTONE_TORCH_ON)) {
-                        ta.setTransmitter(loc);
-                    }
-                }
-            } else 
-            
-            if(sub[i].contains("Receiver")){
-                ta.add(locationFromString(sub[i]), typeFromString(sub[i]));
-            }
-        }
-        return ((ta.isValid()) ? ta : null);
-    }
-    
-    private byte typeFromString(String data){
-        //type: (?<=Type{)\d{1,2}
-        byte result = Properties.DIRECT; //Default to direct.
-
-        Pattern p = Pattern.compile("(?<=Type\\{)\\d{1,2}");
-        Matcher m = p.matcher(data);
-        if(m.find()){
-            result = Byte.parseByte(m.group());
-        }
-        return result;
     }
 }

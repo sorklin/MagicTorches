@@ -24,16 +24,6 @@ public class TorchArray {
     
     /**
      * Adds a receiver to the array.
-     * @param block  the torch being added as receiver.
-     * @param type  the type of receiver being added.
-     * @return <code>true</code> success, <code>false</code> failure.
-     */
-    public boolean add(Block block, byte type) {
-        return add(block.getLocation(), type);
-    }
-    
-    /**
-     * Adds a receiver to the array.
      * @param loc  location of the torch being added as receiver.
      * @param type  the type of receiver being added.
      * @return <code>true</code> success, <code>false</code> failure.
@@ -128,17 +118,7 @@ public class TorchArray {
     }
     
     /**
-     * Removes a receiver (if it exists) at the block.
-     * @param block  torch to be removed.
-     * @return <code>true</code> removed a receiver, <code>false</code> could 
-     * not remove a receiver (either not there or not able to remove).
-     */
-    public boolean remove(Block block) {
-        return remove(block.getLocation());
-    }
-    
-    /**
-     * Removes a receiver (if it exists) at the location.
+     * Removes a receiver (if it exists) at the location. Does not remove from DB.
      * @param loc location of torch to be removed.
      * @return <code>true</code> removed a receiver, <code>false</code> could 
      * not remove a receiver (either not there or not able to remove).
@@ -237,7 +217,7 @@ public class TorchArray {
      * @param toggle if this transmit should toggle the delay torch
      * @return <code>true</code> success, <code>false</code> failure.
      */
-    public boolean transmit(boolean current, boolean toggle){
+    public boolean transmit(boolean current){
         if(transmitter == null) 
             return false;
         
