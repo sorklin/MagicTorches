@@ -2,9 +2,10 @@ package sorklin.magictorches.internals;
 
 import java.util.ArrayList;
 import java.util.ListIterator;
+
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
+
 import sorklin.magictorches.internals.torches.DelayReceiver;
 import sorklin.magictorches.internals.torches.InverseReceiver;
 import sorklin.magictorches.internals.torches.Receiver;
@@ -118,7 +119,8 @@ public class TorchArray {
     }
     
     /**
-     * Removes a receiver (if it exists) at the location. Does not remove from DB.
+     * Removes a receiver (if it exists) at the location. 
+     * Note: Does not remove from DB. That must be done by the handler.
      * @param loc location of torch to be removed.
      * @return <code>true</code> removed a receiver, <code>false</code> could 
      * not remove a receiver (either not there or not able to remove).
@@ -157,32 +159,6 @@ public class TorchArray {
             remove(loc);
     }
     
-    /**
-     * Set the receiver type for the block given. [Unused at this point]
-     * @param block torch to change type.
-     * @param type type to change receiver to.
-     * @return <code>true</code> success, <code>false</code> failure.
-     */
-//    public boolean setType(Block block, byte type) {
-//        return setType(block.getLocation(), type);
-//    }
-    
-    /**
-     * Set the receiver type for the block given. [Unused at this point]
-     * @param loc location of the torch to change type.
-     * @param type type to change receiver to.
-     * @return <code>true</code> success, <code>false</code> failure.
-     */
-//    public boolean setType(Location loc, byte type) {
-//        //Not sure this will ever be used.  If not, I'll remove it.
-//        TorchReceiver torch = new TorchReceiver(loc);
-//        if(receiverArray.contains(torch)) { 
-//            receiverArray.get(receiverArray.indexOf(torch)).setType(type);
-//            return true;
-//        }
-//        return false;
-//    }
-    
     @Override
     public String toString() {
         String result = "Name{" + arrayName + "};";
@@ -192,7 +168,6 @@ public class TorchArray {
         if(!receiverArray.isEmpty()) {
             ListIterator<? extends Receiver> it = receiverArray.listIterator();
             while(it.hasNext()) {
-//                Receiver tr = (Receiver)it.next();
                 result = result + "Receiver{" + it.next().toString() + "};";
             }
         }
@@ -206,30 +181,26 @@ public class TorchArray {
     public boolean transmit(){
         if(transmitter == null) 
             return false;
-
-        boolean powered = transmitter.getBlock().getType().equals(Material.REDSTONE_TORCH_OFF);
-        return transmit(powered, false);
+        return transmit(isNotPowered(transmitter.getBlock().getType()));
     }
     
     /**
      * Transmit current to all receivers.
      * @param current the current that should be transmitted (i.e., on or off)
-     * @param toggle if this transmit should toggle the delay torch
      * @return <code>true</code> success, <code>false</code> failure.
      */
     public boolean transmit(boolean current){
         if(transmitter == null) 
             return false;
         
-        Material torch = transmitter.getBlock().getType();
-        if(!(torch.equals(Material.REDSTONE_TORCH_ON) 
-                || torch.equals(Material.REDSTONE_TORCH_OFF)))
+        if(isNotPowered(transmitter.getBlock().getType()))
             return false;
         
         ListIterator<? extends Receiver> tr = receiverArray.listIterator();
         while(tr.hasNext()) {
             tr.next().receive(current);
         }
+        
         return true;
     }
     
@@ -239,5 +210,16 @@ public class TorchArray {
      */
     public boolean transmitterSet(){
         return (transmitter != null);
+    }
+    
+    /**
+     * Returns true if the Torch is not powered.
+     * @param mat Material of torch.
+     */
+    private boolean isNotPowered(Material mat){
+        //Will return true if material is anything but a lit redstone torch
+        //While i'm not crazy about this, we're pretty sure it'll always be a torch
+        //there.
+        return (!(mat.equals(Material.REDSTONE_TORCH_ON)));
     }
 }

@@ -182,4 +182,19 @@ public class MiniStorage implements MTStorage {
         }
         return result;
     }
+    
+        /**
+     * Prunes database of unloaded MTs.
+     */
+//    public void prune(){
+//        for(String name: mb_database.getIndices().keySet()) {
+//            if(!mtNameArray.containsValue(name)){
+//                MagicTorches.log(Level.FINE, pl.g + "Could not find " + pl.b + name + pl.g 
+//                        + " in active torch arrays.");
+//                MagicTorches.log(Level.FINE, pl.g + "Pruning it from DB.");
+//                mb_database.removeIndex(name);
+//            }
+//        }
+//        mb_database.update();
+//    }
 }

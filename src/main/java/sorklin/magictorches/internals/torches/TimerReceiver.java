@@ -60,6 +60,13 @@ public class TimerReceiver extends Receiver {
                 originalMat.equals(Material.REDSTONE_TORCH_ON))) {
             return false;
         }
+        
+        if(!torch.getChunk().isLoaded()){
+            if(!Properties.forceChunkLoad)
+                return false;
+            else
+                torch.getChunk().load();
+        }
        
         MagicTorches mt = MagicTorches.getPluginInstance();
         

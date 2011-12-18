@@ -50,6 +50,13 @@ public class InverseReceiver extends Receiver {
             return false;
         }
         
+        if(!torch.getChunk().isLoaded()){
+            if(!Properties.forceChunkLoad)
+                return false;
+            else
+                torch.getChunk().load();
+        }
+        
         if(signal){
             torch.setType(Material.REDSTONE_TORCH_ON);
         } else {

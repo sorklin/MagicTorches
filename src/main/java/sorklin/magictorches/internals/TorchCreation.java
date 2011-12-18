@@ -30,14 +30,23 @@ public class TorchCreation {
     
     public String message = null;
     
+    
     public TorchCreation(Player player){
-        //I'm not sure what gets passed in.
+        ta = new TorchArray(player.getName());
     }
     
     public void setPlayer(Player player){
         this.player = player;
+        ta.setOwner(player.getName());
     }
     
+    public void setNextType(byte type){
+        this.nextLinkType = type;
+    }
+    
+    public byte getNextType(){
+        return this.nextLinkType;
+    }
     
     /**
      * Creates a MagicTorch array from the previously input Transmitter and Receiver

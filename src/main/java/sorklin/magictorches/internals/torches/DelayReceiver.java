@@ -52,6 +52,12 @@ public class DelayReceiver extends Receiver {
             return false;
         }
         
+        if(!torch.getChunk().isLoaded())
+            if(!Properties.forceChunkLoad)
+                return false;
+            else
+                torch.getChunk().load();
+        
         if(System.currentTimeMillis() > 
                 (Properties.toMillis(Properties.toggleDelay) + lastUsed)){
             if(torch.getType().equals(Material.TORCH)) {

@@ -17,12 +17,10 @@
 package sorklin.magictorches.internals.torches;
 
 import sorklin.magictorches.internals.interfaces.Torch;
-import java.util.logging.Level;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
-import sorklin.magictorches.MagicTorches;
 import sorklin.magictorches.internals.Properties;
 
 /**
@@ -68,6 +66,13 @@ public class Receiver implements Torch {
         if(!(torch.getType().equals(Material.TORCH) ||
                 torch.getType().equals(Material.REDSTONE_TORCH_ON))) {
             return false;
+        }
+        
+        if(!torch.getChunk().isLoaded()){
+            if(!Properties.forceChunkLoad)
+                return false;
+            else
+                torch.getChunk().load();
         }
         
         if(signal){

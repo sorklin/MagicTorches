@@ -37,7 +37,9 @@ public class Properties {
     public static boolean loadChunkOnReceive = false;
     public static double toggleDelay = 1.5; //in seconds
     public static double timerDelay = 5; //in seconds
-    private double maxDistance = 100.0; //TODO: drive this with a config setting.
+    public static double maxDistance = 100.0; //Not implemented yet.  May not implement.
+    public static boolean forceChunkLoad = false; 
+    
     
     //Utility
     public static long toMillis(double seconds){

@@ -38,11 +38,18 @@ import sorklin.magictorches.internals.torches.TimerReceiver;
 
 public final class MTorchHandler {
     
+    private MagicTorches pl;
+    
     //Locate a torcharray by Location
     private Map<Location, TorchArray> mtArray = new HashMap<Location, TorchArray>();
+    
     //Locate a receiver by location
     private final List<? extends Receiver> allReceiverArray = new ArrayList();
     
+    //Torch creation
+    private Map<Player, TorchCreation> mtCreate = new HashMap<Player, TorchCreation>();
+    
+    //Passback messages.
     public String message = "";
     
     /**
@@ -52,11 +59,48 @@ public final class MTorchHandler {
      * @param instance  MagicTorches instance.
      */
     public MTorchHandler (File db, MagicTorches instance) {
-        //Move to main routine after initializing storage.
-//        miniDB = db;
-//        mb_database = new Mini(miniDB.getParent(), miniDB.getName());
-//        pl = instance;
+        pl = instance;
 //        reload();
+    }
+    
+    /**
+     * Adds an entry into the player/Torchcreate Hashmap.
+     * @param player Player
+     * @param tc TorchCreation object
+     */
+    public void setPlayerCreate(Player player, TorchCreation tc){
+        mtCreate.put(player, tc);
+    }
+    
+    /**
+     * Retrieves the TorchCreation object for a player.
+     * @param player
+     * @return Object or null if none found.
+     */
+    public TorchCreation getPlayerCreate(Player player){
+        return (mtCreate.containsKey(player)) ? mtCreate.get(player) : null;
+    }
+    
+    /**
+     * Checks if a player has an entry in the Creation Hashmap.
+     * @param player
+     */
+    public boolean isPlayerCreating(Player player){
+        return mtCreate.containsKey(player);
+    }
+    
+    /**
+     * Removes a player's entry in the Creation hashmap, if possible.
+     * @param player 
+     */
+    public void removePlayerCreate(Player player){
+        mtCreate.remove(player);
+    }
+    
+    public void addArray(TorchArray ta){
+        //fix
+        mtArray.put(ta.getLocation(), ta);
+        allReceiverArray.addAll(ta.getReceiverArray());
     }
     
     /**
@@ -227,35 +271,20 @@ public final class MTorchHandler {
      * @param loc location of the transmitter torch.
      * @return 
      */
-    public List<String> listReceivers(Location loc){
-        List<String> result = new ArrayList<String>();
-        ArrayList<? extends Receiver> receivers = new ArrayList();
-        
-        if(mtArray.containsKey(loc)){
-            receivers = mtArray.get(loc).getReceiverArray();
-            if(!receivers.isEmpty()){
-                ListIterator<? extends Receiver> it = receivers.listIterator();
-                while(it.hasNext()){
-                    result.add(getReceiverInfo(it.next()));
-                }
-            }
-        }
-        return result;
-    }
-    
-    /**
-     * Prunes database of unloaded MTs.
-     */
-//    public void prune(){
-//        for(String name: mb_database.getIndices().keySet()) {
-//            if(!mtNameArray.containsValue(name)){
-//                MagicTorches.log(Level.FINE, pl.g + "Could not find " + pl.b + name + pl.g 
-//                        + " in active torch arrays.");
-//                MagicTorches.log(Level.FINE, pl.g + "Pruning it from DB.");
-//                mb_database.removeIndex(name);
+//    public List<String> listReceivers(Location loc){
+//        List<String> result = new ArrayList<String>();
+//        ArrayList<? extends Receiver> receivers = new ArrayList();
+//        
+//        if(mtArray.containsKey(loc)){
+//            receivers = mtArray.get(loc).getReceiverArray();
+//            if(!receivers.isEmpty()){
+//                ListIterator<? extends Receiver> it = receivers.listIterator();
+//                while(it.hasNext()){
+//                    result.add(getReceiverInfo(it.next()));
+//                }
 //            }
 //        }
-//        mb_database.update();
+//        return result;
 //    }
     
     /**
@@ -268,35 +297,6 @@ public final class MTorchHandler {
 //        mb_database = new Mini(miniDB.getParent(), miniDB.getName());
 //        loadFromDB();
 //        transmitAll(); //initial transmit to set all the receivers.
-//    }
-    
-    /**
-     * Sets edit mode for a player to true. Defaults receiver type to <code>DIRECT</code>.
-     * @param player 
-     */
-//    public void setEditMode(Player player) {
-//        setEditMode(player, true, Properties.DIRECT);
-//    }
-    
-    /**
-     * Sets edit mode for a player to true. Sets the next receiver torch type to 
-     * <code>nextType</code>. Defaults receiver type to <code>DIRECT</code>.
-     * @param player
-     * @param nextType  the type for the next selected receivers.
-     */
-//    public void setEditMode(Player player, byte nextType) {
-//        setEditMode(player, true, nextType);
-//    }
-    
-    /**
-     * Sets edit mode for player to <code>mode</code>. Defaults receiver type 
-     * to <code>DIRECT</code>.
-     * @param player
-     * @param mode <code>true</code> for edit mode on, <code>false</code> for edit 
-     * mode off.
-     */
-//    public void setEditMode(Player player, boolean mode) {
-//        setEditMode(player, mode, Properties.DIRECT);
 //    }
     
     /**
@@ -316,15 +316,7 @@ public final class MTorchHandler {
 //            removePLVars(player);
 //        }
 //    }
-    
-    /**
-     * Sets the next selected receiver type to <code>type</code>.
-     * @param player
-     * @param type receiver type.
-     */
-//    public void setNextType(Player player, byte type) {
-//            plNextLinkType.put(player, type);
-//    }
+
     
     /**
      * Sets a torch to be a receiver in an array.
@@ -454,7 +446,6 @@ public final class MTorchHandler {
     
     private void clearCache() {
         mtArray.clear();
-//        mtNameArray.clear();
         allReceiverArray.clear();
         this.message = "";
     }
