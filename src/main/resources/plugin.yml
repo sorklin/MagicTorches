@@ -6,7 +6,7 @@ softdepend: [Multiverse]
 description: MagicTorches creates linked array of wireless torches.
 commands:
   mt:
-    description: Information and commands regarding magicbuttons.
+    description: Information and commands regarding magictorches.
     aliases: [magictorch, magictorches]
     usage: |
            /<command> <parameter> [optional arguments]
