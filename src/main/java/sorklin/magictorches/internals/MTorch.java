@@ -651,7 +651,8 @@ public final class MTorch {
                     delete(name);
                 }
             } catch (NullPointerException npe) {
-                MagicTorches.log(Level.WARNING, "NPE on torch: " + name);
+                MagicTorches.log(Level.WARNING, "NPE on torch: " + name + ". Stack trace:");
+                npe.printStackTrace();
             } // just ignore for now
         }
         MagicTorches.log(Level.INFO, "Loaded " + torches + " magictorch arrays.");

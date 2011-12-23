@@ -59,7 +59,7 @@ public class MagicTorches extends JavaPlugin {
         pluginInfo = getDescription();
         plugName = "[" + pluginInfo.getName().toString() + "] ";
         
-        log(Level.INFO, "Initializing MagicTorches.");
+        log(Level.INFO, "Initializing " + pluginInfo.getFullName());
         /* Load MINI and config here */
         File dbFile = new File(getDataFolder(), "mt.mini");
         if(!dbFile.exists()) {
