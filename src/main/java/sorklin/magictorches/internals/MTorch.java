@@ -55,7 +55,6 @@ public final class MTorch {
         mb_database = new Mini(miniDB.getParent(), miniDB.getName());
         pl = instance;
         maxDistance = 100.0;
-        reload();
     }
     
     /**
@@ -376,13 +375,14 @@ public final class MTorch {
     /**
      * Reloads the MagicTorches from file.
      */
-    public void reload(){
+    public boolean reload(){
         clearCache();
         //force a reload of the minidb.
         mb_database = null;
         mb_database = new Mini(miniDB.getParent(), miniDB.getName());
-        loadFromDB();
+        boolean cleanLoad = loadFromDB();
         transmitAll(); //initial transmit to set all the receivers.
+        return cleanLoad;
     }
     
     /**
@@ -623,12 +623,13 @@ public final class MTorch {
             return false;
     }
     
-    private synchronized void loadFromDB(){
+    private synchronized boolean loadFromDB(){
         int torches = 0;
         String data = "";
         String owner = "";
         Location loc;
         TorchArray ta;
+        boolean npeOccured = false;
         
         for(String name: mb_database.getIndices().keySet()) {
             Arguments entry = mb_database.getArguments(name);
@@ -653,13 +654,15 @@ public final class MTorch {
             } catch (NullPointerException npe) {
                 MagicTorches.log(Level.WARNING, "NPE on torch: " + name + ". Stack trace:");
                 npe.printStackTrace();
+                npeOccured = true;
             } // just ignore for now
         }
         MagicTorches.log(Level.INFO, "Loaded " + torches + " magictorch arrays.");
+        return !npeOccured;
     }
     
     private Location locationFromString(String data) throws NullPointerException {
-        //World: (?<=name=)\w+
+        //World: (?<=name=)\w+  -- (?<=name=).*?(?=}) (For spaces)
         //Coords: (?<==)-?\d+\.\d+  (returns 5 matches (x, y, z, yaw, pitch).
         
         //NPE if the world is NULL i.e., if MV or other multiverse plugin not loaded.
@@ -668,10 +671,11 @@ public final class MTorch {
         List<String> coords = new ArrayList<String>();
         Location result = null;
         
-        Pattern p = Pattern.compile("(?<=name=)\\w+");
+        Pattern p = Pattern.compile("(?<=name=).*?(?=})");
         Matcher m = p.matcher(data);
         if(m.find()){
             world = m.group();
+            //MagicTorches.log(Level.INFO, "Regex Found world: " + world);
         }
 
         p = Pattern.compile("(?<==)-?\\d+\\.\\d+");

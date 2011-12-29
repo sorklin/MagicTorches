@@ -225,7 +225,7 @@ public class MTMainCommand implements CommandExecutor{
             return true;  //only works for playahs.
         }
         Player player = (Player)sender;
-        if(!pl.canCreate(player)){
+        if(!MagicTorches.canCreate(sender)){
             sender.sendMessage(pl.r + "Insufficient permissions. Say that three times fast.");
             return true;
         }

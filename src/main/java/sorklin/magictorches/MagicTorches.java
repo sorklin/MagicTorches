@@ -73,20 +73,18 @@ public class MagicTorches extends JavaPlugin {
         //TODO: config for last used default time.
         //TODO: distance in config setting.
         
+        //Attempts its first load.  Have soft-depend so should be okay to prune here.
         log(Level.INFO, "MiniDB found or created. Loading DB.");
         mt = new MTorch(dbFile, this);
         
         getCommand("mt").setExecutor(new MTMainCommand(this));
         
-        //Attempts to load and prune if MV is on.
         PluginManager pm = this.getServer().getPluginManager();
-        if(pm.isPluginEnabled("Multiverse-Core") || pm.isPluginEnabled("Multiverse")) {
-            mt.reload();
+        //Now only prunes on an error free load.  Otherwise leave the torches alone.
+        if(mt.reload())
             mt.prune();
-        } else {
-            pm.registerEvent(Type.PLUGIN_ENABLE, pluginListener, Priority.Monitor, this);
-        }
         
+        pm.registerEvent(Type.PLUGIN_ENABLE, pluginListener, Priority.Monitor, this);
         pm.registerEvent(Type.PLAYER_INTERACT , playerListener, Priority.Normal, this);
         pm.registerEvent(Type.BLOCK_BREAK, blockListener, Priority.Monitor, this);
         pm.registerEvent(Type.REDSTONE_CHANGE, blockListener, Priority.Monitor, this);
@@ -100,16 +98,6 @@ public class MagicTorches extends JavaPlugin {
     public static void spam(String msg) {
         log(Level.INFO, msg);
         //Bukkit.getServer().broadcastMessage("[MT] " + msg);
-    }
-    
-    /**
-     * Returns if the player has permission to create a TorchArray (or is admin)
-     * @param player
-     * @return <code>true</code> player has permission, <code>false</code> player 
-     * does not have permission.
-     */
-    public static boolean canCreate(Player player){
-        return (player.hasPermission(perm_create) || player.hasPermission(perm_admin));
     }
     
     /**
