@@ -16,27 +16,23 @@
  */
 package sorklin.magictorches.internals.torches;
 
-import sorklin.magictorches.internals.interfaces.Torch;
 import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
-import sorklin.magictorches.internals.Properties;
+import sorklin.magictorches.internals.Properties.MtType;
+import sorklin.magictorches.internals.interfaces.MTReceiver;
 
-/**
- *
- * @author Sorklin <sorklin at gmail.com>
- */
-public class Receiver implements Torch {
+
+abstract class Receiver implements MTReceiver {
     
-    protected Location torchLocation;
+    Location torchLocation;
+    MtType type;
 
     public Receiver (Location loc) {
         this.torchLocation = loc;
     }
     
     /**
-     * Returns location of Receiver torch.
+     * Returns location of DirectReceiver torch.
      * @return Location of torch
      */
     public Location getLocation() {
@@ -50,46 +46,11 @@ public class Receiver implements Torch {
         this.torchLocation = loc;
     }
     
-    /**
-     * Receives and processes transmitted signal, per receiver type.
-     * @param signal transmitted signal.
-     * @return <code>true</code> success, <code>false</code> failure.
-     */
-    public boolean receive(boolean signal){ //torch On = true, off = false
-        //Return true if I can process signal, else false to indicate
-        //something wrong with this torch receiver.
-        
-        //Lets check for a location and a torch at that location.
-        if(this.torchLocation == null)
-            return false;
-        Block torch = torchLocation.getBlock();
-        if(!(torch.getType().equals(Material.TORCH) ||
-                torch.getType().equals(Material.REDSTONE_TORCH_ON))) {
-            return false;
-        }
-        
-        if(!torch.getChunk().isLoaded()){
-            if(!Properties.forceChunkLoad)
-                return false;
-            else
-                torch.getChunk().load();
-        }
-        
-        if(signal){
-            torch.setType(Material.TORCH);
-        } else {
-            torch.setType(Material.REDSTONE_TORCH_ON);
-        }
-        
-        return true;
-    }
-    
-    
     @Override
     public String toString() {
         String result;
         result = this.torchLocation.toString();
-        result = result + ":Type{"+ Properties.DIRECT +"}";
+        result = result + ":Type{"+ type +"}";
         return result;
     }
     
@@ -97,11 +58,9 @@ public class Receiver implements Torch {
     public boolean equals(Object obj) {
         if(this == obj)
             return true;
-//        if(!(obj instanceof Receiver))
-//            MagicTorches.log(Level.INFO, "Obj not instance of Receiver.");
         try {
-            Receiver objTR = (Receiver)obj;
-            return (this.torchLocation.equals(objTR.torchLocation));
+            MTReceiver objTR = (MTReceiver)obj;
+            return (this.torchLocation.equals(objTR.getLocation()));
         } catch (Exception e) {
             return false;
         }

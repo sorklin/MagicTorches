@@ -17,22 +17,22 @@
 package sorklin.magictorches.internals;
 
 import org.bukkit.entity.Player;
+import sorklin.magictorches.internals.Properties.MtType;
+import sorklin.magictorches.internals.interfaces.MTInterface;
 
-/**
- *
- * @author Sorklin <sorklin at gmail.com>
- */
-public class TorchCreation {
+public class TorchCreator implements MTInterface {
     
     private Player player = null;
     private TorchArray ta = null;
-    private byte nextLinkType = 0x0;
+    private MtType nextLinkType = MtType.DIRECT;
+    private double timerValue = 0;
     
-    public String message = null;
+    private String message = null;
     
     
-    public TorchCreation(Player player){
+    public TorchCreator(Player player){
         ta = new TorchArray(player.getName());
+        this.player = player;
     }
     
     public void setPlayer(Player player){
@@ -40,11 +40,15 @@ public class TorchCreation {
         ta.setOwner(player.getName());
     }
     
-    public void setNextType(byte type){
+    public void setNextType(MtType type){
         this.nextLinkType = type;
     }
     
-    public byte getNextType(){
+    public void setTimeOut(double timeOut){
+        this.timerValue = timeOut;
+    }
+    
+    public MtType getNextType(){
         return this.nextLinkType;
     }
     
@@ -56,27 +60,47 @@ public class TorchCreation {
      * @return <code>true</code> if the Array was created, <code>false</code> if it was invalid.
      */
     public boolean create(){
-        if(Properties.db.isTorchArray(ta.getName().toLowerCase())){
-            this.message = "A MagicTorch Array of that name already exists.";
-            return false;
-        }
-        
-        if(player != null){
-            if(ta.isValid()) {
-                if(Properties.db.save(ta)) {
-                    return true;
-                } else {
-                    this.message = "Failed to save MagicTorch array.";
-                }
-            } else {
-                this.message = "MagicTorch array not valid.";
-                if(!ta.transmitterSet())
-                    this.message = this.message + " [transmitter not selected]";
-                if(!ta.receiverSet())
-                    this.message = this.message + " [receivers not selected]";
-            }
-        }
+//        if(Properties.db.isTorchArray(ta.getName().toLowerCase())){
+//            this.message = "A MagicTorch array of that name already exists.";
+//            return false;
+//        }
+//        
+//        if(player != null){
+//            if(ta.isValid()) {
+//                if(Properties.db.save(ta)) {
+//                    return true;
+//                } else {
+//                    this.message = "Failed to save MagicTorch array.";
+//                }
+//            } else {
+//                this.message = "MagicTorch array not valid.";
+//                if(!ta.transmitterSet())
+//                    this.message = this.message + " [transmitter not selected]";
+//                if(!ta.receiverSet())
+//                    this.message = this.message + " [receivers not selected]";
+//            }
+//        }
         return false;
+    }
+
+    public Player getPlayer() {
+        return this.player;
+    }
+
+    public TorchArray getTorchArray() {
+        return this.ta;
+    }
+
+    public void setTorchArray(TorchArray ta) {
+        this.ta = ta;
+    }
+
+    public double getTimeOut() {
+        return this.timerValue;
+    }
+
+    public String getMessage() {
+        return this.message;
     }
     
         /**

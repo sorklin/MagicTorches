@@ -21,14 +21,11 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import sorklin.magictorches.internals.Properties;
 
-/**
- *
- * @author Sorklin <sorklin at gmail.com>
- */
 public class InverseReceiver extends Receiver {
     
     public InverseReceiver (Location loc){
         super(loc);
+        this.type = Properties.INVERSE;
     }
     
     /**
@@ -64,14 +61,5 @@ public class InverseReceiver extends Receiver {
         }
         
         return true;
-    }
-    
-    
-    @Override
-    public String toString() {
-        String result;
-        result = this.torchLocation.toString();
-        result = result + ":Type{"+ Properties.INVERSE +"}";
-        return result;
     }
 }

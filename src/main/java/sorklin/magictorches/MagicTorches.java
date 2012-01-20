@@ -2,22 +2,19 @@ package sorklin.magictorches;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import org.bukkit.ChatColor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event.Priority;
 import org.bukkit.event.Event.Type;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-
 import sorklin.magictorches.commands.MTMainCommand;
 import sorklin.magictorches.internals.MTorchHandler;
+import sorklin.magictorches.internals.TorchCreator;
 import sorklin.magictorches.listeners.MTBlockListener;
 import sorklin.magictorches.listeners.MTPlayerListener;
 import sorklin.magictorches.listeners.MTPluginListener;
@@ -44,6 +41,8 @@ import sorklin.magictorches.listeners.MTPluginListener;
 //      toggles itself, then after a timed period, toggles back. 
 //TODO: support Vault (and the economy systems)
 //TODO: add YAML config for settable options.
+//TODO: config for last used default time.
+//TODO: distance in config setting.
 
 public class MagicTorches extends JavaPlugin {
     
@@ -55,17 +54,11 @@ public class MagicTorches extends JavaPlugin {
     private static final Logger logr = Logger.getLogger("Minecraft");
     private static String plugName;
     private static MagicTorches instance;
-
+    
+    //Torch creation 
+    public final Map<Player, TorchCreator> todo = new HashMap<Player, TorchCreator>();
     
     public MTorchHandler mt;
-    
-    static final String perm_create = "magictorches.create";
-    static final String perm_admin = "magictorches.admin";
-    
-    public final ChatColor g = ChatColor.GOLD;
-    public final ChatColor r = ChatColor.DARK_RED;
-    public final ChatColor b = ChatColor.AQUA;
-    public final ChatColor w = ChatColor.WHITE;
     
     public void onDisable() {
         log(Level.INFO, "Plugin disabled.");
@@ -87,9 +80,6 @@ public class MagicTorches extends JavaPlugin {
             }
         }
         
-        //TODO: config for last used default time.
-        //TODO: distance in config setting.
-        
         log(Level.INFO, "MiniDB found or created. Loading DB.");
         mt = new MTorchHandler(dbFile, this);
         
@@ -98,8 +88,8 @@ public class MagicTorches extends JavaPlugin {
         //Attempts to load and prune if MV is on.
         PluginManager pm = this.getServer().getPluginManager();
         if(pm.isPluginEnabled("Multiverse-Core") || pm.isPluginEnabled("Multiverse")) {
-            mt.reload();
-            mt.prune();
+//            mt.reload();
+//            mt.prune();
         } else {
             pm.registerEvent(Type.PLUGIN_ENABLE, pluginListener, Priority.Monitor, this);
         }
@@ -119,50 +109,11 @@ public class MagicTorches extends JavaPlugin {
         //Bukkit.getServer().broadcastMessage("[MT] " + msg);
     }
     
-    /**
-     * Returns if the player has permission to create a TorchArray (or is admin)
-     * @param player
-     * @return <code>true</code> player has permission, <code>false</code> player 
-     * does not have permission.
-     */
-    public static boolean canCreate(Player player){
-        return (player.hasPermission(perm_create) || player.hasPermission(perm_admin));
-    }
-    
-    /**
-     * Returns if the player has permission to create a TorchArray (or is admin)
-     * @param player
-     * @return <code>true</code> player has permission, <code>false</code> player 
-     * does not have permission.
-     */
-    public static boolean canCreate(CommandSender player){
-        if(!(player instanceof Player))
-            return false;
-        return (player.hasPermission(perm_create) || player.hasPermission(perm_admin) 
-                || player.isOp());
-    }
-    
-    /**
-     * Does player have admin privileges, or is it from the console?
-     * @param sender
-     * @return <code>true</code> Yes, <code>false</code> No.
-     */
-    public static boolean isAdmin(CommandSender sender){
-        return (sender.hasPermission(perm_admin) || (sender instanceof ConsoleCommandSender) ||
-                sender.isOp());
-    }
-    
-    public static void listMessage(CommandSender sender, List<String> lines){
-        for(String li : lines){
-            sender.sendMessage(li);
-        }
-    }
-    
     public static void log(Level l, String msg){
         logr.log(l, plugName + msg);
     }
     
-    public static MagicTorches getPluginInstance(){
+    public static MagicTorches get(){
         return instance;
     }
 }

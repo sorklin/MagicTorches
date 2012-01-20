@@ -16,27 +16,61 @@
  */
 package sorklin.magictorches.internals;
 
+import com.mini.Arguments;
 import com.mini.Mini;
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import sorklin.magictorches.MagicTorches;
 import sorklin.magictorches.internals.interfaces.MTStorage;
 
-/**
- *
- * @author Sorklin <sorklin at gmail.com>
- */
 public class MiniStorage implements MTStorage {
     
     private Mini mb_database;
-    private MagicTorches pl;
-    private File miniDB;
+    private MagicTorches mt;
+    private File mini_file;
+
+    public MiniStorage(MagicTorches mt){
+        this.mt = mt;
+        initFile();
+    }
     
-    private void loadFromDB(){
+    private void initFile() {
+        try {
+            mini_file = new File(MagicTorches.get().getDataFolder(), Properties.dbFileName);
+            if(!mini_file.exists())
+                mini_file.createNewFile();
+        
+            mb_database = new Mini(mini_file.getParent(), mini_file.getName());
+        } catch (IOException ioe) {
+            MagicTorches.log(Level.WARNING, "Could not find/create/connect to " + Properties.dbFileName);
+        }
+    }
+    
+    public TorchArray load(String name) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public boolean save(TorchArray ta) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public HashMap<Location, TorchArray> loadAll() {
         int torches = 0;
-        String data = "";
-        String owner = "";
+        String data;
+        String owner;
         Location loc;
         TorchArray ta;
+           
+        HashMap<Location,TorchArray> arrays = new HashMap<Location, TorchArray>();
         
         for(String name: mb_database.getIndices().keySet()) {
             Arguments entry = mb_database.getArguments(name);
@@ -47,22 +81,55 @@ public class MiniStorage implements MTStorage {
                 loc = trLocationFromData(data);
                 ta = torchArrayFromData(data, name, owner);
                 if(loc != null && ta != null) {
-                    mtArray.put(loc, ta);
-                    mtNameArray.put(loc, name);
-                    allReceiverArray.addAll(ta.getReceiverArray());
+                    arrays.put(loc, ta);
                     torches++;
                     MagicTorches.log(Level.FINE, "Loaded torch: " + name);
                 } else {
-                    this.message = name + "'s entry was malformed, or the transmitting"
-                            + "torch is missing. Deleting entry from DB.";
-                    MagicTorches.log(Level.INFO, this.message);
-                    delete(name);
+                     MagicTorches.log(Level.INFO, name + "'s entry was malformed, or the transmitting" +
+                                                            "torch is missing. Deleting entry from DB.");
+//                    delete(name);
                 }
             } catch (NullPointerException npe) {
                 MagicTorches.log(Level.WARNING, "NPE on torch: " + name);
             } // just ignore for now
         }
-        MagicTorches.log(Level.INFO, "Loaded " + torches + " magictorch arrays.");
+        MagicTorches.log(Level.INFO, "Loading " + torches + " magictorch arrays.");
+        return arrays;
+    }
+
+    public boolean saveAll(HashMap<Location, TorchArray> ta) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public boolean exists(String name) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public boolean remove(String name) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public String getOwner(String name) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+    
+    
+    private Location trLocationFromData(String data){
+        
+        if(!data.contains(";")){
+            return null;
+        }
+        
+        Location result = null;
+        
+        String[] sub = data.split(";");
+        
+        for(int i = 0, length = sub.length; i < length; i++){
+            if(sub[i].contains("Transmitter")){
+                result = locationFromString(sub[i]);
+            }
+        }
+        return result;
     }
     
     private Location locationFromString(String data) throws NullPointerException {
@@ -91,47 +158,10 @@ public class MiniStorage implements MTStorage {
         
         if(!world.isEmpty() && coords.size() == 5) {
             //Valid pull data.
-            result = new Location(pl.getServer().getWorld(world), 
+            result = new Location(mt.getServer().getWorld(world), 
                     Double.valueOf(coords.get(0)), 
                     Double.valueOf(coords.get(1)), 
                     Double.valueOf(coords.get(2)));
-        }
-        return result;
-    }
-    
-    private boolean saveToDB(Player player, TorchArray t){
-        if(!t.isValid())
-            return false;
-        
-        String name = t.getName();
-        String data = t.toString();
-        MagicTorches.log(Level.FINER, "Saving to DB:" + t.getName() + ", " + t.toString());
-        Arguments entry = new Arguments(name.toLowerCase());
-        entry.setValue("owner", player.getName());
-        entry.setValue("data", data);
-        mb_database.addIndex(entry.getKey(), entry);
-        mb_database.update();
-        //Now push onto working cache:
-        mtArray.put(t.getLocation(), t);
-        mtNameArray.put(t.getLocation(),t.getName());
-        transmit(t.getLocation());
-        return true;
-    }
-    
-    private Location trLocationFromData(String data){
-        
-        if(!data.contains(";")){
-            return null;
-        }
-        
-        Location result = null;
-        
-        String[] sub = data.split(";");
-        
-        for(int i = 0, length = sub.length; i < length; i++){
-            if(sub[i].contains("Transmitter")){
-                result = locationFromString(sub[i]);
-            }
         }
         return result;
     }
@@ -169,11 +199,13 @@ public class MiniStorage implements MTStorage {
             }
         }
         return ((ta.isValid()) ? ta : null);
-    }
+    } 
     
     private byte typeFromString(String data){
+        //FIX for the new Type Enum
+        
         //type: (?<=Type{)\d{1,2}
-        byte result = Properties.DIRECT; //Default to direct.
+        byte result = 0x1; //This whole thing needs to change for Enum.
 
         Pattern p = Pattern.compile("(?<=Type\\{)\\d{1,2}");
         Matcher m = p.matcher(data);
@@ -196,5 +228,26 @@ public class MiniStorage implements MTStorage {
 //            }
 //        }
 //        mb_database.update();
+//    }
+
+
+//    
+//    private boolean saveToDB(Player player, TorchArray t){
+//        if(!t.isValid())
+//            return false;
+//        
+//        String name = t.getName();
+//        String data = t.toString();
+//        MagicTorches.log(Level.FINER, "Saving to DB:" + t.getName() + ", " + t.toString());
+//        Arguments entry = new Arguments(name.toLowerCase());
+//        entry.setValue("owner", player.getName());
+//        entry.setValue("data", data);
+//        mb_database.addIndex(entry.getKey(), entry);
+//        mb_database.update();
+//        //Now push onto working cache:
+//        mtArray.put(t.getLocation(), t);
+//        mtNameArray.put(t.getLocation(),t.getName());
+//        transmit(t.getLocation());
+//        return true;
 //    }
 }

@@ -1,8 +1,5 @@
 package sorklin.magictorches.internals.interfaces;
 
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
-
 /**
 * Copyright (C) 2011 Sorklin <sorklin@gmail.com>
 *
@@ -19,10 +16,6 @@ import org.bukkit.entity.Player;
 * You should have received a copy of the GNU General Public License
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
-
-public interface Torch {
-    public Location getLocation();
-    public boolean receive(boolean signal);
-    public void setLocation(Location loc);
-    public void teleportTo(Player player);
+public interface Cmd {
+    public boolean execute();
 }

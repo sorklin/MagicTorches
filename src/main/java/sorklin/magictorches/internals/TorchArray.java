@@ -2,13 +2,11 @@ package sorklin.magictorches.internals;
 
 import java.util.ArrayList;
 import java.util.ListIterator;
-
 import org.bukkit.Location;
 import org.bukkit.Material;
-
 import sorklin.magictorches.internals.torches.DelayReceiver;
+import sorklin.magictorches.internals.torches.DirectReceiver;
 import sorklin.magictorches.internals.torches.InverseReceiver;
-import sorklin.magictorches.internals.torches.Receiver;
 import sorklin.magictorches.internals.torches.TimerReceiver;
 
 public class TorchArray {
@@ -33,13 +31,13 @@ public class TorchArray {
         if(this.transmitter.equals(loc))
             return false;
         
-        Receiver tr = null;
+        DirectReceiver tr = null;
         
         switch(type) {
             case Properties.DELAY:
                 tr = new DelayReceiver(loc);
             case Properties.DIRECT:
-                tr = new Receiver(loc);
+                tr = new DirectReceiver(loc);
             case Properties.INVERSE:
                 tr = new InverseReceiver(loc);
             case Properties.TIMER:
@@ -77,7 +75,7 @@ public class TorchArray {
      * Returns a list of all Receivers in the array.
      * @return ArrayList containing TR.
      */
-    public ArrayList<? extends Receiver> getReceiverArray(){
+    public ArrayList<? extends DirectReceiver> getReceiverArray(){
         return this.receiverArray;
     }
     
@@ -87,7 +85,7 @@ public class TorchArray {
      * @return <code>true</code> is a receiver, <code>false</code> is not.
      */
     public boolean isReceiver(Location loc){
-        return receiverArray.contains(new Receiver(loc));
+        return receiverArray.contains(new DirectReceiver(loc));
     }
     
     /**
@@ -126,7 +124,7 @@ public class TorchArray {
      * not remove a receiver (either not there or not able to remove).
      */
     public boolean remove(Location loc) {
-        Receiver torch = new Receiver(loc);
+        DirectReceiver torch = new DirectReceiver(loc);
         if (receiverArray.contains(torch)) {
             return receiverArray.remove(torch);
         }
@@ -166,7 +164,7 @@ public class TorchArray {
                 ? "Transmitter{NULL};" 
                 : "Transmitter{" + this.transmitter.toString() + "};");
         if(!receiverArray.isEmpty()) {
-            ListIterator<? extends Receiver> it = receiverArray.listIterator();
+            ListIterator<? extends DirectReceiver> it = receiverArray.listIterator();
             while(it.hasNext()) {
                 result = result + "Receiver{" + it.next().toString() + "};";
             }
@@ -196,7 +194,7 @@ public class TorchArray {
         if(isNotPowered(transmitter.getBlock().getType()))
             return false;
         
-        ListIterator<? extends Receiver> tr = receiverArray.listIterator();
+        ListIterator<? extends DirectReceiver> tr = receiverArray.listIterator();
         while(tr.hasNext()) {
             tr.next().receive(current);
         }

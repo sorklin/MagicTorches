@@ -17,22 +17,17 @@
 package sorklin.magictorches.internals;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
 import sorklin.magictorches.MagicTorches;
+import sorklin.magictorches.internals.interfaces.MTReceiver;
 import sorklin.magictorches.internals.torches.DelayReceiver;
+import sorklin.magictorches.internals.torches.DirectReceiver;
 import sorklin.magictorches.internals.torches.InverseReceiver;
-import sorklin.magictorches.internals.torches.Receiver;
 import sorklin.magictorches.internals.torches.TimerReceiver;
 
 
@@ -44,10 +39,7 @@ public final class MTorchHandler {
     private Map<Location, TorchArray> mtArray = new HashMap<Location, TorchArray>();
     
     //Locate a receiver by location
-    private final List<? extends Receiver> allReceiverArray = new ArrayList();
-    
-    //Torch creation
-    private Map<Player, TorchCreation> mtCreate = new HashMap<Player, TorchCreation>();
+    private final List<MTReceiver> allReceiverArray = new ArrayList();
     
     //Passback messages.
     public String message = "";
@@ -66,39 +58,39 @@ public final class MTorchHandler {
     /**
      * Adds an entry into the player/Torchcreate Hashmap.
      * @param player Player
-     * @param tc TorchCreation object
+     * @param tc TorchCreator object
      */
-    public void setPlayerCreate(Player player, TorchCreation tc){
-        mtCreate.put(player, tc);
-    }
+//    public void setPlayerCreate(Player player, TorchCreator tc){
+//        mtCreate.put(player, tc);
+//    }
     
     /**
-     * Retrieves the TorchCreation object for a player.
+     * Retrieves the TorchCreator object for a player.
      * @param player
      * @return Object or null if none found.
      */
-    public TorchCreation getPlayerCreate(Player player){
-        return (mtCreate.containsKey(player)) ? mtCreate.get(player) : null;
-    }
+//    public TorchCreator getPlayerCreate(Player player){
+//        return (mtCreate.containsKey(player)) ? mtCreate.get(player) : null;
+//    }
     
     /**
      * Checks if a player has an entry in the Creation Hashmap.
      * @param player
      */
-    public boolean isPlayerCreating(Player player){
-        return mtCreate.containsKey(player);
-    }
+//    public boolean isPlayerCreating(Player player){
+//        return mtCreate.containsKey(player);
+//    }
     
     /**
      * Removes a player's entry in the Creation hashmap, if possible.
      * @param player 
      */
-    public void removePlayerCreate(Player player){
-        mtCreate.remove(player);
-    }
+//    public void removePlayerCreate(Player player){
+//        mtCreate.remove(player);
+//    }
     
     public void addArray(TorchArray ta){
-        //fix
+        //fix?
         mtArray.put(ta.getLocation(), ta);
         allReceiverArray.addAll(ta.getReceiverArray());
     }
@@ -165,12 +157,12 @@ public final class MTorchHandler {
 //        } else
 //
 //        if(isReceiver(loc)){
-//            ListIterator<? extends Receiver> it = allReceiverArray.listIterator();
+//            ListIterator<? extends DirectReceiver> it = allReceiverArray.listIterator();
 //            //Not sure why this doesn't find the second instance.
 //            while(it.hasNext()){
-//                Receiver tr = it.next();
+//                DirectReceiver tr = it.next();
 //                if(tr.getLocation().equals(loc))
-//                    result.add(pl.g + "Receiver: " + pl.w + getReceiverInfo(tr) + ".");
+//                    result.add(pl.g + "DirectReceiver: " + pl.w + getReceiverInfo(tr) + ".");
 //            }
 //            
 //        } else {
@@ -208,9 +200,9 @@ public final class MTorchHandler {
      * the block is not a MT receiver.
      */
     public boolean isReceiver(Location loc){
-        ListIterator<? extends Receiver> it = allReceiverArray.listIterator();
+        ListIterator<MTReceiver> it = allReceiverArray.listIterator();
         while(it.hasNext()){
-            if(it.next().getLocation().equals(loc))
+            if(loc.equals(it.next().getLocation()))
                 return true;
         }
         return false;
@@ -257,7 +249,7 @@ public final class MTorchHandler {
 //        if(allReceiverArray.isEmpty())
 //            return "No Receivers found.";
 //        
-//        ListIterator<? extends Receiver> it = allReceiverArray.listIterator();
+//        ListIterator<? extends DirectReceiver> it = allReceiverArray.listIterator();
 //        
 //        while(it.hasNext()){
 //            result += (comma + it.next().getLocation().toString());
@@ -273,12 +265,12 @@ public final class MTorchHandler {
      */
 //    public List<String> listReceivers(Location loc){
 //        List<String> result = new ArrayList<String>();
-//        ArrayList<? extends Receiver> receivers = new ArrayList();
+//        ArrayList<? extends DirectReceiver> receivers = new ArrayList();
 //        
 //        if(mtArray.containsKey(loc)){
 //            receivers = mtArray.get(loc).getReceiverArray();
 //            if(!receivers.isEmpty()){
-//                ListIterator<? extends Receiver> it = receivers.listIterator();
+//                ListIterator<? extends DirectReceiver> it = receivers.listIterator();
 //                while(it.hasNext()){
 //                    result.add(getReceiverInfo(it.next()));
 //                }
@@ -457,17 +449,19 @@ public final class MTorchHandler {
             return null;
     }
     
-    private String getReceiverInfo(Receiver tr){
+    private String getReceiverInfo(MTReceiver tr){
         StringBuilder sb = new StringBuilder();
         
-        if(tr instanceof InverseReceiver)
+        if(tr instanceof DirectReceiver)
+            sb.append("Direct");
+        else if(tr instanceof InverseReceiver)
             sb.append("Inverse");
         else if(tr instanceof DelayReceiver)
             sb.append("Delay");
         else if(tr instanceof TimerReceiver)
             sb.append("Delay");
         else 
-            sb.append("Direct");
+            sb.append("Unknown");
         
         sb.append(" receiver at ");
         sb.append("[").append(tr.getLocation().getWorld().getName()).append(": ");

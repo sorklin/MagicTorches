@@ -20,18 +20,17 @@ import sorklin.magictorches.internals.interfaces.MTStorage;
 
 public class Properties {
     
-    /*
-     * We'll store other properties here, including those we load from config.yml.
-     */
-    
     //types of torch relationships.
-    public static final byte NONE = 0x0;
-    public static final byte DIRECT = 0x1;
-    public static final byte INVERSE = 0x2;
-    public static final byte DELAY  = 0x4;
-    public static final byte TIMER = 0x8;
+    public enum MtType {
+        NONE,
+        DIRECT,
+        INVERSE,
+        DELAY,
+        TIMER
+    }
     
     public static MTStorage db; //will be instantiated in main routine
+    public static final String dbFileName = "mt.mini";
     
     //From config.yml, when implemented.
     public static boolean loadChunkOnReceive = false;
@@ -40,9 +39,11 @@ public class Properties {
     public static double maxDistance = 100.0; //Not implemented yet.  May not implement.
     public static boolean forceChunkLoad = false; 
     
-    
-    //Utility
-    public static long toMillis(double seconds){
-        return (long) seconds * 1000;
-    }
+    //Permissions
+    public static final String permCreate = "magictorches.create";
+    public static final String permCreateDelay = "magictorches.create.delay";
+    public static final String permCreateDirect = "magictorches.create.direct";
+    public static final String permCreateInverse = "magictorches.create.inverse";
+    public static final String permCreateTimer = "magictorches.create.timer";
+    public static final String permAdmin = "magictorches.admin";
 }

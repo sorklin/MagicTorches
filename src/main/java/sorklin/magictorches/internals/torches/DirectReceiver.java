@@ -21,16 +21,11 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import sorklin.magictorches.internals.Properties;
 
-/**
- *
- * @author Sorklin <sorklin at gmail.com>
- */
-public class DelayReceiver extends Receiver {
-    
-    private long lastUsed = 0;
-    
-    public DelayReceiver (Location loc){
+public class DirectReceiver extends Receiver {
+
+    public DirectReceiver (Location loc) {
         super(loc);
+        this.type = Properties.DIRECT;
     }
     
     /**
@@ -38,7 +33,6 @@ public class DelayReceiver extends Receiver {
      * @param signal transmitted signal.
      * @return <code>true</code> success, <code>false</code> failure.
      */
-    @Override
     public boolean receive(boolean signal){ //torch On = true, off = false
         //Return true if I can process signal, else false to indicate
         //something wrong with this torch receiver.
@@ -52,25 +46,20 @@ public class DelayReceiver extends Receiver {
             return false;
         }
         
-        if(!torch.getChunk().isLoaded())
+        if(!torch.getChunk().isLoaded()){
             if(!Properties.forceChunkLoad)
                 return false;
             else
                 torch.getChunk().load();
+        }
         
-        if(System.currentTimeMillis() > 
-                (Properties.toMillis(Properties.toggleDelay) + lastUsed)){
-            if(torch.getType().equals(Material.TORCH)) {
-                torch.setType(Material.REDSTONE_TORCH_ON);
-            } else
-
-            if(torch.getType().equals(Material.REDSTONE_TORCH_ON)
-                    || torch.getType().equals(Material.REDSTONE_TORCH_OFF)) {
-                torch.setType(Material.TORCH);
-            }
-            lastUsed = System.currentTimeMillis();
+        if(signal){
+            torch.setType(Material.TORCH);
+        } else {
+            torch.setType(Material.REDSTONE_TORCH_ON);
         }
         
         return true;
     }
+    
 }

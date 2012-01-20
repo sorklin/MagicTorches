@@ -22,10 +22,6 @@ import org.bukkit.block.Block;
 import sorklin.magictorches.MagicTorches;
 import sorklin.magictorches.internals.Properties;
 
-/**
- *
- * @author Sorklin <sorklin at gmail.com>
- */
 public class TimerReceiver extends Receiver {
     
     private int delayTask;
@@ -33,11 +29,13 @@ public class TimerReceiver extends Receiver {
     
     public TimerReceiver (Location loc){
         super(loc);
+        this.type = Properties.TIMER;
         this.delayTime = Properties.toMillis(Properties.timerDelay);
     }
     
     public TimerReceiver (Location loc, double delay){
         super(loc);
+        this.type = Properties.TIMER;
         this.delayTime = Properties.toMillis(delay);
     }
     
@@ -97,13 +95,5 @@ public class TimerReceiver extends Receiver {
      */
     public void setDelay(double delay){
         this.delayTime = Properties.toMillis(delay);
-    }
-    
-    @Override
-    public String toString() {
-        String result;
-        result = this.torchLocation.toString();
-        result = result + ":Type{"+ Properties.TIMER +"}";
-        return result;
     }
 }
