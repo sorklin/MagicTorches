@@ -20,23 +20,25 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import sorklin.magictorches.MagicTorches;
+import sorklin.magictorches.internals.MTUtil;
 import sorklin.magictorches.internals.Properties;
+import sorklin.magictorches.internals.Properties.MtType;
 
 public class TimerReceiver extends Receiver {
     
     private int delayTask;
-    private long delayTime = 0;
+    private long delayTicks = 0;
     
     public TimerReceiver (Location loc){
         super(loc);
-        this.type = Properties.TIMER;
-        this.delayTime = Properties.toMillis(Properties.timerDelay);
+        this.type = MtType.TIMER;
+        this.delayTicks = MTUtil.secondsToTicks(Properties.timerDelay);
     }
     
     public TimerReceiver (Location loc, double delay){
         super(loc);
-        this.type = Properties.TIMER;
-        this.delayTime = Properties.toMillis(delay);
+        this.type = MtType.TIMER;
+        this.delayTicks = MTUtil.secondsToTicks(delay);
     }
     
     /**
@@ -48,42 +50,40 @@ public class TimerReceiver extends Receiver {
     public boolean receive(boolean signal){ //torch On = true, off = false
         
         //Lets check for a location and a torch at that location.
-        if(this.torchLocation == null)
+        if(torchInvalid())
             return false;
         
         final Block torch = torchLocation.getBlock();
         final Material originalMat = torch.getType();
+        MagicTorches mt = MagicTorches.get();
         
-        if(!(originalMat.equals(Material.TORCH) ||
-                originalMat.equals(Material.REDSTONE_TORCH_ON))) {
-            return false;
-        }
-        
+        //Check to see if chunk is loaded, and if not, should it be?
         if(!torch.getChunk().isLoaded()){
             if(!Properties.forceChunkLoad)
                 return false;
             else
                 torch.getChunk().load();
         }
-       
-        MagicTorches mt = MagicTorches.getPluginInstance();
-        
-        if(originalMat.equals(Material.TORCH)) {
-            torch.setType(Material.REDSTONE_TORCH_ON);
-        } else
-
-        if(originalMat.equals(Material.REDSTONE_TORCH_ON)
-                || originalMat.equals(Material.REDSTONE_TORCH_OFF)) {
-            torch.setType(Material.TORCH);
-        }
         
         //If the delay is already functioning, ignore the received signal.
         if(!mt.getServer().getScheduler().isCurrentlyRunning(delayTask)){
+            
+            //Set initial torch signal receive:
+            if(originalMat.equals(Material.TORCH)) {
+                torch.setType(Material.REDSTONE_TORCH_ON);
+            } 
+
+            else if(originalMat.equals(Material.REDSTONE_TORCH_ON)
+                    || originalMat.equals(Material.REDSTONE_TORCH_OFF)) {
+                torch.setType(Material.TORCH);
+            }
+            
+            //Create the timed task to flip it back:
             this.delayTask = mt.getServer().getScheduler().scheduleSyncDelayedTask(mt, new Runnable() {
                 public void run() {
                     torch.setType(originalMat);
                 }
-            }, delayTime);
+            }, delayTicks);
         }
         
         return true;
@@ -94,6 +94,13 @@ public class TimerReceiver extends Receiver {
      * @param delay Time in seconds.
      */
     public void setDelay(double delay){
-        this.delayTime = Properties.toMillis(delay);
+        this.delayTicks = MTUtil.secondsToTicks(delay);
+    }
+
+    @Override
+    public String toString() {
+        String result = super.toString();
+        result += ":Delay{" + this.delayTicks + "}";
+        return result;
     }
 }

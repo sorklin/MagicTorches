@@ -20,12 +20,13 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import sorklin.magictorches.internals.Properties;
+import sorklin.magictorches.internals.Properties.MtType;
 
 public class InverseReceiver extends Receiver {
     
     public InverseReceiver (Location loc){
         super(loc);
-        this.type = Properties.INVERSE;
+        this.type = MtType.INVERSE;
     }
     
     /**

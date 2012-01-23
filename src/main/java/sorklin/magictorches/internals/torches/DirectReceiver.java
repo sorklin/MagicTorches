@@ -20,12 +20,13 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import sorklin.magictorches.internals.Properties;
+import sorklin.magictorches.internals.Properties.MtType;
 
 public class DirectReceiver extends Receiver {
 
     public DirectReceiver (Location loc) {
         super(loc);
-        this.type = Properties.DIRECT;
+        this.type = MtType.DIRECT;
     }
     
     /**

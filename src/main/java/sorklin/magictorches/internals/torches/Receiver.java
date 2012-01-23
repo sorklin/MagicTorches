@@ -17,6 +17,7 @@
 package sorklin.magictorches.internals.torches;
 
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import sorklin.magictorches.internals.Properties.MtType;
 import sorklin.magictorches.internals.interfaces.MTReceiver;
@@ -75,5 +76,15 @@ abstract class Receiver implements MTReceiver {
 
     public void teleportTo(Player player) {
         player.sendMessage("Not yet implemented.");
+    }
+    
+    protected boolean torchInvalid(){
+        if(this.torchLocation == null)
+            return true;
+        
+        Material m = this.torchLocation.getBlock().getType();
+        return (!(m.equals(Material.TORCH)
+                || m.equals(Material.REDSTONE_TORCH_ON)
+                || m.equals(Material.REDSTONE_TORCH_OFF)));
     }
 }

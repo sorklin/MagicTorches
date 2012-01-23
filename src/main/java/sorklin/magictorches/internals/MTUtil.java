@@ -39,4 +39,15 @@ public class MTUtil {
     public static boolean hasPermission(CommandSender sender, String perm){
         return (sender.hasPermission(perm) || sender.isOp());
     }
+    
+    /**
+     * Returns the number of ticks a timer torch (and perhaps delay torch) should wait
+     * before reverting.  Not using system clock, because lag will throw off calculations.
+     * @param seconds number of seconds in 0.0
+     * @return the number of ticks in the given number of seconds.
+     */
+    public static long secondsToTicks(double seconds){
+        double t = seconds * 20; //20 ticks per second, in an ideal world.
+        return Math.round(t);
+    }
 }

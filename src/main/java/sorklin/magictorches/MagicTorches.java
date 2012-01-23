@@ -61,6 +61,8 @@ public class MagicTorches extends JavaPlugin {
     public MTorchHandler mt;
     
     public void onDisable() {
+        //Cancel all outstanding tasks
+        this.getServer().getScheduler().cancelTasks(this);
         log(Level.INFO, "Plugin disabled.");
     }
 

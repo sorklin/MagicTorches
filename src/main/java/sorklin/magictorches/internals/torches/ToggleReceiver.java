@@ -24,19 +24,24 @@ import sorklin.magictorches.internals.MTUtil;
 import sorklin.magictorches.internals.Properties;
 import sorklin.magictorches.internals.Properties.MtType;
 
-public class DelayReceiver extends Receiver {
+/**
+ *
+ * @author Sorklin <sorklin at gmail.com>
+ */
+public class ToggleReceiver extends Receiver {
     
+    private int ignoreSignal;
     private long delayTicks = 0;
     
-    public DelayReceiver (Location loc){
+    public ToggleReceiver (Location loc){
         super(loc);
-        this.type = MtType.DELAY;
-        this.delayTicks = MTUtil.secondsToTicks(Properties.delayDelay);
+        this.type = MtType.TOGGLE;
+        this.delayTicks = MTUtil.secondsToTicks(Properties.toggleDelay);
     }
     
-    public DelayReceiver (Location loc, double delay){
+    public ToggleReceiver (Location loc, double delay){
         super(loc);
-        this.type = MtType.TIMER;
+        this.type = MtType.TOGGLE;
         this.delayTicks = MTUtil.secondsToTicks(delay);
     }
     
@@ -47,6 +52,8 @@ public class DelayReceiver extends Receiver {
      */
     @Override
     public boolean receive(boolean signal){ //torch On = true, off = false
+        //Return true if I can process signal, else false to indicate
+        //something wrong with this torch receiver.
         
         //Lets check for a location and a torch at that location.
         if(torchInvalid())
@@ -54,32 +61,33 @@ public class DelayReceiver extends Receiver {
         
         final Block torch = torchLocation.getBlock();
         final Material originalMat = torch.getType();
+        MagicTorches mt = MagicTorches.get();
         
-        //Check to see if chunk is loaded, and if not, should it be?
-        if(!torch.getChunk().isLoaded()){
+        if(!torch.getChunk().isLoaded())
             if(!Properties.forceChunkLoad)
                 return false;
             else
                 torch.getChunk().load();
-        }
-       
-        MagicTorches mt = MagicTorches.get();
-            
-        //Create the timed delayed task to process change:
-        mt.getServer().getScheduler().scheduleSyncDelayedTask(mt, new Runnable() {
-            public void run() {
-                //Set torch signal receive:
-                if(originalMat.equals(Material.TORCH)) {
-                    torch.setType(Material.REDSTONE_TORCH_ON);
-                } 
-
-                else if(originalMat.equals(Material.REDSTONE_TORCH_ON)
-                        || originalMat.equals(Material.REDSTONE_TORCH_OFF)) {
-                    torch.setType(Material.TORCH);
-                }
-            }
-        }, delayTicks);
         
+        //If the delay is already functioning, ignore the received signal.
+        if(!mt.getServer().getScheduler().isCurrentlyRunning(ignoreSignal)){
+            
+            if(torch.getType().equals(Material.TORCH)) {
+                torch.setType(Material.REDSTONE_TORCH_ON);
+            } else
+
+            if(torch.getType().equals(Material.REDSTONE_TORCH_ON)
+                    || torch.getType().equals(Material.REDSTONE_TORCH_OFF)) {
+                torch.setType(Material.TORCH);
+            }
+            
+            ignoreSignal = mt.getServer().getScheduler().scheduleAsyncDelayedTask(mt, new Runnable() {
+                public void run() {
+                    //There literally is nothing here.
+                    //Hopefully the presence of the scheduled task is enough to delay signal processing.
+                }
+            }, delayTicks);
+        }
         return true;
     }
     

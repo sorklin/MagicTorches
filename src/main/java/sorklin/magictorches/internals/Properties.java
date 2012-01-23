@@ -22,11 +22,16 @@ public class Properties {
     
     //types of torch relationships.
     public enum MtType {
-        NONE,
-        DIRECT,
-        INVERSE,
-        DELAY,
-        TIMER
+        NONE (0),
+        DIRECT (1),
+        INVERSE (2),
+        DELAY (8), //this is new torch.
+        TIMER (16),
+        TOGGLE (4);//this is the old delay torch
+        
+        private final int type;
+        MtType(int type){ this.type = type; }
+        public int toInt(){ return this.type; }
     }
     
     public static MTStorage db; //will be instantiated in main routine
@@ -35,6 +40,7 @@ public class Properties {
     //From config.yml, when implemented.
     public static boolean loadChunkOnReceive = false;
     public static double toggleDelay = 1.5; //in seconds
+    public static double delayDelay = 2; //in seconds
     public static double timerDelay = 5; //in seconds
     public static double maxDistance = 100.0; //Not implemented yet.  May not implement.
     public static boolean forceChunkLoad = false; 

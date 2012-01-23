@@ -25,4 +25,10 @@ public interface MTReceiver {
     public boolean receive(boolean signal);
     public void setLocation(Location loc);
     public void teleportTo(Player player);
+    @Override
+    public String toString();
+    @Override
+    public boolean equals(Object obj);
+    @Override
+    public int hashCode();
 }

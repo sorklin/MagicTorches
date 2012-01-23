@@ -25,7 +25,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import sorklin.magictorches.MagicTorches;
 import sorklin.magictorches.internals.interfaces.MTReceiver;
-import sorklin.magictorches.internals.torches.DelayReceiver;
+import sorklin.magictorches.internals.torches.ToggleReceiver;
 import sorklin.magictorches.internals.torches.DirectReceiver;
 import sorklin.magictorches.internals.torches.InverseReceiver;
 import sorklin.magictorches.internals.torches.TimerReceiver;
@@ -456,7 +456,7 @@ public final class MTorchHandler {
             sb.append("Direct");
         else if(tr instanceof InverseReceiver)
             sb.append("Inverse");
-        else if(tr instanceof DelayReceiver)
+        else if(tr instanceof ToggleReceiver)
             sb.append("Delay");
         else if(tr instanceof TimerReceiver)
             sb.append("Delay");
