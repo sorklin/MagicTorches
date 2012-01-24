@@ -1,22 +1,21 @@
 package sorklin.magictorches.internals;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.ListIterator;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import sorklin.magictorches.internals.Properties.MtType;
 import sorklin.magictorches.internals.interfaces.MTReceiver;
-import sorklin.magictorches.internals.torches.DirectReceiver;
-import sorklin.magictorches.internals.torches.InverseReceiver;
-import sorklin.magictorches.internals.torches.TimerReceiver;
-import sorklin.magictorches.internals.torches.ToggleReceiver;
+import sorklin.magictorches.internals.torches.*;
 
 public class TorchArray {
     
     private String arrayName;
     private Location transmitter;
     private String owner;
-    private final ArrayList receiverArray = new ArrayList();
+    private final ArrayList<MTReceiver> receiverArray = new ArrayList<MTReceiver>();
     
     public TorchArray(String owner) {
         arrayName = String.valueOf(this.hashCode());
@@ -30,6 +29,17 @@ public class TorchArray {
      * @return <code>true</code> success, <code>false</code> failure.
      */
     public boolean add(Location loc, MtType type) {
+        return this.add(loc, type, -1);
+    }
+    
+    /**
+     * Adds a receiver to the array.
+     * @param loc  location of the torch being added as receiver.
+     * @param type  the type of receiver being added.
+     * @param delay the length of delay for the time-based receivers.
+     * @return <code>true</code> success, <code>false</code> failure.
+     */
+    public boolean add(Location loc, MtType type, double delay) {
         if(this.transmitter.equals(loc))
             return false;
         
@@ -40,17 +50,33 @@ public class TorchArray {
                 tr = new DirectReceiver(loc);
                 break;
             case DELAY:
-                tr = new ToggleReceiver(loc);
+                if(delay < 0)
+                    tr = new DelayReceiver(loc);
+                else
+                    tr = new DelayReceiver(loc, delay);
                 break;
             case INVERSE:
                 tr = new InverseReceiver(loc);
                 break;
             case TIMER:
-                tr = new TimerReceiver(loc);
+                if(delay < 0)
+                    tr = new TimerReceiver(loc);
+                else
+                    tr = new TimerReceiver(loc, delay);
+                break;
+            case TOGGLE:
+                if(delay < 0)
+                    tr = new ToggleReceiver(loc);
+                else
+                    tr = new ToggleReceiver(loc, delay);
                 break;
             default:
                 tr = new DirectReceiver(loc);
         }
+        
+        //Try to set the parent's location
+        if(transmitterSet())
+            tr.setParent(transmitter);
         
         return this.receiverArray.add(tr);
     }
@@ -136,8 +162,8 @@ public class TorchArray {
         MTReceiver torch = new DirectReceiver(loc);
         if (receiverArray.contains(torch)) {
             return receiverArray.remove(torch);
-        }
-        return false;
+        } else
+            return false;
     }
     
     /**
@@ -164,6 +190,20 @@ public class TorchArray {
         this.transmitter = loc;
         if(isReceiver(loc))
             remove(loc);
+    }
+    
+    /**
+     * Resets the parent transmitters for all receivers in the array.  This will allow
+     * for the transmitter to change as needed.
+     * @return 
+     */
+    public void setReceiverParents(){
+        if(transmitterSet()){
+            for (Iterator<MTReceiver> it = receiverArray.iterator(); it.hasNext();) {
+                MTReceiver r = it.next();
+                r.setParent(transmitter);
+            }
+        }
     }
     
     @Override
@@ -203,9 +243,9 @@ public class TorchArray {
         if(isNotPowered(transmitter.getBlock().getType()))
             return false;
         
-        ListIterator<? extends DirectReceiver> tr = receiverArray.listIterator();
-        while(tr.hasNext()) {
-            tr.next().receive(current);
+        for (Iterator<MTReceiver> it = receiverArray.iterator(); it.hasNext();) {
+            MTReceiver r = it.next();
+            r.receive(current);
         }
         
         return true;

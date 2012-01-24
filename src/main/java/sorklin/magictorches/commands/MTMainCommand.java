@@ -56,6 +56,8 @@ public class MTMainCommand implements CommandExecutor{
             return false;
         }
         
+        
+        // /mt activate, /mt deactivate
 
 
 

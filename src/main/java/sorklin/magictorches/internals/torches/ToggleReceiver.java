@@ -24,10 +24,6 @@ import sorklin.magictorches.internals.MTUtil;
 import sorklin.magictorches.internals.Properties;
 import sorklin.magictorches.internals.Properties.MtType;
 
-/**
- *
- * @author Sorklin <sorklin at gmail.com>
- */
 public class ToggleReceiver extends Receiver {
     
     private int ignoreSignal;

@@ -62,5 +62,4 @@ public class DirectReceiver extends Receiver {
         
         return true;
     }
-    
 }

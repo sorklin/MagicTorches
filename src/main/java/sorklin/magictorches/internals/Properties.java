@@ -16,8 +16,6 @@
  */
 package sorklin.magictorches.internals;
 
-import sorklin.magictorches.internals.interfaces.MTStorage;
-
 public class Properties {
     
     //types of torch relationships.
@@ -34,7 +32,6 @@ public class Properties {
         public int toInt(){ return this.type; }
     }
     
-    public static MTStorage db; //will be instantiated in main routine
     public static final String dbFileName = "mt.mini";
     
     //From config.yml, when implemented.

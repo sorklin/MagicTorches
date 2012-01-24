@@ -1,7 +1,5 @@
 package sorklin.magictorches;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -14,6 +12,7 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import sorklin.magictorches.commands.MTMainCommand;
 import sorklin.magictorches.internals.MTorchHandler;
+import sorklin.magictorches.internals.MiniStorage;
 import sorklin.magictorches.internals.TorchCreator;
 import sorklin.magictorches.listeners.MTBlockListener;
 import sorklin.magictorches.listeners.MTPlayerListener;
@@ -43,6 +42,7 @@ import sorklin.magictorches.listeners.MTPluginListener;
 //TODO: add YAML config for settable options.
 //TODO: config for last used default time.
 //TODO: distance in config setting.
+//TODO: /mt activate <name>, /mt deactivate <name>
 
 public class MagicTorches extends JavaPlugin {
     
@@ -51,6 +51,7 @@ public class MagicTorches extends JavaPlugin {
     private final MTBlockListener blockListener = new MTBlockListener(this);
     private PluginDescriptionFile pluginInfo;
     
+    private static MiniStorage miniDB;
     private static final Logger logr = Logger.getLogger("Minecraft");
     private static String plugName;
     private static MagicTorches instance;
@@ -72,25 +73,17 @@ public class MagicTorches extends JavaPlugin {
         plugName = "[" + pluginInfo.getName().toString() + "] ";
         
         log(Level.INFO, "Initializing MagicTorches.");
-        /* Load MINI and config here */
-        File dbFile = new File(getDataFolder(), "mt.mini");
-        if(!dbFile.exists()) {
-            try {
-                dbFile.createNewFile();
-            } catch (IOException ex) {
-                log(Level.SEVERE, plugName + "Error: " + ex.getMessage());
-            }
-        }
+        MagicTorches.miniDB = new MiniStorage(this);
         
         log(Level.INFO, "MiniDB found or created. Loading DB.");
-        mt = new MTorchHandler(dbFile, this);
+        mt = new MTorchHandler(this);
         
         getCommand("mt").setExecutor(new MTMainCommand(this));
         
         //Attempts to load and prune if MV is on.
         PluginManager pm = this.getServer().getPluginManager();
         if(pm.isPluginEnabled("Multiverse-Core") || pm.isPluginEnabled("Multiverse")) {
-//            mt.reload();
+            mt.reload();
 //            mt.prune();
         } else {
             pm.registerEvent(Type.PLUGIN_ENABLE, pluginListener, Priority.Monitor, this);
@@ -117,5 +110,9 @@ public class MagicTorches extends JavaPlugin {
     
     public static MagicTorches get(){
         return instance;
+    }
+    
+    public static MiniStorage getMiniDB(){
+        return miniDB;
     }
 }

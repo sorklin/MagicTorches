@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -214,40 +213,4 @@ public class MiniStorage implements MTStorage {
         }
         return result;
     }
-    
-        /**
-     * Prunes database of unloaded MTs.
-     */
-//    public void prune(){
-//        for(String name: mb_database.getIndices().keySet()) {
-//            if(!mtNameArray.containsValue(name)){
-//                MagicTorches.log(Level.FINE, pl.g + "Could not find " + pl.b + name + pl.g 
-//                        + " in active torch arrays.");
-//                MagicTorches.log(Level.FINE, pl.g + "Pruning it from DB.");
-//                mb_database.removeIndex(name);
-//            }
-//        }
-//        mb_database.update();
-//    }
-
-
-//    
-//    private boolean saveToDB(Player player, TorchArray t){
-//        if(!t.isValid())
-//            return false;
-//        
-//        String name = t.getName();
-//        String data = t.toString();
-//        MagicTorches.log(Level.FINER, "Saving to DB:" + t.getName() + ", " + t.toString());
-//        Arguments entry = new Arguments(name.toLowerCase());
-//        entry.setValue("owner", player.getName());
-//        entry.setValue("data", data);
-//        mb_database.addIndex(entry.getKey(), entry);
-//        mb_database.update();
-//        //Now push onto working cache:
-//        mtArray.put(t.getLocation(), t);
-//        mtNameArray.put(t.getLocation(),t.getName());
-//        transmit(t.getLocation());
-//        return true;
-//    }
 }

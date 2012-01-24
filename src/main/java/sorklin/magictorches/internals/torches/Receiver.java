@@ -26,6 +26,7 @@ import sorklin.magictorches.internals.interfaces.MTReceiver;
 abstract class Receiver implements MTReceiver {
     
     Location torchLocation;
+    Location parentLocation;
     MtType type;
 
     public Receiver (Location loc) {
@@ -45,6 +46,22 @@ abstract class Receiver implements MTReceiver {
      */
     public void setLocation(Location loc) {
         this.torchLocation = loc;
+    }
+    
+    /**
+     * Allows parent location to be set after instantiation.
+     * @return 
+     */
+    public void setParent(Location parent) {
+        this.parentLocation = parent;
+    }
+    
+    /**
+     * Get parent's location
+     * @return Location of Parent transmitter.
+     */
+    public Location getParent(){
+        return this.parentLocation;
     }
     
     @Override

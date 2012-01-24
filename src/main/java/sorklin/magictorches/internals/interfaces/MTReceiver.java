@@ -24,6 +24,8 @@ public interface MTReceiver {
     public Location getLocation();
     public boolean receive(boolean signal);
     public void setLocation(Location loc);
+    public Location getParent();
+    public void setParent(Location parent);
     public void teleportTo(Player player);
     @Override
     public String toString();
