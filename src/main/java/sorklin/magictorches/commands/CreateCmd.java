@@ -16,65 +16,73 @@
  */
 package sorklin.magictorches.commands;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.bukkit.command.CommandSender;
+import sorklin.magictorches.Exceptions.InsufficientPermissionsException;
+import sorklin.magictorches.Exceptions.MissingOrIncorrectParametersException;
+import sorklin.magictorches.internals.MTUtil;
 import sorklin.magictorches.internals.Messaging;
 import sorklin.magictorches.internals.Properties;
 import sorklin.magictorches.internals.Properties.MtType;
-import sorklin.magictorches.internals.TorchCreator;
+import sorklin.magictorches.internals.TorchEditor;
 
 public class CreateCmd extends GenericCmd {
     
     public CreateCmd(CommandSender cs, String args[]){
         super(cs, args);
-        this.permission = Properties.permCreate;
+        this.permission = Properties.permAccess;
     }
     
-    public boolean execute() {
-        if(errorCheck())
-            return true;
+    public boolean execute() throws MissingOrIncorrectParametersException, InsufficientPermissionsException {
+        errorCheck();
+
+        String msg = "`gCreating a MagicTorch array. `wLeft click on a torch to set it as "
+                + "%cr%a transmitter. Right click on torches to add/remove them from"
+                + "%cr%the receiver array.  Hold a lever to receive information about any"
+                + "%cr%clicked torch.";
         
-        //Default message
-        List<String> msg = new ArrayList<String>();
-        msg.add("`gCreating a MagicTorch array. `wLeft click on a torch to set it as");
-        msg.add("a transmitter. Right click on torches to add/remove them from");
-        msg.add("the receiver array.");
-        
-        //Load or create a new Creator object
-        TorchCreator tc;
-        if(mt.todo.containsKey(player))
-            tc = mt.todo.get(player);
-        else
-            tc = new TorchCreator(player);
+        TorchEditor te = new TorchEditor(player);
         
         if(args.length <= 1) {
             //Assume a DIRECT type of linkage
-            tc.setNextType(MtType.DIRECT);
-            Messaging.mlSend(player, msg);
-        } else
+            if(!MTUtil.hasPermission(player, Properties.permCreateDirect))
+                throw new InsufficientPermissionsException();
+            te.setNextType(MtType.DIRECT);
+            Messaging.send(player, msg);
+        }
         
-        if(args.length >= 2) {
+        else if(args.length >= 2) {
             if(args[1].equalsIgnoreCase("direct")) {
-                tc.setNextType(MtType.DIRECT);
+                if(!MTUtil.hasPermission(player, Properties.permCreateDirect))
+                    throw new InsufficientPermissionsException();
+                te.setNextType(MtType.DIRECT);
             } else if(args[1].equalsIgnoreCase("inverse")) {
-                tc.setNextType(MtType.INVERSE);
+                if(!MTUtil.hasPermission(player, Properties.permCreateInverse))
+                    throw new InsufficientPermissionsException();
+                te.setNextType(MtType.INVERSE);
             } else if(args[1].equalsIgnoreCase("delay")) {
-                tc.setNextType(MtType.DELAY);
+                if(!MTUtil.hasPermission(player, Properties.permCreateDelay))
+                    throw new InsufficientPermissionsException();
+                te.setNextType(MtType.DELAY);
+            } else if(args[1].equalsIgnoreCase("toggle")) {
+                if(!MTUtil.hasPermission(player, Properties.permCreateToggle))
+                    throw new InsufficientPermissionsException();
+                te.setNextType(MtType.TOGGLE);
             } else if(args[1].equalsIgnoreCase("timer")) {
-                tc.setNextType(MtType.TIMER);
+                if(!MTUtil.hasPermission(player, Properties.permCreateTimer))
+                    throw new InsufficientPermissionsException();
+                te.setNextType(MtType.TIMER);
                 double timeOut = Properties.timerDelay;
                 if(args.length > 2)
                     try { timeOut = Double.valueOf(args[2]);                        
                     } catch (NumberFormatException nfe) {}
-                tc.setTimeOut(timeOut);
+                te.setTimeOut(timeOut);
             } else {
-                return false;
+                throw new MissingOrIncorrectParametersException();
             }
-            Messaging.mlSend(player, msg);
-        } else {
-            return false;
+            Messaging.send(player, msg);
         }
+        //This will overwrite an existing creator (which we're okay with).
+        mt.editQueue.put(player, te);
         return true;
     }
 }

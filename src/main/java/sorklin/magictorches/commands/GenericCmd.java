@@ -2,9 +2,10 @@ package sorklin.magictorches.commands;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import sorklin.magictorches.Exceptions.InsufficientPermissionsException;
+import sorklin.magictorches.Exceptions.MissingOrIncorrectParametersException;
 import sorklin.magictorches.MagicTorches;
 import sorklin.magictorches.internals.MTUtil;
-import sorklin.magictorches.internals.Messaging;
 import sorklin.magictorches.internals.interfaces.Cmd;
 
 /**
@@ -42,28 +43,20 @@ abstract class GenericCmd implements Cmd {
         this.mt = MagicTorches.get();
     }
     
-    protected boolean errorCheck() {
+    protected void errorCheck() throws MissingOrIncorrectParametersException, InsufficientPermissionsException {
         
         //Try to cast it and only throw a problem if command must be executed as player.
         try {
             this.player = (Player)cs;
         } catch (Exception ex) {
-            if(mustBePlayer){
-                Messaging.send(cs, "This command must be executed as a player.");
-                return true;
-            }
+            if(mustBePlayer)
+                throw new InsufficientPermissionsException("This command must be executed as a player.");
         }
         
-        if(!(MTUtil.hasPermission(cs, permission) || MTUtil.isAdmin(cs))){
-            Messaging.send(player, "`RYou do not have permission to do that.");
-            return true;
-        }
+        if(!(MTUtil.hasPermission(cs, permission) || MTUtil.isAdmin(cs)))
+            throw new InsufficientPermissionsException();
         
-        if(args.length < minArg){
-            Messaging.send(player, "`RThe command is missing required arguments.");
-            return true;
-        }
-        
-        return false;
+        if(args.length < minArg)
+            throw new MissingOrIncorrectParametersException("`RThe command is missing required arguments.");
     }
 }

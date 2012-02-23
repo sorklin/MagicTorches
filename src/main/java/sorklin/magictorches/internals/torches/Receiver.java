@@ -18,6 +18,7 @@ package sorklin.magictorches.internals.torches;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import sorklin.magictorches.internals.Properties.MtType;
 import sorklin.magictorches.internals.interfaces.MTReceiver;
@@ -62,6 +63,15 @@ abstract class Receiver implements MTReceiver {
      */
     public Location getParent(){
         return this.parentLocation;
+    }
+    
+    public void reset(){        
+        //Make sure this is a valid receiver
+        if(torchInvalid())
+            return;
+        
+        //Now that we know its a torch, lets just set it to redstone_on
+        torchLocation.getBlock().setType(Material.REDSTONE_TORCH_ON);
     }
     
     @Override

@@ -1,8 +1,3 @@
-package sorklin.magictorches.internals.interfaces;
-
-import sorklin.magictorches.Exceptions.InsufficientPermissionsException;
-import sorklin.magictorches.Exceptions.MissingOrIncorrectParametersException;
-
 /**
 * Copyright (C) 2011 Sorklin <sorklin@gmail.com>
 *
@@ -19,6 +14,24 @@ import sorklin.magictorches.Exceptions.MissingOrIncorrectParametersException;
 * You should have received a copy of the GNU General Public License
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
-public interface Cmd {
-    public boolean execute() throws MissingOrIncorrectParametersException, InsufficientPermissionsException;
+package sorklin.magictorches.listeners;
+
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import sorklin.magictorches.internals.Properties;
+import sorklin.magictorches.internals.TransmitEvent;
+
+/**
+ *
+ * @author Sork
+ */
+public class MTTorchSignalListener implements Listener {
+    
+    @EventHandler
+    public void onMTTransmit(TransmitEvent event){
+        if(Properties.disableTransmit)
+            return;
+        event.getTorchArray().transmit();
+    }
+    
 }

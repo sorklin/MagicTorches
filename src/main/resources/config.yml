@@ -1,0 +1,19 @@
+DefaultTimes:
+  Delay: 2.0
+  Toggle: 1.5
+  Timer: 5.0
+Limits:
+  Distance: true
+  MaxDistance: 100.0
+  ChunkLoadOnReceive: false
+Economy:
+  UseEconomy: true
+  Price:
+    CreateArray: 0.0
+    EditArray: 0.0
+    PerTorch:
+      Direct: 0.0
+      Inverse: 0.0
+      Delay: 0.0
+      Timer: 0.0
+      Toggle: 0.0

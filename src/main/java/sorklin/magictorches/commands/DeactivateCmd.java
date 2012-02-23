@@ -17,20 +17,27 @@
 package sorklin.magictorches.commands;
 
 import org.bukkit.command.CommandSender;
+import sorklin.magictorches.Exceptions.InsufficientPermissionsException;
+import sorklin.magictorches.Exceptions.MissingOrIncorrectParametersException;
 import sorklin.magictorches.internals.Properties;
 
-public class BlankCmd extends GenericCmd {
+public class DeactivateCmd extends GenericCmd {
     
-    public BlankCmd(CommandSender cs, String args[]){
+    /*Default the generic to must be executed by a player, and no minimum arguments.
+    String permission = "";
+    boolean mustBePlayer = true;
+    int minArg = 0;
+    */
+    
+    public DeactivateCmd(CommandSender cs, String args[]){
         super(cs, args);
-        this.permission = Properties.permCreate;
+        this.permission = Properties.permAccess;
     }
     
-    public boolean execute() {
-        if(errorCheck())
-            return true;
+    public boolean execute() throws MissingOrIncorrectParametersException, InsufficientPermissionsException{
+        errorCheck();
         
-        //DO work, son.
+        Properties.disableTransmit = true;
         
         return true;
     }

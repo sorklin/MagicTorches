@@ -16,6 +16,10 @@
  */
 package sorklin.magictorches.internals;
 
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
+
 public class Properties {
     
     //types of torch relationships.
@@ -29,24 +33,49 @@ public class Properties {
         
         private final int type;
         MtType(int type){ this.type = type; }
-        public int toInt(){ return this.type; }
+        public int getType(){ 
+            return this.type; 
+        }
+        
+        private static final Map<Integer,MtType> lookup = new HashMap<Integer,MtType>();
+
+        static {
+            for(MtType s : EnumSet.allOf(MtType.class))
+                lookup.put(s.getType(), s);
+        }
+
+        public static MtType get(Integer type) { 
+            return lookup.get(type); 
+        }
     }
     
     public static final String dbFileName = "mt.mini";
     
-    //From config.yml, when implemented.
-    public static boolean loadChunkOnReceive = false;
-    public static double toggleDelay = 1.5; //in seconds
-    public static double delayDelay = 2; //in seconds
-    public static double timerDelay = 5; //in seconds
-    public static double maxDistance = 100.0; //Not implemented yet.  May not implement.
-    public static boolean forceChunkLoad = false; 
+    //From config.yml
+    public static double toggleDelay;
+    public static double delayDelay;
+    public static double timerDelay;
+    public static boolean useDistance;
+    public static double maxDistance;
+    public static boolean forceChunkLoad;
+    public static boolean useEconomy;
+    public static double priceArrayCreate;
+    public static double priceArrayEdit;
+    public static double priceDirect;
+    public static double priceInverse;
+    public static double priceDelay;
+    public static double priceTimer;
+    public static double priceToggle;
+    
+    //current state
+    public static boolean disableTransmit = false;
     
     //Permissions
-    public static final String permCreate = "magictorches.create";
+    public static final String permAccess = "magictorches.access";
     public static final String permCreateDelay = "magictorches.create.delay";
     public static final String permCreateDirect = "magictorches.create.direct";
     public static final String permCreateInverse = "magictorches.create.inverse";
     public static final String permCreateTimer = "magictorches.create.timer";
+    public static final String permCreateToggle = "magictorches.create.toggle";
     public static final String permAdmin = "magictorches.admin";
 }

@@ -17,20 +17,26 @@
 package sorklin.magictorches.commands;
 
 import org.bukkit.command.CommandSender;
+import sorklin.magictorches.Exceptions.InsufficientPermissionsException;
+import sorklin.magictorches.Exceptions.MissingOrIncorrectParametersException;
+import sorklin.magictorches.internals.Messaging;
 import sorklin.magictorches.internals.Properties;
 
 public class DirectCmd extends GenericCmd {
     
     public DirectCmd(CommandSender cs, String args[]){
         super(cs, args);
-        this.permission = Properties.permCreate;
+        this.permission = Properties.permAccess;
     }
     
-    public boolean execute() {
-        if(errorCheck())
+    public boolean execute() throws MissingOrIncorrectParametersException, InsufficientPermissionsException {
+        errorCheck();
+        
+        if(!mt.editQueue.containsKey(player))
             return true;
         
-        //DO work, son.
+        mt.editQueue.get(player).setNextType(Properties.MtType.DIRECT);
+        Messaging.send(player, "`gReceiver type set to `wDIRECT`g.");
         
         return true;
     }

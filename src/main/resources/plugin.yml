@@ -1,8 +1,8 @@
 name: MagicTorches
 main: sorklin.magictorches.MagicTorches
-version: 0.40-dev
+version: 1.0
 author: Sorklin
-softdepend: [Multiverse]
+softdepend: [Multiverse, MyWorlds, Vault]
 description: MagicTorches creates linked array of wireless torches.
 commands:
   mt:

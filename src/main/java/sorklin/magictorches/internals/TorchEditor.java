@@ -16,27 +16,60 @@
  */
 package sorklin.magictorches.internals;
 
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import sorklin.magictorches.internals.Properties.MtType;
-import sorklin.magictorches.internals.interfaces.MTInterface;
+import sorklin.magictorches.internals.interfaces.MTReceiver;
+import sorklin.magictorches.internals.torches.*;
 
-public class TorchEditor implements MTInterface {
-    private Player player = null;
-    private TorchArray ta = null;
+public class TorchEditor extends TorchArray {
+    
     private MtType nextLinkType = MtType.DIRECT;
-    private double timerValue = 0;
+    private double timerValue = -1;
+    private String message = "";
+    private boolean created = false;
+    private TorchArray original = null;
     
-    public String message = null;
-    
-    
-    public TorchEditor(Player player, TorchArray ta){
-        this.ta = ta;
-        this.player = player;
+    /**
+     * For new Torch arrays (creation)
+     * @param player 
+     */
+    public TorchEditor(Player player){
+        super(player.getName());
+        created = true;
     }
     
-    public void setPlayer(Player player){
-        this.player = player;
-        ta.setOwner(player.getName());
+    /**
+     * These are wrappers for the regular add function.  They check for 
+     * distance and to see if a transmitter has already been set.
+     * @param loc
+     * @param type
+     * @return 
+     */
+    public boolean addCheck(Location loc, MtType type) {
+        return this.addCheck(loc, type, -1);
+    }
+    
+    /**
+     * These are wrappers for the regular add function.  They check for 
+     * distance and to see if a transmitter has already been set.
+     * @param loc
+     * @param type
+     * @return 
+     */
+    public boolean addCheck(Location loc, MtType type, double delay) {
+        if(!transmitterSet()){
+            message = "`rFirst you must designate a transmitter.";
+            return false;
+        }
+        
+        if(Properties.useDistance 
+                && (loc.distance(this.getLocation()) > Properties.maxDistance)){
+            message = "`rThis receiver is too far from the transmitter.";
+            return false;
+        }
+        
+        return this.add(loc, type, delay);
     }
     
     public void setNextType(MtType type){
@@ -51,23 +84,55 @@ public class TorchEditor implements MTInterface {
         return this.nextLinkType;
     }
 
-    public Player getPlayer() {
-        return this.player;
-    }
-
-    public TorchArray getTorchArray() {
-        return this.ta;
-    }
-
-    public void setTorchArray(TorchArray ta) {
-        this.ta = ta;
-    }
-
     public double getTimeOut() {
         return this.timerValue;
     }
 
     public String getMessage() {
         return this.message;
+    }
+    
+    /**
+     * Turns all receivers into Redstone torches (for editing)
+     */
+    public void resetReceivers() {
+        for(MTReceiver r : receiverArray){
+            r.reset();
+        }
+    }
+    
+    public double priceArray() {
+        
+        double subTotal;
+        if(created)
+            subTotal = Properties.priceArrayCreate;
+        else
+            subTotal = Properties.priceArrayEdit;
+        
+        for(MTReceiver r : receiverArray){
+            if(r instanceof DirectReceiver)
+                subTotal += Properties.priceDirect;
+            else if(r instanceof InverseReceiver)
+                subTotal += Properties.priceInverse;
+            else if(r instanceof DelayReceiver)
+                subTotal += Properties.priceDelay;
+            else if(r instanceof TimerReceiver)
+                subTotal += Properties.priceTimer;
+            else if(r instanceof ToggleReceiver)
+                subTotal += Properties.priceToggle;
+        }
+        return subTotal;
+    }
+    
+    public TorchArray getOriginal(){
+        return original;
+    }
+    
+    public void setOriginal(TorchArray original){
+        this.original = original;
+    }
+    
+    public boolean isEdited(){
+        return !created;
     }
 }

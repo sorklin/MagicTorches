@@ -19,20 +19,29 @@ package sorklin.magictorches.commands;
 import org.bukkit.command.CommandSender;
 import sorklin.magictorches.Exceptions.InsufficientPermissionsException;
 import sorklin.magictorches.Exceptions.MissingOrIncorrectParametersException;
-import sorklin.magictorches.MagicTorches;
 import sorklin.magictorches.internals.MTUtil;
+import sorklin.magictorches.internals.Messaging;
 import sorklin.magictorches.internals.Properties;
 import sorklin.magictorches.internals.TorchArray;
 
-public class DeleteCmd extends GenericCmd {
+public class InfoCmd extends GenericCmd {
     
-    public DeleteCmd(CommandSender cs, String args[]){
+    /*Default the generic to must be executed by a player, and no minimum arguments.
+    String permission = "";
+    boolean mustBePlayer = true;
+    int minArg = 0;
+    */
+    
+    public InfoCmd(CommandSender cs, String args[]){
         super(cs, args);
         this.permission = Properties.permAccess;
+        this.mustBePlayer = false;
+        this.minArg = 2;
     }
     
-    public boolean execute() throws MissingOrIncorrectParametersException, InsufficientPermissionsException {
+    public boolean execute() throws MissingOrIncorrectParametersException, InsufficientPermissionsException{
         errorCheck();
+        // /mt info <name>
         
         TorchArray ta = mt.mtHandler.getArray(args[1]);
         
@@ -42,8 +51,9 @@ public class DeleteCmd extends GenericCmd {
         if(!MTUtil.hasPermission(player, Properties.permAdmin) || !ta.getOwner().equalsIgnoreCase(player.getName()))
             throw new InsufficientPermissionsException("That is not your torcharray.");
         
-        mt.mtHandler.removeArray(ta.getLocation());
-        MagicTorches.getMiniDB().remove(ta.getName());
+        Messaging.mlSend(cs, mt.mtHandler
+                .getInfo(ta.getLocation().getBlock(), player.getName(), 
+                MTUtil.hasPermission(player, Properties.permAdmin), false));
         
         return true;
     }

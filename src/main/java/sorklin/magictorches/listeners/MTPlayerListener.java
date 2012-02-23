@@ -1,32 +1,34 @@
 package sorklin.magictorches.listeners;
 
-import java.util.logging.Level;
+import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerListener;
 import sorklin.magictorches.MagicTorches;
+import sorklin.magictorches.internals.MTUtil;
+import sorklin.magictorches.internals.Messaging;
+import sorklin.magictorches.internals.Properties;
+import sorklin.magictorches.internals.Properties.MtType;
+import sorklin.magictorches.internals.TorchEditor;
 
 
-public class MTPlayerListener extends PlayerListener {
+public class MTPlayerListener implements Listener {
     private final MagicTorches pl;
 
     public MTPlayerListener(MagicTorches mt) {
         this.pl = mt;
     }
     
-    @Override
+    @EventHandler(ignoreCancelled=true)
     public void onPlayerInteract(PlayerInteractEvent event) {
-        if(event.isCancelled()) {
-            return;
-        }
         
         Player player = event.getPlayer();
         Action act = event.getAction();
-        Block block = event.getClickedBlock();
-        Material mat = block.getType();
+        Location loc = event.getClickedBlock().getLocation();
+        Material mat = event.getClickedBlock().getType();
         Material item = Material.AIR;
         
         try {
@@ -36,53 +38,41 @@ public class MTPlayerListener extends PlayerListener {
             //already defined it as air. 
         }
         
-        
         boolean rst = (mat.equals(Material.REDSTONE_TORCH_ON) || mat.equals(Material.REDSTONE_TORCH_OFF));
         
-        if(rst) {
-            if(pl.mt.isInEditMode(player)) { //has to have perm_create, or wouldn't be in edit mode.
-                if(act.equals(Action.LEFT_CLICK_BLOCK)) {
-                    if(!pl.mt.isSetTransmitter(player, block)) {
-                        if(pl.mt.setTransmitter(player, block)){
-                            player.sendMessage(pl.g + "Selected transmitter torch.");
-                        } else {
-                            player.sendMessage(pl.r + pl.mt.message);
-                        }
-                    }
+        //Handle the Information action:
+        //Lets check for a switch in the hand (which indicates info request).
+        if(item.equals(Material.LEVER)){
+            if(rst || mat.equals(Material.TORCH)){
+                if(MTUtil.hasPermission(player, Properties.permAccess)){ //i have create, admin or op perms
+                    Messaging.mlSend(player, pl.mtHandler.getInfo(
+                            event.getClickedBlock(), 
+                            player.getName(), 
+                            MTUtil.hasPermission(player, Properties.permAdmin), 
+                            true));
                     event.setCancelled(true);
-                } else if(act.equals(Action.RIGHT_CLICK_BLOCK)) {
-                    if(pl.mt.setReceiver(player, block)) {
-                        player.sendMessage(pl.g + pl.mt.message);
-                    } else {
-                        player.sendMessage(pl.r + pl.mt.message);
-                    }
+                    return;
                 }
             }
         }
         
-        //Lets check for a switch in the hand (which indicates info request).
-        if(rst || mat.equals(Material.TORCH)){
-            MagicTorches.log(Level.FINEST, "at rst || torch");
-            if(act.equals(Action.RIGHT_CLICK_BLOCK) && 
-                item.equals(Material.LEVER)){
-                MagicTorches.log(Level.FINEST, "at lever click");
-                if(MagicTorches.canCreate(player)){ //i have create, admin or op perms
-                    MagicTorches.log(Level.FINEST, "canCreate");
-                    MagicTorches.listMessage(player, pl.mt.getInfo(block, player.getName(), 
-                            MagicTorches.isAdmin(player), true));
-                }
-            } else 
-//            if(act.equals(Action.LEFT_CLICK_BLOCK) && 
-//                item.equals(Material.LEVER)){
-//                event.setCancelled(true);//"Only you can prevent accidental breakages."
-//            } else
-            
-            if(act.equals(Action.RIGHT_CLICK_BLOCK) &&
-                item.equals(Material.REDSTONE)){
-                player.sendMessage("Info:");
-                player.sendMessage("getBlockPower(): " + block.getBlockPower());
-                player.sendMessage("isBlockIndirectlyPowered(): " + block.isBlockIndirectlyPowered());
-                player.sendMessage("isBlockPowered(): " + block.isBlockPowered());
+        if(!pl.editQueue.containsKey(player))
+            return;
+        TorchEditor te = pl.editQueue.get(player);
+        
+        if(rst){
+            if(act.equals(Action.LEFT_CLICK_BLOCK)) {
+                te.setTransmitter(loc);
+                Messaging.send(player, "`gSelected transmitter torch.");
+                event.setCancelled(true);
+            } else if(act.equals(Action.RIGHT_CLICK_BLOCK)) {
+                if(te.getNextType() == MtType.DELAY ||
+                        te.getNextType() == MtType.TIMER ||
+                        te.getNextType() == MtType.TOGGLE)
+                    te.add(loc, te.getNextType(), te.getTimeOut());
+                else
+                    te.add(loc, te.getNextType());
+                event.setCancelled(true);
             }
         }
     }

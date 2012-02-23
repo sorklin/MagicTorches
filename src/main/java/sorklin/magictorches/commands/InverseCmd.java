@@ -19,32 +19,31 @@ package sorklin.magictorches.commands;
 import org.bukkit.command.CommandSender;
 import sorklin.magictorches.Exceptions.InsufficientPermissionsException;
 import sorklin.magictorches.Exceptions.MissingOrIncorrectParametersException;
-import sorklin.magictorches.MagicTorches;
-import sorklin.magictorches.internals.MTUtil;
+import sorklin.magictorches.internals.Messaging;
 import sorklin.magictorches.internals.Properties;
-import sorklin.magictorches.internals.TorchArray;
 
-public class DeleteCmd extends GenericCmd {
+public class InverseCmd extends GenericCmd {
     
-    public DeleteCmd(CommandSender cs, String args[]){
+    /*Default the generic to must be executed by a player, and no minimum arguments.
+    String permission = "";
+    boolean mustBePlayer = true;
+    int minArg = 0;
+    */
+    
+    public InverseCmd(CommandSender cs, String args[]){
         super(cs, args);
         this.permission = Properties.permAccess;
     }
     
-    public boolean execute() throws MissingOrIncorrectParametersException, InsufficientPermissionsException {
+    public boolean execute() throws MissingOrIncorrectParametersException, InsufficientPermissionsException{
         errorCheck();
         
-        TorchArray ta = mt.mtHandler.getArray(args[1]);
+        if(!mt.editQueue.containsKey(player))
+            return true;
         
-        if(ta == null)
-            throw new MissingOrIncorrectParametersException("No TorchArray by that name.");
-                
-        if(!MTUtil.hasPermission(player, Properties.permAdmin) || !ta.getOwner().equalsIgnoreCase(player.getName()))
-            throw new InsufficientPermissionsException("That is not your torcharray.");
-        
-        mt.mtHandler.removeArray(ta.getLocation());
-        MagicTorches.getMiniDB().remove(ta.getName());
-        
+        mt.editQueue.get(player).setNextType(Properties.MtType.INVERSE);
+        Messaging.send(player, "`gReceiver type set to `wINVERSE`g.");
+
         return true;
     }
 }

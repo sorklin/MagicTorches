@@ -17,23 +17,30 @@
 package sorklin.magictorches.commands;
 
 import org.bukkit.command.CommandSender;
-import sorklin.magictorches.MagicTorches;
+import sorklin.magictorches.Exceptions.InsufficientPermissionsException;
+import sorklin.magictorches.Exceptions.MissingOrIncorrectParametersException;
 import sorklin.magictorches.internals.Messaging;
 import sorklin.magictorches.internals.Properties;
+import sorklin.magictorches.internals.TorchEditor;
 
 public class CancelCmd extends GenericCmd {
     
     public CancelCmd(CommandSender cs, String args[]){
         super(cs, args);
-        this.permission = Properties.permCreate;
+        this.permission = Properties.permAccess;
     }
     
-    public boolean execute() {
-        if(errorCheck())
-            return true;
+    public boolean execute() throws MissingOrIncorrectParametersException, InsufficientPermissionsException {
+        errorCheck();
         
-        if(MagicTorches.todo.containsKey(player))
-            MagicTorches.todo.remove(player);
+        if(mt.editQueue.containsKey(player)){
+            TorchEditor te = mt.editQueue.get(player);
+            if(te.isEdited()){
+                Messaging.send(player, "`gRestoring original array.");
+                mt.mtHandler.addArray(te.getOriginal());
+            }
+            mt.editQueue.remove(player);
+        }
         Messaging.send(player,"`gMagicTorch setup cancelled.");
         
         return true;

@@ -1,45 +1,43 @@
 package sorklin.magictorches.listeners;
 
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockListener;
-
 import org.bukkit.event.block.BlockRedstoneEvent;
 import sorklin.magictorches.MagicTorches;
+import sorklin.magictorches.internals.Messaging;
+import sorklin.magictorches.internals.TransmitEvent;
 
-public class MTBlockListener extends BlockListener {
+public class MTBlockListener implements Listener {
     private final MagicTorches pl;
 
     public MTBlockListener(MagicTorches mt) {
         this.pl = mt;
     }
 
-    @Override
+    @EventHandler(priority= EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent event) {
-        if(event.isCancelled()){
-            return;
-        }
-        
-        Block block = event.getBlock();
-        Material mat = block.getType();
+        Location loc = event.getBlock().getLocation();
+        Material mat = event.getBlock().getType();
         
         if(mat.equals(Material.REDSTONE_TORCH_OFF) || mat.equals(Material.REDSTONE_TORCH_ON)) {
-            if(pl.mt.isMT(block)){
-                if(pl.mt.delete(block)) {
-                    event.getPlayer().sendMessage
-                        (pl.r + "MagicTorch transmitter " + pl.b + pl.mt.message + pl.r + " was deleted.");
+            if(pl.mtHandler.isMT(loc)){
+                if(pl.mtHandler.removeArray(loc)) {
+                    Messaging.send(event.getPlayer(), "`rMagicTorch transmitter `w" + pl.mtHandler.getMessage() + "`r was deleted.");
                 }
             }
         }
     }
 
-    @Override
+    @EventHandler(priority= EventPriority.MONITOR)
     public void onBlockRedstoneChange(BlockRedstoneEvent event) {
-        if(pl.mt.isMT(event.getBlock())){
-//            String name = pl.mt.getName(event.getBlock());
-//            MagicTorches.spamt("[" + name + "] new current: " + event.getNewCurrent() + ", old current: " + event.getOldCurrent());
-            pl.mt.transmit(event.getBlock().getLocation(), (event.getNewCurrent() == 0));
+        if(pl.mtHandler.isMT(event.getBlock().getLocation())){
+            Bukkit.getServer().getPluginManager()
+                    .callEvent(new TransmitEvent(pl.mtHandler.getArray(event.getBlock().getLocation())));
         }
     }   
 }

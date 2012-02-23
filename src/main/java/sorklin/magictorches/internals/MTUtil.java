@@ -27,8 +27,9 @@ public class MTUtil {
      * @return <code>true</code> Yes, <code>false</code> No.
      */
     public static boolean isAdmin(CommandSender sender){
-        return (sender.hasPermission(Properties.permAdmin) || (sender instanceof ConsoleCommandSender) ||
-                sender.isOp());
+        return (sender.hasPermission(Properties.permAdmin) 
+                || (sender instanceof ConsoleCommandSender) 
+                || sender.isOp());
     }
     
     /**

@@ -3,20 +3,20 @@ package sorklin.magictorches;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+import net.milkbowl.vault.economy.Economy;
+import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event.Priority;
-import org.bukkit.event.Event.Type;
-import org.bukkit.plugin.PluginDescriptionFile;
-import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
-import sorklin.magictorches.commands.MTMainCommand;
-import sorklin.magictorches.internals.MTorchHandler;
+import sorklin.magictorches.commands.MTCommandExecutor;
 import sorklin.magictorches.internals.MiniStorage;
-import sorklin.magictorches.internals.TorchCreator;
+import sorklin.magictorches.internals.Properties;
+import sorklin.magictorches.internals.SimpleTorchHandler;
+import sorklin.magictorches.internals.TorchEditor;
 import sorklin.magictorches.listeners.MTBlockListener;
 import sorklin.magictorches.listeners.MTPlayerListener;
-import sorklin.magictorches.listeners.MTPluginListener;
+import sorklin.magictorches.listeners.MTTorchSignalListener;
 
 /**
 * Copyright (C) 2011 Sorklin <sorklin@gmail.com>
@@ -35,64 +35,63 @@ import sorklin.magictorches.listeners.MTPluginListener;
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-//TODO: new torch receiver: delay (true delay) waits some amount of time then acts upon signal.
-//TODO: new torch receiver: toggle (got to get a better name).  acts like a timed torch -- 
-//      toggles itself, then after a timed period, toggles back. 
-//TODO: support Vault (and the economy systems)
-//TODO: add YAML config for settable options.
-//TODO: config for last used default time.
-//TODO: distance in config setting.
-//TODO: /mt activate <name>, /mt deactivate <name>
+//TODO: support Vault (and the economy systems) (needed in finish())
+//TODO: handle new torch types in minidb (including timings).
+
 
 public class MagicTorches extends JavaPlugin {
     
     private final MTPlayerListener playerListener = new MTPlayerListener(this);
-    private final MTPluginListener pluginListener = new MTPluginListener(this);
     private final MTBlockListener blockListener = new MTBlockListener(this);
-    private PluginDescriptionFile pluginInfo;
+    private final MTTorchSignalListener signalListener = new MTTorchSignalListener();
     
     private static MiniStorage miniDB;
-    private static final Logger logr = Logger.getLogger("Minecraft");
-    private static String plugName;
     private static MagicTorches instance;
     
+    public static Economy econ = null;
+    
     //Torch creation 
-    public final Map<Player, TorchCreator> todo = new HashMap<Player, TorchCreator>();
+    public final Map<Player, TorchEditor> editQueue = new HashMap<Player, TorchEditor>();
+    public SimpleTorchHandler mtHandler;
     
-    public MTorchHandler mt;
-    
+    @Override
     public void onDisable() {
         //Cancel all outstanding tasks
         this.getServer().getScheduler().cancelTasks(this);
-        log(Level.INFO, "Plugin disabled.");
+        log(Level.INFO, "Plugin disabled");
     }
 
+    @Override
     public void onEnable() {
         MagicTorches.instance = this;
-        pluginInfo = getDescription();
-        plugName = "[" + pluginInfo.getName().toString() + "] ";
         
-        log(Level.INFO, "Initializing MagicTorches.");
+        log(Level.INFO, "Initializing MagicTorches");
         MagicTorches.miniDB = new MiniStorage(this);
         
-        log(Level.INFO, "MiniDB found or created. Loading DB.");
-        mt = new MTorchHandler(this);
+        log(Level.INFO, "Loading config");
+        loadConfig(getConfig());
+        saveConfig();
         
-        getCommand("mt").setExecutor(new MTMainCommand(this));
+        log(Level.INFO, "MiniDB found or created. Loading DB");
+        mtHandler = new SimpleTorchHandler(this);
         
-        //Attempts to load and prune if MV is on.
-        PluginManager pm = this.getServer().getPluginManager();
-        if(pm.isPluginEnabled("Multiverse-Core") || pm.isPluginEnabled("Multiverse")) {
-            mt.reload();
-//            mt.prune();
-        } else {
-            pm.registerEvent(Type.PLUGIN_ENABLE, pluginListener, Priority.Monitor, this);
+        log(Level.INFO, "Initializing commands and events");
+        getCommand("mt").setExecutor(new MTCommandExecutor(this));
+
+        getServer().getPluginManager().registerEvents(blockListener, this);
+        getServer().getPluginManager().registerEvents(playerListener, this);
+        getServer().getPluginManager().registerEvents(signalListener, this);
+        
+        if(Properties.useEconomy){
+            log(Level.INFO, "Attaching to economy (vault)");
+            if (!setupEconomy()) {
+                log(Level.WARNING, "Vault failed to hook into server economy plugin");
+                Properties.useEconomy = false;
+            } else
+                log(Level.INFO, "Attached to vault");
         }
         
-        pm.registerEvent(Type.PLAYER_INTERACT , playerListener, Priority.Normal, this);
-        pm.registerEvent(Type.BLOCK_BREAK, blockListener, Priority.Monitor, this);
-        pm.registerEvent(Type.REDSTONE_CHANGE, blockListener, Priority.Monitor, this);
-        log(Level.INFO, "Plugin initialized.");
+        log(Level.INFO, "Plugin initialized");
     }
     
     /**
@@ -101,11 +100,11 @@ public class MagicTorches extends JavaPlugin {
      */
     public static void spam(String msg) {
         log(Level.INFO, msg);
-        //Bukkit.getServer().broadcastMessage("[MT] " + msg);
+        Bukkit.getServer().broadcastMessage("[MT] " + msg);
     }
     
     public static void log(Level l, String msg){
-        logr.log(l, plugName + msg);
+        instance.getLogger().log(l, msg);
     }
     
     public static MagicTorches get(){
@@ -114,5 +113,40 @@ public class MagicTorches extends JavaPlugin {
     
     public static MiniStorage getMiniDB(){
         return miniDB;
+    }
+    
+    public MTTorchSignalListener getSignalListener(){
+        return this.signalListener;
+    }
+    
+    private boolean setupEconomy() {
+        if (getServer().getPluginManager().getPlugin("Vault") == null) {
+            return false;
+        }
+        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+        econ = rsp.getProvider();
+        return econ != null;
+    }
+    
+    private void loadConfig(FileConfiguration config) {
+        config.options().copyDefaults(true);
+        
+        //General
+        Properties.forceChunkLoad = config.getBoolean("Limits.ChunkLoadOnReceive");
+        Properties.toggleDelay = config.getDouble("DefaultTimes.Toggle");
+        Properties.delayDelay = config.getDouble("DefaultTimes.Delay");
+        Properties.timerDelay = config.getDouble("DefaultTimes.Timer");
+        Properties.useDistance = config.getBoolean("Limits.Distance");
+        Properties.maxDistance = config.getDouble("Limits.MaxDistance");
+        
+        //Economy
+        Properties.useEconomy = config.getBoolean("Economy.UseEconomy");
+        Properties.priceArrayCreate = config.getDouble("Economy.Price.CreateArray");
+        Properties.priceArrayEdit = config.getDouble("Economy.Price.EditArray");
+        Properties.priceDirect = config.getDouble("Economy.Price.PerTorch.Direct");
+        Properties.priceInverse = config.getDouble("Economy.Price.PerTorch.Inverse");
+        Properties.priceDelay = config.getDouble("Economy.Price.PerTorch.Delay");
+        Properties.priceTimer = config.getDouble("Economy.Price.PerTorch.Timer");
+        Properties.priceToggle = config.getDouble("Economy.Price.PerTorch.Toggle");
     }
 }

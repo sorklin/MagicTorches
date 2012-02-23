@@ -23,6 +23,7 @@ import org.bukkit.entity.Player;
 public interface MTReceiver {
     public Location getLocation();
     public boolean receive(boolean signal);
+    public void reset();
     public void setLocation(Location loc);
     public Location getParent();
     public void setParent(Location parent);

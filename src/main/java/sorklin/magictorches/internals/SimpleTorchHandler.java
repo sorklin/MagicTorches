@@ -18,6 +18,7 @@ package sorklin.magictorches.internals;
 
 import java.util.*;
 import java.util.Map.Entry;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import sorklin.magictorches.MagicTorches;
@@ -25,21 +26,21 @@ import sorklin.magictorches.internals.interfaces.MTReceiver;
 import sorklin.magictorches.internals.torches.*;
 
 
-public final class MTorchHandler {
+public final class SimpleTorchHandler {
     
     private MagicTorches mt;
     //Locate a torcharray by Location
-    private Map<Location, TorchArray> mtArray = new HashMap<Location, TorchArray>();
+    private HashMap<Location, TorchArray> mtArray = new HashMap<Location, TorchArray>();
     //Locate a receiver by location
     private final List<MTReceiver> allReceiverArray = new ArrayList();
     //Passback messages.
     private String message = "";
     
     
-    public MTorchHandler (MagicTorches instance) {
+    public SimpleTorchHandler (MagicTorches instance) {
         mt = instance;
         reload();
-        transmitAll();
+        transmitAll(true);//Transmit an init signal to get the torches in the right state.
     }
     
     /**
@@ -50,12 +51,34 @@ public final class MTorchHandler {
     }
     
     /**
-     * Adds or sets an array at a specific location into the cache.
+     * Adds or sets an array at a specific location into the active map.
      * @param ta TorchArray to add.
      */
     public void addArray(TorchArray ta){
         mtArray.put(ta.getLocation(), ta);
         allReceiverArray.addAll(ta.getReceiverArray());
+    }
+    
+    /**
+     * Removes the torchArray from the active map.
+     * @param loc 
+     */
+    public boolean removeArray(Location loc){
+        if(!mtArray.containsKey(loc))
+            return false;
+        TorchArray ta = mtArray.get(loc);
+        message = ta.getName(); //for the deletion message.
+        allReceiverArray.removeAll(ta.getReceiverArray());
+        mtArray.remove(loc);
+        return true;
+    }
+    
+    public void removeAllArrays(){
+        mtArray.clear();
+    }
+    
+    public HashMap<Location,TorchArray> getAllArrays(){
+        return mtArray;
     }
     
     /**
@@ -65,6 +88,20 @@ public final class MTorchHandler {
      */
     public TorchArray getArray(Location loc){
         return (mtArray.containsKey(loc)) ? mtArray.get(loc) : null;
+    }
+    
+    /**
+     * Returns the torch array for a given name.
+     * @param name
+     * @return 
+     */
+    public TorchArray getArray(String name) {
+        for (Iterator<Entry<Location, TorchArray>> it = mtArray.entrySet().iterator(); it.hasNext();) {
+            Entry<Location, TorchArray> ta = it.next();
+            if(name.equalsIgnoreCase(ta.getValue().getName()))
+                return ta.getValue();
+        }
+        return null;
     }
     
     /**
@@ -81,9 +118,10 @@ public final class MTorchHandler {
     /**
      * Iterates through all TorchArrays, sending a transmit signal.
      */
-    public void transmitAll(){
-        for (Entry<Location, TorchArray> entry : mtArray.entrySet()) {
-            entry.getValue().transmit();
+    public void transmitAll(boolean initTorches){
+        for (Iterator<Entry<Location, TorchArray>> it = mtArray.entrySet().iterator(); it.hasNext();) {
+            Entry<Location, TorchArray> entry = it.next();
+            Bukkit.getServer().getPluginManager().callEvent(new TransmitEvent(entry.getValue(), initTorches));
         }
     }
     
@@ -117,8 +155,12 @@ public final class MTorchHandler {
             //Not sure why this doesn't find the second instance.
             while(it.hasNext()){
                 MTReceiver tr = it.next();
-                if(tr.getLocation().equals(loc))
-                    result.add("`YDirectReceiver: `w" + getReceiverInfo(tr) + ".");
+                if(tr.getLocation().equals(loc)){
+                    result.add("`YDirectReceiver: `a" + getReceiverInfo(tr) + "`Y.");
+                    result.add("`YIt is part of the `a" + mtArray.get(tr.getParent()) + " `Yarray.");
+                    result.add("`YThe transmitter is at `a" + tr.getParent().getX() + "," +
+                            tr.getParent().getY() + "," + tr.getParent().getZ() + "`a .");
+                }
             }
             
         } else {

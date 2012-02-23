@@ -2,7 +2,6 @@ package sorklin.magictorches.internals;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.ListIterator;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -15,7 +14,7 @@ public class TorchArray {
     private String arrayName;
     private Location transmitter;
     private String owner;
-    private final ArrayList<MTReceiver> receiverArray = new ArrayList<MTReceiver>();
+    final ArrayList<MTReceiver> receiverArray = new ArrayList<MTReceiver>();
     
     public TorchArray(String owner) {
         arrayName = String.valueOf(this.hashCode());
@@ -144,6 +143,23 @@ public class TorchArray {
     }
     
     /**
+     * Returns the reasons why a TorchArray is invalid in Messaging format.
+     * @return 
+     */
+    public String getInvalidReason() {
+        String msg = "";
+        if(isValid())
+            msg = "This torch array is valid.";
+        if(this.transmitter == null)
+            msg = "No transmitter has been set.%cr%";
+        if(this.receiverArray.isEmpty())
+            msg += "No receivers have been set up.%cr%";
+        if(this.arrayName == null)
+            msg += "The torch array has not been named.";
+        return msg;
+    }
+    
+    /**
      * Returns whether at least one receiver is set.
      * @return <code>true</code> at least one is set, <code>false</code> no receivers.
      */
@@ -219,6 +235,26 @@ public class TorchArray {
             }
         }
         return result;
+    }
+    
+    /**
+     * Initialize the torches.  Basically, sends a transmit to all direct and 
+     * inverse torches, but ignores the other types (leaving them in their saved state).
+     * @return 
+     */
+    public boolean init(){
+        if(transmitter == null)
+            return false;
+        
+        boolean current = isNotPowered(transmitter.getBlock().getType());
+        
+        for (Iterator<MTReceiver> it = receiverArray.iterator(); it.hasNext();) {
+            MTReceiver r = it.next();
+            if(r instanceof DirectReceiver || r instanceof InverseReceiver)
+                r.receive(current);
+        }
+        
+        return true;
     }
     
     /**

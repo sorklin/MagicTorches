@@ -22,13 +22,16 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import sorklin.magictorches.MagicTorches;
+import sorklin.magictorches.internals.Properties.MtType;
 import sorklin.magictorches.internals.interfaces.MTStorage;
 
 public class MiniStorage implements MTStorage {
@@ -55,72 +58,114 @@ public class MiniStorage implements MTStorage {
     }
     
     public TorchArray load(String name) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        String data;
+        String owner;
+        Location loc;
+        TorchArray ta = null;
+        
+        if(!mb_database.hasIndex(name))
+            return null;
+        
+        Arguments entry = mb_database.getArguments(name);
+        owner = entry.getValue("owner");
+        data = entry.getValue("data");
+        MagicTorches.log(Level.FINER, "LoadDB data: " + data);
+        try {
+            loc = trLocationFromData(data);
+            ta = torchArrayFromData(data, name, owner);
+            if(loc != null && ta != null) {
+                MagicTorches.log(Level.FINE, "Loaded torch: " + name);
+            } else {
+                MagicTorches.log(Level.INFO, name + "'s entry was malformed, or the transmitting" +
+                        "torch is missing. Deleting entry from DB.");
+            }
+        } catch (NullPointerException npe) {
+            MagicTorches.log(Level.WARNING, "NPE on torch: " + name);
+        } // just ignore for now
+    
+        return ta;
     }
 
     public boolean save(TorchArray ta) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        //This saves the array, whether its valid or not.  Not the job 
+        //here to determine good v. bad arrays.
+        String name = ta.getName();
+        String data = ta.toString();
+        MagicTorches.log(Level.FINER, "Saving to DB:" + ta.getName() + ", " + ta.toString());
+        Arguments entry = new Arguments(name.toLowerCase());
+        entry.setValue("owner", ta.getOwner());
+        entry.setValue("data", data);
+        mb_database.addIndex(entry.getKey(), entry);
+        mb_database.update();
+        return true;
     }
 
     public HashMap<Location, TorchArray> loadAll() {
         int torches = 0;
-        String data;
-        String owner;
-        Location loc;
         TorchArray ta;
-           
         HashMap<Location,TorchArray> arrays = new HashMap<Location, TorchArray>();
         
         for(String name: mb_database.getIndices().keySet()) {
-            Arguments entry = mb_database.getArguments(name);
-            owner = entry.getValue("owner");
-            data = entry.getValue("data");
-            MagicTorches.log(Level.FINER, "LoadDB data: " + data);
-            try {
-                loc = trLocationFromData(data);
-                ta = torchArrayFromData(data, name, owner);
-                if(loc != null && ta != null) {
-                    arrays.put(loc, ta);
-                    torches++;
-                    MagicTorches.log(Level.FINE, "Loaded torch: " + name);
-                } else {
-                     MagicTorches.log(Level.INFO, name + "'s entry was malformed, or the transmitting" +
-                                                            "torch is missing. Deleting entry from DB.");
-//                    delete(name);
-                }
-            } catch (NullPointerException npe) {
-                MagicTorches.log(Level.WARNING, "NPE on torch: " + name);
-            } // just ignore for now
+            ta = load(name);
+            if(ta != null){
+                torches++;
+                MagicTorches.log(Level.FINE, "Loaded torch: " + ta.getName());
+                arrays.put(ta.getLocation(), ta);
+            }
         }
+        
         MagicTorches.log(Level.INFO, "Loading " + torches + " magictorch arrays.");
         return arrays;
     }
 
     public boolean saveAll(HashMap<Location, TorchArray> ta) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        for(Entry<Location, TorchArray> e : ta.entrySet()){
+            save(e.getValue());
+        }
+        return true;
     }
 
     public boolean exists(String name) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return mb_database.hasIndex(name);
     }
 
     public boolean remove(String name) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        boolean result = false;
+        Arguments entry;
+        if(mb_database.hasIndex(name)){
+            entry = mb_database.getArguments(name);
+            if(entry != null){
+                mb_database.removeIndex(name);
+                mb_database.update();
+                result = true;
+            }
+        }
+        return result;
     }
 
     public String getOwner(String name) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return (mb_database.hasIndex(name)) 
+                ? mb_database.getArguments(name).getValue("owner")
+                : "None";
     }
     
+    public void removeAll() {
+        for(Entry<String, Arguments> e : mb_database.getIndices().entrySet()){
+            mb_database.removeIndex(e.getKey());
+        }
+        mb_database.update();
+    }
+    
+    /**************
+     *  PRIVATE   *
+     **************/
     
     private Location trLocationFromData(String data){
-        
         if(!data.contains(";")){
             return null;
         }
         
         Location result = null;
-        
         String[] sub = data.split(";");
         
         for(int i = 0, length = sub.length; i < length; i++){
@@ -200,16 +245,16 @@ public class MiniStorage implements MTStorage {
         return ((ta.isValid()) ? ta : null);
     } 
     
-    private byte typeFromString(String data){
-        //FIX for the new Type Enum
-        
+    private MtType typeFromString(String data){
+
         //type: (?<=Type{)\d{1,2}
-        byte result = 0x1; //This whole thing needs to change for Enum.
+        MtType result = MtType.NONE; 
 
         Pattern p = Pattern.compile("(?<=Type\\{)\\d{1,2}");
         Matcher m = p.matcher(data);
         if(m.find()){
-            result = Byte.parseByte(m.group());
+//            result = Byte.parseByte(m.group());
+            result = MtType.get(Integer.parseInt(m.group()));
         }
         return result;
     }
