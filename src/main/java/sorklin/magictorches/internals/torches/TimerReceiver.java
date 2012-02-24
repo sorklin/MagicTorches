@@ -28,16 +28,19 @@ public class TimerReceiver extends Receiver {
     
     private int delayTask;
     private long delayTicks = 0;
+    private double delay;
     
     public TimerReceiver (Location loc){
         super(loc);
         this.type = MtType.TIMER;
+        this.delay = -1;
         this.delayTicks = MTUtil.secondsToTicks(Properties.timerDelay);
     }
     
     public TimerReceiver (Location loc, double delay){
         super(loc);
         this.type = MtType.TIMER;
+        this.delay = delay;
         this.delayTicks = MTUtil.secondsToTicks(delay);
     }
     

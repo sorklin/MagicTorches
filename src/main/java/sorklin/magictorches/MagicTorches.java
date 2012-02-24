@@ -35,9 +35,9 @@ import sorklin.magictorches.listeners.MTTorchSignalListener;
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-//TODO: support Vault (and the economy systems) (needed in finish())
 //TODO: handle new torch types in minidb (including timings).
-
+//TODO: help
+//TODO: list (paged listing)
 
 public class MagicTorches extends JavaPlugin {
     

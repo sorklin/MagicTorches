@@ -31,6 +31,8 @@ public class MTPlayerListener implements Listener {
         Material mat = event.getClickedBlock().getType();
         Material item = Material.AIR;
         
+        String msg;
+        
         try {
             item = event.getItem().getType();
         } catch (NullPointerException npe) {
@@ -56,6 +58,7 @@ public class MTPlayerListener implements Listener {
             }
         }
         
+        //Handle torch creation/editing.
         if(!pl.editQueue.containsKey(player))
             return;
         TorchEditor te = pl.editQueue.get(player);
@@ -63,15 +66,33 @@ public class MTPlayerListener implements Listener {
         if(rst){
             if(act.equals(Action.LEFT_CLICK_BLOCK)) {
                 te.setTransmitter(loc);
-                Messaging.send(player, "`gSelected transmitter torch.");
+                msg =  "`gSelected transmitter torch.";
+                if(Properties.useEconomy)
+                    msg += "`Y%cr%Current array price: " 
+                            + MagicTorches.econ.format(te.priceArray());
                 event.setCancelled(true);
             } else if(act.equals(Action.RIGHT_CLICK_BLOCK)) {
-                if(te.getNextType() == MtType.DELAY ||
+                if(te.isReceiver(loc)){
+                    te.remove(loc);
+                    msg = "`gRemoved receiver from array.";
+                }
+                else if(te.getNextType() == MtType.DELAY ||
                         te.getNextType() == MtType.TIMER ||
-                        te.getNextType() == MtType.TOGGLE)
+                        te.getNextType() == MtType.TOGGLE) {
                     te.add(loc, te.getNextType(), te.getTimeOut());
-                else
+                    msg = "`gAdded a " + te.getNextType().toString() + " torch with a ";
+                    msg += (te.getTimeOut() == -1) ? "default" : te.getTimeOut();
+                    msg += " delay.";
+                } else {
                     te.add(loc, te.getNextType());
+                    msg = "`gAdded a " + te.getNextType().toString() + " torch";
+                }
+                
+                if(Properties.useEconomy)
+                    msg += "%cr%`YCurrent array price: " 
+                            + MagicTorches.econ.format(te.priceArray());
+                
+                Messaging.send(player, msg);
                 event.setCancelled(true);
             }
         }

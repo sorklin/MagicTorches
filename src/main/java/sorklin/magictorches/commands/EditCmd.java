@@ -55,7 +55,8 @@ public class EditCmd extends GenericCmd {
             Messaging.send(player, "Left click on a torch to set it a transmitter. "
                 + "%cr%Right click on torches to add/remove them from the receiver"
                 + "%cr%array.  Hold a lever and right-click a torch, to receive "
-                + "%cr%information about any clicked torch.");
+                + "%cr%information about any clicked torch. Type `Y/mt finish `wto "
+                + "%cr%finish editing the array.");
         } else {
             throw new MissingOrIncorrectParametersException("No array by that name was found.");
         }

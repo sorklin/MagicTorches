@@ -27,16 +27,19 @@ import sorklin.magictorches.internals.Properties.MtType;
 public class DelayReceiver extends Receiver {
     
     private long delayTicks = 0;
+    private double delay;
     
     public DelayReceiver (Location loc){
         super(loc);
         this.type = MtType.DELAY;
+        this.delay = -1;
         this.delayTicks = MTUtil.secondsToTicks(Properties.delayDelay);
     }
     
     public DelayReceiver (Location loc, double delay){
         super(loc);
         this.type = MtType.TIMER;
+        this.delay = delay;
         this.delayTicks = MTUtil.secondsToTicks(delay);
     }
     

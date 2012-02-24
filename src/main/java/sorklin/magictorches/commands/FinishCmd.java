@@ -19,7 +19,10 @@ package sorklin.magictorches.commands;
 import org.bukkit.command.CommandSender;
 import sorklin.magictorches.Exceptions.InsufficientPermissionsException;
 import sorklin.magictorches.Exceptions.MissingOrIncorrectParametersException;
+import sorklin.magictorches.MagicTorches;
+import sorklin.magictorches.internals.Messaging;
 import sorklin.magictorches.internals.Properties;
+import sorklin.magictorches.internals.TorchEditor;
 
 public class FinishCmd extends GenericCmd {
     
@@ -37,45 +40,36 @@ public class FinishCmd extends GenericCmd {
     public boolean execute() throws MissingOrIncorrectParametersException, InsufficientPermissionsException{
         errorCheck();
         
-        /*
-         * Can finish two things: creation and editing.  Handle both (should be similar).
-         * But editing won't require an array name (since its already established).
-         */
+        //Is there something being edited/created
+        if(!mt.editQueue.containsKey(player))
+            throw new MissingOrIncorrectParametersException("You are not creating or editing a torch array.");
         
-//        if(cmd.equalsIgnoreCase("finish")) {
-//            //Perms handled by that command handler
-//            ArrayList<String> argArray = new ArrayList<String>();
-//            for(int i=1, length = args.length; i < length; i++){
-//                argArray.add(args[i]);
-//            }
-//            String[] a = new String[argArray.size()];
-//            a = argArray.toArray(a);
-//            return finish(sender, a);
-//        } else
-   
-//    public boolean finish(CommandSender sender, String[] args){
-//        if(!MagicTorches.canCreate(sender)){
-//            return true;
-//        }
-//        
-//        Player player = (Player)sender;
-//        if(!pl.mt.isInEditMode(player)) {
-//            sender.sendMessage(pl.r + "You are not in edit mode. Type /mtcreate to begin.");
-//            return false;
-//        }
-//        
-//        if(args.length != 1) {
-//            sender.sendMessage(pl.r + "Incorrect number of arguments.");
-//            return false;
-//        }
-//
-//        if(pl.mt.create(player, args[0])) {
-//            sender.sendMessage(pl.g + "Successfully created MagicTorch array: " + pl.b + pl.mt.message);
-//            pl.mt.setEditMode(player, false);
-//        } else {
-//            sender.sendMessage(pl.r + pl.mt.message);
-//        }
-//        return true;
+        TorchEditor te = mt.editQueue.get(player);
+        
+        //Is it valid?
+        if(!mt.editQueue.get(player).isValid())
+            throw new MissingOrIncorrectParametersException(te.getInvalidReason());
+        
+        double price = te.priceArray();
+        String name = player.getName();
+        
+        //Can the player afford it?
+        if(Properties.useEconomy){
+            if(MagicTorches.econ.has(name, price))
+                MagicTorches.econ.withdrawPlayer(name, price);
+            else
+                throw new MissingOrIncorrectParametersException("You do not have enough money to buy create/edit this array (" 
+                        + MagicTorches.econ.format(price) + ")");
+        }
+        
+        //put it in the hashmap and save it.
+        mt.mtHandler.addArray(te);
+        MagicTorches.getMiniDB().save(te);
+        
+        Messaging.send(player, "`gFinished the `w" + te.getName() + " `garray" 
+                + ((Properties.useEconomy) 
+                ? (", for " + MagicTorches.econ.format(price))+ "." 
+                : "."));
         
         return true;
     }

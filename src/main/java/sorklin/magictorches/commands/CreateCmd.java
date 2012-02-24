@@ -19,6 +19,7 @@ package sorklin.magictorches.commands;
 import org.bukkit.command.CommandSender;
 import sorklin.magictorches.Exceptions.InsufficientPermissionsException;
 import sorklin.magictorches.Exceptions.MissingOrIncorrectParametersException;
+import sorklin.magictorches.MagicTorches;
 import sorklin.magictorches.internals.MTUtil;
 import sorklin.magictorches.internals.Messaging;
 import sorklin.magictorches.internals.Properties;
@@ -30,6 +31,7 @@ public class CreateCmd extends GenericCmd {
     public CreateCmd(CommandSender cs, String args[]){
         super(cs, args);
         this.permission = Properties.permAccess;
+        this.minArg = 2;
     }
     
     public boolean execute() throws MissingOrIncorrectParametersException, InsufficientPermissionsException {
@@ -38,44 +40,43 @@ public class CreateCmd extends GenericCmd {
         String msg = "`gCreating a MagicTorch array. `wLeft click on a torch to set it as "
                 + "%cr%a transmitter. Right click on torches to add/remove them from"
                 + "%cr%the receiver array.  Hold a lever to receive information about any"
-                + "%cr%clicked torch.";
+                + "%cr%clicked torch.  Type `Y/mt finish `wto finish creating the array.";
         
         TorchEditor te = new TorchEditor(player);
+
+        //Check for the name already existing.
+        if(MagicTorches.getMiniDB().exists(args[1]))
+            throw new MissingOrIncorrectParametersException("An array already exists with that name.");
+        te.setName(args[1]);
         
-        if(args.length <= 1) {
+        if(args.length == 2) {
             //Assume a DIRECT type of linkage
             if(!MTUtil.hasPermission(player, Properties.permCreateDirect))
                 throw new InsufficientPermissionsException();
             te.setNextType(MtType.DIRECT);
-            Messaging.send(player, msg);
-        }
         
-        else if(args.length >= 2) {
-            if(args[1].equalsIgnoreCase("direct")) {
+            Messaging.send(player, msg);
+        } else {
+            if(args[2].equalsIgnoreCase("direct")) {
                 if(!MTUtil.hasPermission(player, Properties.permCreateDirect))
                     throw new InsufficientPermissionsException();
                 te.setNextType(MtType.DIRECT);
-            } else if(args[1].equalsIgnoreCase("inverse")) {
+            } else if(args[2].equalsIgnoreCase("inverse")) {
                 if(!MTUtil.hasPermission(player, Properties.permCreateInverse))
                     throw new InsufficientPermissionsException();
                 te.setNextType(MtType.INVERSE);
-            } else if(args[1].equalsIgnoreCase("delay")) {
+            } else if(args[2].equalsIgnoreCase("delay")) {
                 if(!MTUtil.hasPermission(player, Properties.permCreateDelay))
                     throw new InsufficientPermissionsException();
                 te.setNextType(MtType.DELAY);
-            } else if(args[1].equalsIgnoreCase("toggle")) {
+            } else if(args[2].equalsIgnoreCase("toggle")) {
                 if(!MTUtil.hasPermission(player, Properties.permCreateToggle))
                     throw new InsufficientPermissionsException();
                 te.setNextType(MtType.TOGGLE);
-            } else if(args[1].equalsIgnoreCase("timer")) {
+            } else if(args[2].equalsIgnoreCase("timer")) {
                 if(!MTUtil.hasPermission(player, Properties.permCreateTimer))
                     throw new InsufficientPermissionsException();
                 te.setNextType(MtType.TIMER);
-                double timeOut = Properties.timerDelay;
-                if(args.length > 2)
-                    try { timeOut = Double.valueOf(args[2]);                        
-                    } catch (NumberFormatException nfe) {}
-                te.setTimeOut(timeOut);
             } else {
                 throw new MissingOrIncorrectParametersException();
             }

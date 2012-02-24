@@ -22,7 +22,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.logging.Level;
@@ -81,7 +80,11 @@ public class MiniStorage implements MTStorage {
             }
         } catch (NullPointerException npe) {
             MagicTorches.log(Level.WARNING, "NPE on torch: " + name);
-        } // just ignore for now
+        } catch (NumberFormatException nfe) {
+            MagicTorches.log(Level.WARNING, "Number Format entry exception on torch " + name);
+            MagicTorches.log(Level.WARNING, "Debug info:");
+            nfe.printStackTrace();
+        }
     
         return ta;
     }
@@ -222,6 +225,7 @@ public class MiniStorage implements MTStorage {
         TorchArray ta = new TorchArray(owner);
         ta.setName(name);
         
+        double delay;
         for(int i=0, length = sub.length; i < length; i++) {
             if(sub[i].contains("Transmitter")){
                 //Only set the transmitter location if the location is not null,
@@ -236,10 +240,14 @@ public class MiniStorage implements MTStorage {
                         ta.setTransmitter(loc);
                     }
                 }
-            } else 
+            } 
             
-            if(sub[i].contains("Receiver")){
-                ta.add(locationFromString(sub[i]), typeFromString(sub[i]));
+            else if(sub[i].contains("Receiver")){
+                delay = delayFromString(sub[i]);
+                if(delay >= 0)
+                    ta.add(locationFromString(sub[i]), typeFromString(sub[i]), delay);
+                else 
+                    ta.add(locationFromString(sub[i]), typeFromString(sub[i]));
             }
         }
         return ((ta.isValid()) ? ta : null);
@@ -252,10 +260,23 @@ public class MiniStorage implements MTStorage {
 
         Pattern p = Pattern.compile("(?<=Type\\{)\\d{1,2}");
         Matcher m = p.matcher(data);
-        if(m.find()){
-//            result = Byte.parseByte(m.group());
+        if(m.find())
             result = MtType.get(Integer.parseInt(m.group()));
+        
+        return result;
+    }
+    
+    private double delayFromString(String data){
+        
+        //delay: (?<=Delay{)-{0,1}\d{1,3}\.{0,1}\d{0,5}
+        double result = -1;
+
+        Pattern p = Pattern.compile("(?<=Delay\\{)-{0,1}\\d{1,3}\\.{0,1}\\d{0,5}");
+        Matcher m = p.matcher(data);
+        if(m.find()){
+            result = (double)Double.parseDouble(m.group());
         }
+        
         return result;
     }
 }

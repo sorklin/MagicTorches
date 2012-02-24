@@ -18,7 +18,6 @@ package sorklin.magictorches.internals.torches;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import sorklin.magictorches.internals.Properties.MtType;
 import sorklin.magictorches.internals.interfaces.MTReceiver;
@@ -78,7 +77,7 @@ abstract class Receiver implements MTReceiver {
     public String toString() {
         String result;
         result = this.torchLocation.toString();
-        result = result + ":Type{"+ type +"}";
+        result = result + ":Type{"+ type.getType() +"}";
         return result;
     }
     

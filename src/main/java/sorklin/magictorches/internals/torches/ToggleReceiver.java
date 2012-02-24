@@ -28,16 +28,19 @@ public class ToggleReceiver extends Receiver {
     
     private int ignoreSignal;
     private long delayTicks = 0;
+    private double delay;
     
     public ToggleReceiver (Location loc){
         super(loc);
         this.type = MtType.TOGGLE;
+        this.delay = -1;
         this.delayTicks = MTUtil.secondsToTicks(Properties.toggleDelay);
     }
     
     public ToggleReceiver (Location loc, double delay){
         super(loc);
         this.type = MtType.TOGGLE;
+        this.delay = delay;
         this.delayTicks = MTUtil.secondsToTicks(delay);
     }
     

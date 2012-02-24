@@ -25,13 +25,13 @@ public class MTCommandExecutor implements CommandExecutor{
             c = args[0];
         
         try {
-            if(c.equalsIgnoreCase("activate"))
+            if(c.equalsIgnoreCase("activate") || c.equalsIgnoreCase("on")) // /mt activate
                 cmd = new ActivateCmd(sender, args);
-            else if(c.equalsIgnoreCase("cancel"))
+            else if(c.equalsIgnoreCase("cancel")) // /mt cancel
                 cmd = new CancelCmd(sender, args);
-            else if(c.equalsIgnoreCase("create"))
+            else if(c.equalsIgnoreCase("create")) //Change format to: /mt create <name> [receiver type]
                 cmd = new CreateCmd(sender, args);
-            else if(c.equalsIgnoreCase("deactivate"))
+            else if(c.equalsIgnoreCase("deactivate") || c.equalsIgnoreCase("off")) // /mt deactivate
                 cmd = new DeactivateCmd(sender, args);
             else if(c.equalsIgnoreCase("debug"))
                 cmd = new DebugCmd(sender, args);
@@ -49,7 +49,7 @@ public class MTCommandExecutor implements CommandExecutor{
                 cmd = new HelpCmd(sender, args);
             else if(c.equalsIgnoreCase("info"))
                 cmd = new InfoCmd(sender, args);
-            else if(c.equalsIgnoreCase("inverse"))
+            else if(c.equalsIgnoreCase("inverse") || c.equalsIgnoreCase("inv"))
                 cmd = new InverseCmd(sender, args);
             else if(c.equalsIgnoreCase("list"))
                 cmd = new ListCmd(sender, args);
