@@ -19,6 +19,7 @@ package sorklin.magictorches.commands;
 import org.bukkit.command.CommandSender;
 import sorklin.magictorches.Exceptions.InsufficientPermissionsException;
 import sorklin.magictorches.Exceptions.MissingOrIncorrectParametersException;
+import sorklin.magictorches.MagicTorches;
 import sorklin.magictorches.internals.*;
 
 public class EditCmd extends GenericCmd {
@@ -37,16 +38,15 @@ public class EditCmd extends GenericCmd {
     
     public boolean execute() throws MissingOrIncorrectParametersException, InsufficientPermissionsException{
         errorCheck();
-        
+        //MagicTorches.spam("in edit execute.");
         TorchArray ta = mt.mtHandler.getArray(args[1]);
-        
+        //MagicTorches.spam("getarray = " + ta.getName());
         if(ta != null){
             if(!MTUtil.hasPermission(player, Properties.permAdmin) ||
                     !ta.getOwner().equalsIgnoreCase(player.getName()))
                 throw new InsufficientPermissionsException("That is not your torcharray.");
             
-            TorchEditor te = (TorchEditor)ta;
-            te.setOriginal(ta);
+            TorchEditor te = new TorchEditor(ta);
             mt.mtHandler.removeArray(ta.getLocation()); //remove it from active arrays.
             te.resetReceivers();
             mt.editQueue.put(player, te);

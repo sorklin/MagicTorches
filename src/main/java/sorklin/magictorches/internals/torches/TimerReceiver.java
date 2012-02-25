@@ -29,6 +29,7 @@ public class TimerReceiver extends Receiver {
     private int delayTask;
     private long delayTicks = 0;
     private double delay;
+    private boolean isRunning = false;
     
     public TimerReceiver (Location loc){
         super(loc);
@@ -41,7 +42,10 @@ public class TimerReceiver extends Receiver {
         super(loc);
         this.type = MtType.TIMER;
         this.delay = delay;
-        this.delayTicks = MTUtil.secondsToTicks(delay);
+        if(delay < 0)
+            this.delayTicks = MTUtil.secondsToTicks(Properties.timerDelay);
+        else
+            this.delayTicks = MTUtil.secondsToTicks(delay);
     }
     
     /**
@@ -69,7 +73,7 @@ public class TimerReceiver extends Receiver {
         }
         
         //If the delay is already functioning, ignore the received signal.
-        if(!mt.getServer().getScheduler().isCurrentlyRunning(delayTask)){
+        if(!isRunning){
             
             //Set initial torch signal receive:
             if(originalMat.equals(Material.TORCH)) {
@@ -81,10 +85,13 @@ public class TimerReceiver extends Receiver {
                 torch.setType(Material.TORCH);
             }
             
+            isRunning = true;
+            
             //Create the timed task to flip it back:
             this.delayTask = mt.getServer().getScheduler().scheduleSyncDelayedTask(mt, new Runnable() {
                 public void run() {
                     torch.setType(originalMat);
+                    isRunning = false;
                 }
             }, delayTicks);
         }
@@ -103,7 +110,7 @@ public class TimerReceiver extends Receiver {
     @Override
     public String toString() {
         String result = super.toString();
-        result += ":Delay{" + this.delayTicks + "}";
+        result += ":Delay{" + this.delay + "}";
         return result;
     }
 }

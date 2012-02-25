@@ -31,7 +31,7 @@ public class MTPlayerListener implements Listener {
         Material mat = event.getClickedBlock().getType();
         Material item = Material.AIR;
         
-        String msg;
+        String msg = "";
         
         try {
             item = event.getItem().getType();
@@ -41,6 +41,8 @@ public class MTPlayerListener implements Listener {
         }
         
         boolean rst = (mat.equals(Material.REDSTONE_TORCH_ON) || mat.equals(Material.REDSTONE_TORCH_OFF));
+        
+        //TODO: Fix this -- lever should provide info no matter what.
         
         //Handle the Information action:
         //Lets check for a switch in the hand (which indicates info request).
@@ -91,10 +93,9 @@ public class MTPlayerListener implements Listener {
                 if(Properties.useEconomy)
                     msg += "%cr%`YCurrent array price: " 
                             + MagicTorches.econ.format(te.priceArray());
-                
-                Messaging.send(player, msg);
                 event.setCancelled(true);
             }
+            Messaging.send(player, msg);
         }
     }
 }

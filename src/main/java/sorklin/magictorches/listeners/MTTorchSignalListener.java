@@ -29,9 +29,14 @@ public class MTTorchSignalListener implements Listener {
     
     @EventHandler
     public void onMTTransmit(TransmitEvent event){
-        if(Properties.disableTransmit)
+        //MagicTorches.spam("Event received for " + event.getTorchArray().toString());
+        if(Properties.disableTransmit){
+            //MagicTorches.spam("Disabled transmit.");
             return;
-        event.getTorchArray().transmit();
+        }
+        if(event.isInit())
+            event.getTorchArray().init();
+        else
+            event.getTorchArray().transmit();
     }
-    
 }

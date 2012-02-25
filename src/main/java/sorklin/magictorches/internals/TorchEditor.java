@@ -39,6 +39,15 @@ public class TorchEditor extends TorchArray {
         created = true;
     }
     
+    public TorchEditor(TorchArray ta){
+        //This is for editing.
+        super(ta.getOwner());
+        this.receiverArray.addAll(ta.receiverArray);
+        setTransmitter(ta.getLocation());
+        setName(ta.getName());
+        this.original = ta;
+    }
+    
     /**
      * These are wrappers for the regular add function.  They check for 
      * distance and to see if a transmitter has already been set.
@@ -126,10 +135,6 @@ public class TorchEditor extends TorchArray {
     
     public TorchArray getOriginal(){
         return original;
-    }
-    
-    public void setOriginal(TorchArray original){
-        this.original = original;
     }
     
     public boolean isEdited(){

@@ -16,6 +16,7 @@
  */
 package sorklin.magictorches.internals.torches;
 
+import java.util.logging.Level;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -40,7 +41,10 @@ public class DelayReceiver extends Receiver {
         super(loc);
         this.type = MtType.TIMER;
         this.delay = delay;
-        this.delayTicks = MTUtil.secondsToTicks(delay);
+        if(delay < 0)
+            this.delayTicks = MTUtil.secondsToTicks(Properties.delayDelay);
+        else
+            this.delayTicks = MTUtil.secondsToTicks(delay);
     }
     
     /**
@@ -56,7 +60,7 @@ public class DelayReceiver extends Receiver {
             return false;
         
         final Block torch = torchLocation.getBlock();
-        final Material originalMat = torch.getType();
+        //final Material originalMat = torch.getType();
         
         //Check to see if chunk is loaded, and if not, should it be?
         if(!torch.getChunk().isLoaded()){
@@ -67,17 +71,18 @@ public class DelayReceiver extends Receiver {
         }
        
         MagicTorches mt = MagicTorches.get();
-            
+        
         //Create the timed delayed task to process change:
         mt.getServer().getScheduler().scheduleSyncDelayedTask(mt, new Runnable() {
             public void run() {
+                MagicTorches.spam("in delayed task");
                 //Set torch signal receive:
-                if(originalMat.equals(Material.TORCH)) {
+                if(torch.getType().equals(Material.TORCH)) {
                     torch.setType(Material.REDSTONE_TORCH_ON);
                 } 
 
-                else if(originalMat.equals(Material.REDSTONE_TORCH_ON)
-                        || originalMat.equals(Material.REDSTONE_TORCH_OFF)) {
+                else if(torch.getType().equals(Material.REDSTONE_TORCH_ON)
+                        || torch.getType().equals(Material.REDSTONE_TORCH_OFF)) {
                     torch.setType(Material.TORCH);
                 }
             }
@@ -97,7 +102,7 @@ public class DelayReceiver extends Receiver {
     @Override
     public String toString() {
         String result = super.toString();
-        result += ":Delay{" + this.delayTicks + "}";
+        result += ":Delay{" + this.delay + "}";
         return result;
     }
 }

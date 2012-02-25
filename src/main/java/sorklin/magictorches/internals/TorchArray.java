@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.ListIterator;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import sorklin.magictorches.MagicTorches;
 import sorklin.magictorches.internals.Properties.MtType;
 import sorklin.magictorches.internals.interfaces.MTReceiver;
 import sorklin.magictorches.internals.torches.*;
@@ -246,7 +247,7 @@ public class TorchArray {
         if(transmitter == null)
             return false;
         
-        boolean current = isNotPowered(transmitter.getBlock().getType());
+        boolean current = isPowered(transmitter.getBlock().getType());
         
         for (Iterator<MTReceiver> it = receiverArray.iterator(); it.hasNext();) {
             MTReceiver r = it.next();
@@ -264,7 +265,7 @@ public class TorchArray {
     public boolean transmit(){
         if(transmitter == null) 
             return false;
-        return transmit(isNotPowered(transmitter.getBlock().getType()));
+        return transmit(isPowered(transmitter.getBlock().getType()));
     }
     
     /**
@@ -273,10 +274,8 @@ public class TorchArray {
      * @return <code>true</code> success, <code>false</code> failure.
      */
     public boolean transmit(boolean current){
+        //MagicTorches.spam("transmit(current) = " + current);
         if(transmitter == null) 
-            return false;
-        
-        if(isNotPowered(transmitter.getBlock().getType()))
             return false;
         
         for (Iterator<MTReceiver> it = receiverArray.iterator(); it.hasNext();) {
@@ -299,10 +298,10 @@ public class TorchArray {
      * Returns true if the Torch is not powered.
      * @param mat Material of torch.
      */
-    private boolean isNotPowered(Material mat){
+    private boolean isPowered(Material mat){
         //Will return true if material is anything but a lit redstone torch
         //While i'm not crazy about this, we're pretty sure it'll always be a torch
         //there.
-        return (!(mat.equals(Material.REDSTONE_TORCH_ON)));
+        return ((mat.equals(Material.REDSTONE_TORCH_ON)));
     }
 }

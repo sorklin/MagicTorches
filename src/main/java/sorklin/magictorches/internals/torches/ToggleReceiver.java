@@ -26,9 +26,9 @@ import sorklin.magictorches.internals.Properties.MtType;
 
 public class ToggleReceiver extends Receiver {
     
-    private int ignoreSignal;
     private long delayTicks = 0;
     private double delay;
+    private boolean isRunning = false;
     
     public ToggleReceiver (Location loc){
         super(loc);
@@ -41,7 +41,10 @@ public class ToggleReceiver extends Receiver {
         super(loc);
         this.type = MtType.TOGGLE;
         this.delay = delay;
-        this.delayTicks = MTUtil.secondsToTicks(delay);
+        if(delay < 0)
+            this.delayTicks = MTUtil.secondsToTicks(Properties.toggleDelay);
+        else
+            this.delayTicks = MTUtil.secondsToTicks(delay);
     }
     
     /**
@@ -69,7 +72,7 @@ public class ToggleReceiver extends Receiver {
                 torch.getChunk().load();
         
         //If the delay is already functioning, ignore the received signal.
-        if(!mt.getServer().getScheduler().isCurrentlyRunning(ignoreSignal)){
+        if(!isRunning){
             
             if(torch.getType().equals(Material.TORCH)) {
                 torch.setType(Material.REDSTONE_TORCH_ON);
@@ -80,10 +83,11 @@ public class ToggleReceiver extends Receiver {
                 torch.setType(Material.TORCH);
             }
             
-            ignoreSignal = mt.getServer().getScheduler().scheduleAsyncDelayedTask(mt, new Runnable() {
+            isRunning = true;
+            
+            mt.getServer().getScheduler().scheduleSyncDelayedTask(mt, new Runnable() {
                 public void run() {
-                    //There literally is nothing here.
-                    //Hopefully the presence of the scheduled task is enough to delay signal processing.
+                    isRunning = false;
                 }
             }, delayTicks);
         }
@@ -101,7 +105,7 @@ public class ToggleReceiver extends Receiver {
     @Override
     public String toString() {
         String result = super.toString();
-        result += ":Delay{" + this.delayTicks + "}";
+        result += ":Delay{" + this.delay + "}";
         return result;
     }
 }

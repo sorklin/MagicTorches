@@ -27,6 +27,7 @@ public class TransmitEvent extends Event {
         super("TransmitEvent");
         this.ta = ta;
         this.init = false;
+        //MagicTorches.spam("Event initialized.");
     }
     
     public TorchArray getTorchArray(){

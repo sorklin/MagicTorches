@@ -35,7 +35,9 @@ public class MTBlockListener implements Listener {
 
     @EventHandler(priority= EventPriority.MONITOR)
     public void onBlockRedstoneChange(BlockRedstoneEvent event) {
+        //MagicTorches.spam("RS: " + event.getBlock().getLocation().toString());
         if(pl.mtHandler.isMT(event.getBlock().getLocation())){
+            //MagicTorches.spam("is mt.");
             Bukkit.getServer().getPluginManager()
                     .callEvent(new TransmitEvent(pl.mtHandler.getArray(event.getBlock().getLocation())));
         }
