@@ -136,6 +136,7 @@ public final class SimpleTorchHandler {
     public List<String> getInfo(Block block, String player, boolean isAdmin, boolean clicked){
         List<String> result = new ArrayList<String>();
         String sb;
+        String divider = "`Y+--------------------------------------------------+";
         Location loc = block.getLocation();
         
         if(isMT(loc)){
@@ -144,9 +145,11 @@ public final class SimpleTorchHandler {
                 sb = (clicked) ? 
                         ("`YTransmitter for the `a" + mtArray.get(loc).getName() +" `Yarray. ") :
                         ("`Y" + getTransmitterInfo(mtArray.get(loc)));
+                result.add(divider);
                 result.add(sb);
-                result.add("Its receivers are: ");
+                result.add("`YIts receivers are: ");
                 result.addAll(listReceivers(loc));
+                result.add(divider);
             }
         }
         
@@ -156,15 +159,19 @@ public final class SimpleTorchHandler {
             while(it.hasNext()){
                 MTReceiver tr = it.next();
                 if(tr.getLocation().equals(loc)){
-                    result.add("`YDirectReceiver: `a" + getReceiverInfo(tr) + "`Y.");
-                    result.add("`YIt is part of the `a" + mtArray.get(tr.getParent()) + " `Yarray.");
-                    result.add("`YThe transmitter is at `a" + tr.getParent().getX() + "," +
-                            tr.getParent().getY() + "," + tr.getParent().getZ() + "`a .");
+                    result.add(divider);
+                    result.add("`YReceiver: `a" + getReceiverInfo(tr) + "`Y.");
+                    result.add("`YIt is part of the `a" + mtArray.get(tr.getParent()).getName() + " `Yarray.");
+                    result.add("`YIts transmitter is at `a[" + tr.getParent().getWorld().getName() + ": " 
+                            + tr.getParent().getX() + ", " +
+                            tr.getParent().getY() + ", " + 
+                            tr.getParent().getZ() + "]`Y .");
+                    result.add(divider);
                 }
             }
             
         } else {
-            result.add("`RThis is not a MagicTorch.");
+            result.add("`YThis is not a MagicTorch.");
         }
         return result;
     }
@@ -208,7 +215,7 @@ public final class SimpleTorchHandler {
             if(!receivers.isEmpty()){
                 ListIterator<MTReceiver> it = receivers.listIterator();
                 while(it.hasNext()){
-                    result.add(getReceiverInfo(it.next()));
+                    result.add("`a"+ getReceiverInfo(it.next()));
                 }
             }
         }
@@ -242,18 +249,22 @@ public final class SimpleTorchHandler {
         else 
             sb.append("Unknown");
         
+        if(tr instanceof DelayReceiver || tr instanceof ToggleReceiver || tr instanceof TimerReceiver)
+            sb.append(" (").append(tr.getDelay()).append("s)");
+        
         sb.append(" receiver at ");
         sb.append("[").append(tr.getLocation().getWorld().getName()).append(": ");
         sb.append(tr.getLocation().getBlockX()).append(", ");
         sb.append(tr.getLocation().getBlockY()).append(", ");
         sb.append(tr.getLocation().getBlockZ()).append("]");
         
-        sb.append(" It is a member of the ").append(mtArray.get(tr.getParent()).getName());
-        sb.append(" array at ");
-        sb.append("[").append(tr.getParent().getWorld().getName()).append(": ");
-        sb.append(tr.getParent().getBlockX()).append(", ");
-        sb.append(tr.getParent().getBlockY()).append(", ");
-        sb.append(tr.getParent().getBlockZ()).append("]");
+        
+//        sb.append(" It is a member of the ").append(mtArray.get(tr.getParent()).getName());
+//        sb.append(" array at ");
+//        sb.append("[").append(tr.getParent().getWorld().getName()).append(": ");
+//        sb.append(tr.getParent().getBlockX()).append(", ");
+//        sb.append(tr.getParent().getBlockY()).append(", ");
+//        sb.append(tr.getParent().getBlockZ()).append("]");
         
         return sb.toString();
     }

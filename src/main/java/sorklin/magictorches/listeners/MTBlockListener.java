@@ -26,7 +26,9 @@ public class MTBlockListener implements Listener {
         
         if(mat.equals(Material.REDSTONE_TORCH_OFF) || mat.equals(Material.REDSTONE_TORCH_ON)) {
             if(pl.mtHandler.isMT(loc)){
+                String mtName = pl.mtHandler.getArray(loc).getName();
                 if(pl.mtHandler.removeArray(loc)) {
+                    MagicTorches.getMiniDB().remove(mtName);
                     Messaging.send(event.getPlayer(), "`rMagicTorch transmitter `w" + pl.mtHandler.getMessage() + "`r was deleted.");
                 }
             }

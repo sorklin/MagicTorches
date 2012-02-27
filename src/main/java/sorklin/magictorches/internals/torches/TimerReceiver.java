@@ -108,6 +108,11 @@ public class TimerReceiver extends Receiver {
     }
 
     @Override
+    public double getDelay() {
+        return (this.delay < 0) ? Properties.timerDelay : this.delay;
+    }
+
+    @Override
     public String toString() {
         String result = super.toString();
         result += ":Delay{" + this.delay + "}";

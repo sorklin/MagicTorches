@@ -103,6 +103,11 @@ public class ToggleReceiver extends Receiver {
     }
 
     @Override
+    public double getDelay() {
+        return (this.delay < 0) ? Properties.toggleDelay : this.delay;
+    }
+
+    @Override
     public String toString() {
         String result = super.toString();
         result += ":Delay{" + this.delay + "}";

@@ -16,6 +16,8 @@
  */
 package sorklin.magictorches.internals;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import sorklin.magictorches.internals.Properties.MtType;
@@ -27,7 +29,6 @@ public class TorchEditor extends TorchArray {
     private MtType nextLinkType = MtType.DIRECT;
     private double timerValue = -1;
     private String message = "";
-    private boolean created = false;
     private TorchArray original = null;
     
     /**
@@ -36,7 +37,6 @@ public class TorchEditor extends TorchArray {
      */
     public TorchEditor(Player player){
         super(player.getName());
-        created = true;
     }
     
     public TorchEditor(TorchArray ta){
@@ -113,12 +113,31 @@ public class TorchEditor extends TorchArray {
     public double priceArray() {
         
         double subTotal;
-        if(created)
+
+        if(original == null){
             subTotal = Properties.priceArrayCreate;
-        else
+            subTotal += priceReceivers(receiverArray);
+        } else {
             subTotal = Properties.priceArrayEdit;
+            double newReceiverCost = (priceReceivers(receiverArray) - priceReceivers(original.receiverArray));
+            subTotal += (newReceiverCost >= 0) ? newReceiverCost : 0;
+        }
         
-        for(MTReceiver r : receiverArray){
+        return subTotal;
+    }
+    
+    public TorchArray getOriginal(){
+        return original;
+    }
+    
+    public boolean isEdited(){
+        return (original != null);
+    }
+    
+    private double priceReceivers(ArrayList<MTReceiver> receivers){
+        double subTotal = 0;
+        
+        for(MTReceiver r : receivers){
             if(r instanceof DirectReceiver)
                 subTotal += Properties.priceDirect;
             else if(r instanceof InverseReceiver)
@@ -130,14 +149,65 @@ public class TorchEditor extends TorchArray {
             else if(r instanceof ToggleReceiver)
                 subTotal += Properties.priceToggle;
         }
+        
         return subTotal;
     }
     
-    public TorchArray getOriginal(){
-        return original;
+    /**
+     * Duplicated from SimpleTorchHandler for the purposes of getting info on 
+     * Created or edited torches.
+     */
+    public List<String> getInfo(Location loc){
+        List<String> result = new ArrayList<String>();
+        String sb;
+        
+        if(loc.equals(this.getLocation()))
+                result.add("`YTransmitter Torch for current array.");
+        else if (isReceiver(loc)) {
+            for(MTReceiver tr : receiverArray)
+                if(tr.getLocation().equals(loc)){
+                    result.add("`YReceiver: `a" + getReceiverInfo(tr) + "`Y.");
+                    result.add("`YIts transmitter is at `a[" + tr.getParent().getWorld().getName() + ": " 
+                            + tr.getParent().getX() + ", " +
+                            tr.getParent().getY() + ", " + 
+                            tr.getParent().getZ() + "]`Y .");
+                }
+        } else {
+            result.add("`rThis is not a MagicTorch in the array currently being created or edited.");
+        }
+        
+        return result;
     }
-    
-    public boolean isEdited(){
-        return !created;
+
+    /**
+     * Duplicated from SimpleTorchHandler for the purposes of getting info on 
+     * Created or edited torches.
+     */
+    private String getReceiverInfo(MTReceiver tr){
+        StringBuilder sb = new StringBuilder();
+        
+        if(tr instanceof DirectReceiver)
+            sb.append("Direct");
+        else if(tr instanceof DelayReceiver)
+            sb.append("Delay");
+        else if(tr instanceof InverseReceiver)
+            sb.append("Inverse");
+        else if(tr instanceof ToggleReceiver)
+            sb.append("Toggle");
+        else if(tr instanceof TimerReceiver)
+            sb.append("Timer");
+        else 
+            sb.append("Unknown");
+        
+        if(tr instanceof DelayReceiver || tr instanceof ToggleReceiver || tr instanceof TimerReceiver)
+            sb.append(" (").append(tr.getDelay()).append("s)");
+        
+        sb.append(" receiver at ");
+        sb.append("[").append(tr.getLocation().getWorld().getName()).append(": ");
+        sb.append(tr.getLocation().getBlockX()).append(", ");
+        sb.append(tr.getLocation().getBlockY()).append(", ");
+        sb.append(tr.getLocation().getBlockZ()).append("]");
+        
+        return sb.toString();
     }
 }

@@ -7,6 +7,7 @@ import org.bukkit.command.CommandSender;
 import sorklin.magictorches.Exceptions.InsufficientPermissionsException;
 import sorklin.magictorches.Exceptions.MissingOrIncorrectParametersException;
 import sorklin.magictorches.MagicTorches;
+import sorklin.magictorches.internals.Messaging;
 import sorklin.magictorches.internals.interfaces.Cmd;
 
 public class MTCommandExecutor implements CommandExecutor{
@@ -55,6 +56,8 @@ public class MTCommandExecutor implements CommandExecutor{
                 cmd = new ListCmd(sender, args);
             else if(c.equalsIgnoreCase("prune"))
                 cmd = new PruneCmd(sender, args);
+            else if(c.equalsIgnoreCase("rate"))
+                cmd = new RateCmd(sender, args);
             else if(c.equalsIgnoreCase("reload"))
                 cmd = new ReloadCmd(sender, args);
             else if(c.equalsIgnoreCase("price"))
@@ -70,9 +73,9 @@ public class MTCommandExecutor implements CommandExecutor{
             return cmd.execute();
             
         } catch (InsufficientPermissionsException ex) {
-            sender.sendMessage(ex.getMessage());
+            Messaging.send(sender, "`R" + ex.getMessage());
         } catch (MissingOrIncorrectParametersException ex) {
-            sender.sendMessage(ex.getMessage());
+            Messaging.send(sender, "`R" + ex.getMessage());
         } catch (Exception ex) {
             MagicTorches.log(Level.WARNING, "Exception in Commandlistner:");
             ex.printStackTrace();

@@ -246,9 +246,11 @@ public class TorchArray {
     public boolean init(){
         if(transmitter == null)
             return false;
-        
-        boolean current = isPowered(transmitter.getBlock().getType());
-        
+        //Critical difference: Current is not triggered by event
+        //Because of that, the power is the actual power, versus the power before the 
+        //Redstone change.  So it needs to be flipped.
+        boolean current = !isPowered(transmitter.getBlock().getType());
+        //MagicTorches.spam("init(current) = " + current);
         for (Iterator<MTReceiver> it = receiverArray.iterator(); it.hasNext();) {
             MTReceiver r = it.next();
             if(r instanceof DirectReceiver || r instanceof InverseReceiver)

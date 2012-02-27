@@ -64,6 +64,10 @@ abstract class Receiver implements MTReceiver {
         return this.parentLocation;
     }
     
+    public double getDelay(){
+        return 0;
+    }
+    
     public void reset(){        
         //Make sure this is a valid receiver
         if(torchInvalid())

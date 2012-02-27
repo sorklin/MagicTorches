@@ -57,6 +57,6 @@ abstract class GenericCmd implements Cmd {
             throw new InsufficientPermissionsException();
         
         if(args.length < minArg)
-            throw new MissingOrIncorrectParametersException("`RThe command is missing required arguments.");
+            throw new MissingOrIncorrectParametersException("The command is missing required arguments.");
     }
 }

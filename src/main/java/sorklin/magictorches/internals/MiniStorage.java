@@ -112,7 +112,6 @@ public class MiniStorage implements MTStorage {
             ta = load(name);
             if(ta != null){
                 torches++;
-                MagicTorches.log(Level.FINE, "Loaded torch: " + ta.getName());
                 arrays.put(ta.getLocation(), ta);
             }
         }

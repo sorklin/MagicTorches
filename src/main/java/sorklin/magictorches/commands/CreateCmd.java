@@ -37,10 +37,17 @@ public class CreateCmd extends GenericCmd {
     public boolean execute() throws MissingOrIncorrectParametersException, InsufficientPermissionsException {
         errorCheck();
 
-        String msg = "`gCreating a MagicTorch array. `wLeft click on a torch to set it as "
+        String msg = "`gCreating a MagicTorch array. `wLeft click on a torch to set it as"
                 + "%cr%a transmitter. Right click on torches to add/remove them from"
-                + "%cr%the receiver array.  Hold a lever to receive information about any"
-                + "%cr%clicked torch.  Type `Y/mt finish `wto finish creating the array.";
+                + "%cr%the receiver array.  Hold a lever to receive information about"
+                + "%cr%any clicked torch.  Type `Y/mt finish `wwhen finished, to create the"
+                + "%cr%array. ";
+        if(Properties.useEconomy){
+            msg += "`YBase price for creating an array is `a";
+            msg += MagicTorches.econ.format(Properties.priceArrayCreate);
+            msg += "`Y.";
+        }
+        
         
         TorchEditor te = new TorchEditor(player);
 

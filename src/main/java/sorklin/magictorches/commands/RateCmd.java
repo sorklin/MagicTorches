@@ -44,9 +44,9 @@ public class RateCmd extends GenericCmd {
         Messaging.send(cs, "`YCreation flat fee: `w" + MagicTorches.econ.format(Properties.priceArrayCreate) 
                 + "  `YEditing flat fee: `w" + MagicTorches.econ.format(Properties.priceArrayEdit));
         Messaging.send("`YPer Torch (in ducats):");
-        Messaging.send(String.format("`YDirect: `w%d  `YInverse: `w%d  `YToggle: `w%d", 
-                Properties.permCreateDirect, Properties.priceInverse, Properties.permCreateToggle));
-        Messaging.send(String.format("`YDelay: `w%d  `YTimer: `w%d", 
+        Messaging.send(String.format("`YDirect: `w%.2f  `YInverse: `w%.2f  `YToggle: `w%.2f", 
+                Properties.priceDirect, Properties.priceInverse, Properties.priceToggle));
+        Messaging.send(String.format("`YDelay: `w%.2f  `YTimer: `w%.2f", 
                 Properties.priceDelay, Properties.priceTimer));
         
         return true;

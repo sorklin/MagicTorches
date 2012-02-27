@@ -19,7 +19,6 @@ package sorklin.magictorches.commands;
 import org.bukkit.command.CommandSender;
 import sorklin.magictorches.Exceptions.InsufficientPermissionsException;
 import sorklin.magictorches.Exceptions.MissingOrIncorrectParametersException;
-import sorklin.magictorches.internals.Messaging;
 import sorklin.magictorches.internals.Properties;
 
 public class DebugCmd extends GenericCmd {
@@ -37,7 +36,7 @@ public class DebugCmd extends GenericCmd {
     
     public boolean execute() throws MissingOrIncorrectParametersException, InsufficientPermissionsException{
         errorCheck();
-        Messaging.send(cs, "Nothing here at the moment.");
+        mt.mtHandler.transmitAll(true);
         return true;
     }
 }

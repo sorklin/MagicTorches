@@ -35,13 +35,12 @@ import sorklin.magictorches.listeners.MTTorchSignalListener;
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-//TODO: handle new torch types in minidb (including timings).
 //TODO: help
 //TODO: list (paged listing)
-//TODO: command to change teh time for the time based torches
-//TODO: isrunning isn't working for the scheduled tasks -- which makes sense, since they aren't running yet
 //TODO: file unloading and reloading (i.e. miniDB file is staying in memory) needs to work better.
 //TODO: torch array not deleting (stacktrace given).  Also not deleted if torch is removed.
+//TODO: distance doesn't work
+
 
 public class MagicTorches extends JavaPlugin {
     

@@ -16,7 +16,6 @@
  */
 package sorklin.magictorches.internals.torches;
 
-import java.util.logging.Level;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -75,7 +74,6 @@ public class DelayReceiver extends Receiver {
         //Create the timed delayed task to process change:
         mt.getServer().getScheduler().scheduleSyncDelayedTask(mt, new Runnable() {
             public void run() {
-                MagicTorches.spam("in delayed task");
                 //Set torch signal receive:
                 if(torch.getType().equals(Material.TORCH)) {
                     torch.setType(Material.REDSTONE_TORCH_ON);
@@ -99,6 +97,11 @@ public class DelayReceiver extends Receiver {
         this.delayTicks = MTUtil.secondsToTicks(delay);
     }
 
+    @Override
+    public double getDelay(){
+        return (this.delay < 0) ? Properties.delayDelay : this.delay;
+    }
+    
     @Override
     public String toString() {
         String result = super.toString();

@@ -42,7 +42,7 @@ public class PriceCmd extends GenericCmd {
             return true;
         
         if(MagicTorches.get().editQueue.containsKey(player)){
-            Messaging.send(player, "`gThe current subtotal for the array is " 
+            Messaging.send(player, "`YThe current subtotal for the array is `a" 
                     + MagicTorches.econ
                         .format(MagicTorches.get().editQueue.get(player).priceArray()));
         } else {

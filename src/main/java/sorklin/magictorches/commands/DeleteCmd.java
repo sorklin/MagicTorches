@@ -21,6 +21,7 @@ import sorklin.magictorches.Exceptions.InsufficientPermissionsException;
 import sorklin.magictorches.Exceptions.MissingOrIncorrectParametersException;
 import sorklin.magictorches.MagicTorches;
 import sorklin.magictorches.internals.MTUtil;
+import sorklin.magictorches.internals.Messaging;
 import sorklin.magictorches.internals.Properties;
 import sorklin.magictorches.internals.TorchArray;
 
@@ -29,6 +30,8 @@ public class DeleteCmd extends GenericCmd {
     public DeleteCmd(CommandSender cs, String args[]){
         super(cs, args);
         this.permission = Properties.permAccess;
+        this.mustBePlayer = false;
+        
     }
     
     public boolean execute() throws MissingOrIncorrectParametersException, InsufficientPermissionsException {
@@ -39,11 +42,12 @@ public class DeleteCmd extends GenericCmd {
         if(ta == null)
             throw new MissingOrIncorrectParametersException("No TorchArray by that name.");
                 
-        if(!MTUtil.hasPermission(player, Properties.permAdmin) || !ta.getOwner().equalsIgnoreCase(player.getName()))
+        if(!MTUtil.hasPermission(cs, Properties.permAdmin) || !ta.getOwner().equalsIgnoreCase(cs.getName()))
             throw new InsufficientPermissionsException("That is not your torcharray.");
         
         mt.mtHandler.removeArray(ta.getLocation());
         MagicTorches.getMiniDB().remove(ta.getName());
+        Messaging.send(cs, "`YRemoved the `a" + ta.getName() + "`Y array.");
         
         return true;
     }

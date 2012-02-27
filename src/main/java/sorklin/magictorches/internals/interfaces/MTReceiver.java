@@ -28,6 +28,7 @@ public interface MTReceiver {
     public Location getParent();
     public void setParent(Location parent);
     public void teleportTo(Player player);
+    public double getDelay();
     @Override
     public String toString();
     @Override

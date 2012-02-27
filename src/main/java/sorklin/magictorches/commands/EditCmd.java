@@ -39,6 +39,16 @@ public class EditCmd extends GenericCmd {
     public boolean execute() throws MissingOrIncorrectParametersException, InsufficientPermissionsException{
         errorCheck();
         //MagicTorches.spam("in edit execute.");
+        String msg = "Left click on a torch to set it a transmitter. Right click on"
+                + "%cr%torches to add/remove them from the receiver array.  Hold a "
+                + "%cr%lever and right-click a torch, to receive information about it."
+                + "%cr%Type `Y/mt finish `wto finish editing the array.";
+        if(Properties.useEconomy){
+            msg += "%cr%`YBase price for editing an array is `a";
+            msg += MagicTorches.econ.format(Properties.priceArrayEdit);
+            msg += "`Y.";
+        }
+        
         TorchArray ta = mt.mtHandler.getArray(args[1]);
         //MagicTorches.spam("getarray = " + ta.getName());
         if(ta != null){
@@ -51,12 +61,8 @@ public class EditCmd extends GenericCmd {
             te.resetReceivers();
             mt.editQueue.put(player, te);
             
-            Messaging.send(player, "`gNow editing the `w" + ta.getName() + "`g array.");
-            Messaging.send(player, "Left click on a torch to set it a transmitter. "
-                + "%cr%Right click on torches to add/remove them from the receiver"
-                + "%cr%array.  Hold a lever and right-click a torch, to receive "
-                + "%cr%information about any clicked torch. Type `Y/mt finish `wto "
-                + "%cr%finish editing the array.");
+            Messaging.send(player, "`gNow editing the `a" + ta.getName() + "`g array.");
+            Messaging.send(player, msg);
         } else {
             throw new MissingOrIncorrectParametersException("No array by that name was found.");
         }
