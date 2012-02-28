@@ -18,6 +18,7 @@ package sorklin.magictorches.internals.torches;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import sorklin.magictorches.internals.Properties.MtType;
 import sorklin.magictorches.internals.interfaces.MTReceiver;

@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.ListIterator;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import sorklin.magictorches.MagicTorches;
+import org.bukkit.World;
 import sorklin.magictorches.internals.Properties.MtType;
 import sorklin.magictorches.internals.interfaces.MTReceiver;
 import sorklin.magictorches.internals.torches.*;
@@ -282,9 +282,16 @@ public class TorchArray {
         
         for (Iterator<MTReceiver> it = receiverArray.iterator(); it.hasNext();) {
             MTReceiver r = it.next();
-            r.receive(current);
+            //I do it this way (nested) in order to unload the chunk of any that I forced loads.
+            if(isChunkLoaded(r.getLocation()))
+                r.receive(current);
+            else {
+                if(Properties.forceChunkLoad){
+                    r.receive(current);
+                    r.getLocation().getChunk().unload(true, true); //safe unload the chunk with the changed torch.
+                }
+            }
         }
-        
         return true;
     }
     
@@ -305,5 +312,12 @@ public class TorchArray {
         //While i'm not crazy about this, we're pretty sure it'll always be a torch
         //there.
         return ((mat.equals(Material.REDSTONE_TORCH_ON)));
+    }
+    
+    protected boolean isChunkLoaded(Location loc){
+        int cx = loc.getBlockX() >> 4;
+        int cy = loc.getBlockZ() >> 4;
+        World cw = loc.getWorld();
+        return cw.isChunkLoaded(cx, cy);
     }
 }

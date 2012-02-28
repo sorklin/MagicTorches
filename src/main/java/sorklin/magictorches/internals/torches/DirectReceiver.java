@@ -19,7 +19,6 @@ package sorklin.magictorches.internals.torches;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import sorklin.magictorches.internals.Properties;
 import sorklin.magictorches.internals.Properties.MtType;
 
 public class DirectReceiver extends Receiver {
@@ -42,16 +41,10 @@ public class DirectReceiver extends Receiver {
         if(this.torchLocation == null)
             return false;
         Block torch = torchLocation.getBlock();
+        
         if(!(torch.getType().equals(Material.TORCH) ||
                 torch.getType().equals(Material.REDSTONE_TORCH_ON))) {
             return false;
-        }
-        
-        if(!torch.getChunk().isLoaded()){
-            if(!Properties.forceChunkLoad)
-                return false;
-            else
-                torch.getChunk().load();
         }
         
         if(signal){

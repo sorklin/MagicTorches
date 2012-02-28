@@ -64,14 +64,6 @@ public class TimerReceiver extends Receiver {
         final Material originalMat = torch.getType();
         MagicTorches mt = MagicTorches.get();
         
-        //Check to see if chunk is loaded, and if not, should it be?
-        if(!torch.getChunk().isLoaded()){
-            if(!Properties.forceChunkLoad)
-                return false;
-            else
-                torch.getChunk().load();
-        }
-        
         //If the delay is already functioning, ignore the received signal.
         if(!isRunning){
             

@@ -38,7 +38,7 @@ public class MTCommandExecutor implements CommandExecutor{
                 cmd = new DebugCmd(sender, args);
             else if(c.equalsIgnoreCase("delay"))
                 cmd = new DelayCmd(sender, args);
-            else if(c.equalsIgnoreCase("delete") || c.equalsIgnoreCase("del"))
+            else if(c.equalsIgnoreCase("delete") || c.equalsIgnoreCase("del") || c.equalsIgnoreCase("remove"))
                 cmd = new DeleteCmd(sender, args);
             else if(c.equalsIgnoreCase("direct"))
                 cmd = new DirectCmd(sender, args);

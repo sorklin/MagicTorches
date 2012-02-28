@@ -72,6 +72,8 @@ public class MTPlayerListener implements Listener {
             return;
         }
         
+        boolean added = false;
+        
         //Process regular interaction.
         if(rst){
             if(act.equals(Action.LEFT_CLICK_BLOCK)) {
@@ -80,36 +82,46 @@ public class MTPlayerListener implements Listener {
                 if(Properties.useEconomy)
                     msg.append("%cr%`YCurrent subtotal: `a")
                         .append(MagicTorches.econ.format(te.priceArray()));
+                
+                added = true;
+                
                 event.setCancelled(true);
+                
             } else if(act.equals(Action.RIGHT_CLICK_BLOCK)) {
                 if(te.isReceiver(loc)){
                     te.remove(loc);
                     msg.append("`gRemoved receiver from array.");
+                    added = true;
                 }
-                else if(te.getNextType() == MtType.DELAY ||
-                        te.getNextType() == MtType.TIMER ||
-                        te.getNextType() == MtType.TOGGLE) {
-                    te.add(loc, te.getNextType(), te.getTimeOut());
-                    msg.append("`gAdded a `w").append(te.getNextType().toString()).append("`g torch with a ");
-                    msg.append((te.getTimeOut() == -1) ? "default" : te.getTimeOut());
-                    msg.append("s delay ");
-                    if(Properties.useEconomy)
-                        msg.append("(").append(priceOfReceiver(te.getNextType())).append(")");
-                    msg.append(".");
+                else if(te.getNextType() == MtType.DELAY || te.getNextType() == MtType.TIMER || te.getNextType() == MtType.TOGGLE) {
+                    added = te.addCheck(loc, te.getNextType(), te.getTimeOut());
+                    if(added){
+                        msg.append("`gAdded a `w").append(te.getNextType().toString()).append("`g torch with a ");
+                        msg.append((te.getTimeOut() == -1) ? "default" : te.getTimeOut());
+                        msg.append("s delay ");
+                        if(Properties.useEconomy)
+                            msg.append("(").append(priceOfReceiver(te.getNextType())).append(")");
+                        msg.append(".");
+                    }
                 } else {
-                    te.add(loc, te.getNextType());
-                    msg.append("`gAdded a `w").append(te.getNextType().toString()).append("`g torch");
-                    if(Properties.useEconomy)
-                        msg.append(" (").append(priceOfReceiver(te.getNextType())).append(")");
-                    msg.append(".");
+                    added = te.addCheck(loc, te.getNextType());
+                    if(added){
+                        msg.append("`gAdded a `w").append(te.getNextType().toString()).append("`g torch");
+                        if(Properties.useEconomy)
+                            msg.append(" (").append(priceOfReceiver(te.getNextType())).append(")");
+                        msg.append(".");
+                    }
                 }
-                
-                if(Properties.useEconomy)
+                if(added && Properties.useEconomy)
                     msg.append("%cr%`YCurrent subtotal: `a") 
                         .append(MagicTorches.econ.format(te.priceArray()));
+                
                 event.setCancelled(true);
             }
-            Messaging.send(player, msg.toString());
+            if(added)
+                Messaging.send(player, msg.toString());
+            else
+                Messaging.send(player, te.getMessage());
         }
     }
     
