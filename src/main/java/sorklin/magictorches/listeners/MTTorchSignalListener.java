@@ -18,8 +18,8 @@ package sorklin.magictorches.listeners;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import sorklin.magictorches.internals.Properties;
 import sorklin.magictorches.Events.TransmitEvent;
+import sorklin.magictorches.internals.Properties;
 
 /**
  *

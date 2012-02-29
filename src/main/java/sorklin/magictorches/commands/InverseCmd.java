@@ -32,7 +32,7 @@ public class InverseCmd extends GenericCmd {
     
     public InverseCmd(CommandSender cs, String args[]){
         super(cs, args);
-        this.permission = Properties.permAccess;
+        this.permission = Properties.permCreateInverse;
     }
     
     public boolean execute() throws MissingOrIncorrectParametersException, InsufficientPermissionsException{

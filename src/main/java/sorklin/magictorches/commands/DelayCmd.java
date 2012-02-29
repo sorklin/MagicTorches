@@ -33,7 +33,7 @@ public class DelayCmd extends GenericCmd {
     
     public DelayCmd(CommandSender cs, String args[]){
         super(cs, args);
-        this.permission = Properties.permAccess;
+        this.permission = Properties.permCreateDelay;
     }
     
     public boolean execute() throws MissingOrIncorrectParametersException, InsufficientPermissionsException{

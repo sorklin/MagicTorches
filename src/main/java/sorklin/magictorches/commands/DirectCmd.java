@@ -26,7 +26,7 @@ public class DirectCmd extends GenericCmd {
     
     public DirectCmd(CommandSender cs, String args[]){
         super(cs, args);
-        this.permission = Properties.permAccess;
+        this.permission = Properties.permCreateDirect;
     }
     
     public boolean execute() throws MissingOrIncorrectParametersException, InsufficientPermissionsException {

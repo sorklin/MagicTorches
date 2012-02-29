@@ -14,7 +14,7 @@ import sorklin.magictorches.internals.MiniStorage;
 import sorklin.magictorches.internals.Properties;
 import sorklin.magictorches.internals.SimpleTorchHandler;
 import sorklin.magictorches.internals.TorchEditor;
-import sorklin.magictorches.listeners.MTBlockListener;
+import sorklin.magictorches.listeners.MTWorldListener;
 import sorklin.magictorches.listeners.MTPlayerListener;
 import sorklin.magictorches.listeners.MTTorchSignalListener;
 
@@ -37,17 +37,14 @@ import sorklin.magictorches.listeners.MTTorchSignalListener;
 
 //TODO: help
 //TODO: list (paged listing)
-//TODO: file unloading and reloading (i.e. miniDB file is staying in memory) needs to work better.
-//TODO: explosion should delete array, block destroy.
-//TODO: wand shouldn't show info for a non-owned TA, unless you're admin, and also note who owns it
-//TODO: Admin perms should avoid money charge, and distance limitations
-//TODO: Catch transmitter already being a receiver for some array
-//TODO: custom event for block change, like redstone chagne.  Allows receivers to be transmitters.
+//TODO: file unloading and reloading (i.e. miniDB file is staying in memory) needs to work better. -- is this still a problem?
+//TODO: figure out an economical way to work with item detatching from block
+//TODO: better text for removing adding torches (esp when editing).
 
 public class MagicTorches extends JavaPlugin {
     
     private final MTPlayerListener playerListener = new MTPlayerListener(this);
-    private final MTBlockListener blockListener = new MTBlockListener(this);
+    private final MTWorldListener blockListener = new MTWorldListener(this);
     private final MTTorchSignalListener signalListener = new MTTorchSignalListener();
     
     private static MiniStorage miniDB;

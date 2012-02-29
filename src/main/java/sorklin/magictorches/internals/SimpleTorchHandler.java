@@ -16,12 +16,12 @@
  */
 package sorklin.magictorches.internals;
 
-import sorklin.magictorches.Events.TransmitEvent;
 import java.util.*;
 import java.util.Map.Entry;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
+import sorklin.magictorches.Events.TransmitEvent;
 import sorklin.magictorches.MagicTorches;
 import sorklin.magictorches.internals.interfaces.MTReceiver;
 import sorklin.magictorches.internals.torches.*;

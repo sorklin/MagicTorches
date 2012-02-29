@@ -33,7 +33,7 @@ public class TimerCmd extends GenericCmd {
     
     public TimerCmd(CommandSender cs, String args[]){
         super(cs, args);
-        this.permission = Properties.permAccess;
+        this.permission = Properties.permCreateTimer;
     }
     
     public boolean execute() throws MissingOrIncorrectParametersException, InsufficientPermissionsException{

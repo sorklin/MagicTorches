@@ -33,7 +33,7 @@ public class ToggleCmd extends GenericCmd {
     
     public ToggleCmd(CommandSender cs, String args[]){
         super(cs, args);
-        this.permission = Properties.permAccess;
+        this.permission = Properties.permCreateToggle;
     }
     
     public boolean execute() throws MissingOrIncorrectParametersException, InsufficientPermissionsException{
