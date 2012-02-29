@@ -16,6 +16,7 @@
  */
 package sorklin.magictorches.internals;
 
+import sorklin.magictorches.Events.TransmitEvent;
 import java.util.*;
 import java.util.Map.Entry;
 import org.bukkit.Bukkit;
@@ -135,11 +136,16 @@ public final class SimpleTorchHandler {
      */
     public List<String> getInfo(Block block, String player, boolean isAdmin, boolean clicked){
         List<String> result = new ArrayList<String>();
+        
+        boolean found = false; //Needed because receivers can also be transmitters.
+        boolean stated = false; //lets not say the same thing twice
+        
         String sb;
         String divider = "`Y+--------------------------------------------------+";
         Location loc = block.getLocation();
         
         if(isMT(loc)){
+            found = true;
             if(mtArray.get(loc).getOwner().equalsIgnoreCase(player)
                     || isAdmin){ //gets around NPE
                 sb = (clicked) ? 
@@ -147,32 +153,51 @@ public final class SimpleTorchHandler {
                         ("`Y" + getTransmitterInfo(mtArray.get(loc)));
                 result.add(divider);
                 result.add(sb);
+                if(isAdmin)
+                    result.add("`YOwner: `a" + mtArray.get(loc).getOwner());
                 result.add("`YIts receivers are: ");
                 result.addAll(listReceivers(loc));
                 result.add(divider);
+            } else {
+                if(!stated){
+                    result.add("`YThis is a MagicTorch (but not yours).");
+                    stated = true;
+                }
             }
         }
         
-        else if(isReceiver(loc)){
+        if(isReceiver(loc)){
             ListIterator<MTReceiver> it = allReceiverArray.listIterator();
             //Not sure why this doesn't find the second instance.
             while(it.hasNext()){
                 MTReceiver tr = it.next();
                 if(tr.getLocation().equals(loc)){
-                    result.add(divider);
-                    result.add("`YReceiver: `a" + getReceiverInfo(tr) + "`Y.");
-                    result.add("`YIt is part of the `a" + mtArray.get(tr.getParent()).getName() + " `Yarray.");
-                    result.add("`YIts transmitter is at `a[" + tr.getParent().getWorld().getName() + ": " 
-                            + tr.getParent().getX() + ", " +
-                            tr.getParent().getY() + ", " + 
-                            tr.getParent().getZ() + "]`Y .");
-                    result.add(divider);
+                    TorchArray parent = mtArray.get(tr.getParent());
+                    found = true;
+                    if(parent.getOwner().equalsIgnoreCase(player) || isAdmin){
+                        result.add(divider);
+                        result.add("`YReceiver: `a" + getReceiverInfo(tr) + "`Y.");
+                        result.add("`YIt is part of the `a" + mtArray.get(tr.getParent()).getName() + " `Yarray.");
+                        result.add("`YIts transmitter is at `a[" + tr.getParent().getWorld().getName() + ": " 
+                                + tr.getParent().getX() + ", " +
+                                tr.getParent().getY() + ", " + 
+                                tr.getParent().getZ() + "]`Y .");
+                        if(isAdmin)
+                            result.add("`YOwner: `a" + parent.getOwner());
+                        result.add(divider);
+                    } else {
+                        if(!stated){
+                            result.add("`YThis is a MagicTorch (but not yours).");
+                            stated = true;
+                        }
+                    }
                 }
             }
-            
-        } else {
-            result.add("`YThis is not a MagicTorch.");
         }
+        
+        if(!found)
+            result.add("`YThis is not a MagicTorch.");
+        
         return result;
     }
     

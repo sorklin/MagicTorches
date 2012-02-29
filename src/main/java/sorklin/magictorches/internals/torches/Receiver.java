@@ -16,10 +16,11 @@
  */
 package sorklin.magictorches.internals.torches;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
+import sorklin.magictorches.Events.RecieveEvent;
 import sorklin.magictorches.internals.Properties.MtType;
 import sorklin.magictorches.internals.interfaces.MTReceiver;
 
@@ -117,5 +118,9 @@ abstract class Receiver implements MTReceiver {
         return (!(m.equals(Material.TORCH)
                 || m.equals(Material.REDSTONE_TORCH_ON)
                 || m.equals(Material.REDSTONE_TORCH_OFF)));
+    }
+    
+    protected void sendReceiveEvent(){
+        Bukkit.getServer().getPluginManager().callEvent(new RecieveEvent(torchLocation));
     }
 }

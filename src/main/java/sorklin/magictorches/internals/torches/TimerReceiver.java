@@ -66,6 +66,8 @@ public class TimerReceiver extends Receiver {
         
         //If the delay is already functioning, ignore the received signal.
         if(!isRunning){
+            //Event comes first.
+            sendReceiveEvent();
             
             //Set initial torch signal receive:
             if(originalMat.equals(Material.TORCH)) {
@@ -82,6 +84,7 @@ public class TimerReceiver extends Receiver {
             //Create the timed task to flip it back:
             this.delayTask = mt.getServer().getScheduler().scheduleSyncDelayedTask(mt, new Runnable() {
                 public void run() {
+                    sendReceiveEvent();
                     torch.setType(originalMat);
                     isRunning = false;
                 }

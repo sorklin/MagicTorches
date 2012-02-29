@@ -67,7 +67,8 @@ public class ToggleReceiver extends Receiver {
         
         //If the delay is already functioning, ignore the received signal.
         if(!isRunning){
-            
+            //Event comes first
+            sendReceiveEvent();
             if(torch.getType().equals(Material.TORCH)) {
                 torch.setType(Material.REDSTONE_TORCH_ON);
             } else

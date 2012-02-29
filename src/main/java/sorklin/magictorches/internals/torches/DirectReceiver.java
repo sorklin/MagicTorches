@@ -46,12 +46,14 @@ public class DirectReceiver extends Receiver {
                 torch.getType().equals(Material.REDSTONE_TORCH_ON))) {
             return false;
         }
-        
+        //Event must come first.
+        sendReceiveEvent();
         if(signal){
             torch.setType(Material.TORCH);
         } else {
             torch.setType(Material.REDSTONE_TORCH_ON);
         }
+        
         
         return true;
     }

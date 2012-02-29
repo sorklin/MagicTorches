@@ -79,7 +79,7 @@ public class MTPlayerListener implements Listener {
             if(act.equals(Action.LEFT_CLICK_BLOCK)) {
                 te.setTransmitter(loc);
                 msg.append ("`gSelected transmitter torch.");
-                if(Properties.useEconomy)
+                if(Properties.useEconomy && !player.hasPermission(Properties.permAdmin))
                     msg.append("%cr%`YCurrent subtotal: `a")
                         .append(MagicTorches.econ.format(te.priceArray()));
                 
@@ -94,25 +94,33 @@ public class MTPlayerListener implements Listener {
                     added = true;
                 }
                 else if(te.getNextType() == MtType.DELAY || te.getNextType() == MtType.TIMER || te.getNextType() == MtType.TOGGLE) {
-                    added = te.addCheck(loc, te.getNextType(), te.getTimeOut());
+                    if(player.hasPermission(Properties.permAdmin))
+                        added = te.add(loc, te.getNextType(), te.getTimeOut());
+                    else 
+                        added = te.addCheck(loc, te.getNextType(), te.getTimeOut());
+                    
                     if(added){
                         msg.append("`gAdded a `w").append(te.getNextType().toString()).append("`g torch with a ");
                         msg.append((te.getTimeOut() == -1) ? "default" : te.getTimeOut());
                         msg.append("s delay ");
-                        if(Properties.useEconomy)
+                        if(Properties.useEconomy && !player.hasPermission(Properties.permAdmin))
                             msg.append("(").append(priceOfReceiver(te.getNextType())).append(")");
                         msg.append(".");
                     }
                 } else {
-                    added = te.addCheck(loc, te.getNextType());
+                    if(player.hasPermission(Properties.permAdmin))
+                        added = te.add(loc, te.getNextType());
+                    else
+                        added = te.addCheck(loc, te.getNextType());
+                        
                     if(added){
                         msg.append("`gAdded a `w").append(te.getNextType().toString()).append("`g torch");
-                        if(Properties.useEconomy)
+                        if(Properties.useEconomy && !player.hasPermission(Properties.permAdmin))
                             msg.append(" (").append(priceOfReceiver(te.getNextType())).append(")");
                         msg.append(".");
                     }
                 }
-                if(added && Properties.useEconomy)
+                if(added && Properties.useEconomy && !player.hasPermission(Properties.permAdmin))
                     msg.append("%cr%`YCurrent subtotal: `a") 
                         .append(MagicTorches.econ.format(te.priceArray()));
                 

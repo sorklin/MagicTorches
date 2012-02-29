@@ -38,9 +38,11 @@ import sorklin.magictorches.listeners.MTTorchSignalListener;
 //TODO: help
 //TODO: list (paged listing)
 //TODO: file unloading and reloading (i.e. miniDB file is staying in memory) needs to work better.
-//TODO: torch array not deleting (stacktrace given).  Also not deleted if torch is removed.
-//TODO: distance doesn't work
-
+//TODO: explosion should delete array, block destroy.
+//TODO: wand shouldn't show info for a non-owned TA, unless you're admin, and also note who owns it
+//TODO: Admin perms should avoid money charge, and distance limitations
+//TODO: Catch transmitter already being a receiver for some array
+//TODO: custom event for block change, like redstone chagne.  Allows receivers to be transmitters.
 
 public class MagicTorches extends JavaPlugin {
     

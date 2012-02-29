@@ -2,10 +2,11 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package sorklin.magictorches.internals;
+package sorklin.magictorches.Events;
 
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import sorklin.magictorches.internals.TorchArray;
 
 /**
  *
@@ -18,13 +19,11 @@ public class TransmitEvent extends Event {
     private boolean init = false;
 	
     public TransmitEvent(TorchArray ta, boolean init) {
-        super("TransmitEvent");
         this.ta = ta;
         this.init = init;
     }
     
     public TransmitEvent(TorchArray ta){
-        super("TransmitEvent");
         this.ta = ta;
         this.init = false;
         //MagicTorches.spam("Event initialized.");

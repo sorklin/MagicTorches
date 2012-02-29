@@ -16,6 +16,7 @@
  */
 package sorklin.magictorches.internals.torches;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -64,7 +65,8 @@ public class DelayReceiver extends Receiver {
         //Create the timed delayed task to process change:
         mt.getServer().getScheduler().scheduleSyncDelayedTask(mt, new Runnable() {
             public void run() {
-                //Set torch signal receive:
+                //Event comes first
+                sendReceiveEvent();
                 if(torch.getType().equals(Material.TORCH)) {
                     torch.setType(Material.REDSTONE_TORCH_ON);
                 } 

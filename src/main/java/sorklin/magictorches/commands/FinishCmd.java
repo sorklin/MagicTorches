@@ -18,13 +18,13 @@ package sorklin.magictorches.commands;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import sorklin.magictorches.Events.TransmitEvent;
 import sorklin.magictorches.Exceptions.InsufficientPermissionsException;
 import sorklin.magictorches.Exceptions.MissingOrIncorrectParametersException;
 import sorklin.magictorches.MagicTorches;
 import sorklin.magictorches.internals.Messaging;
 import sorklin.magictorches.internals.Properties;
 import sorklin.magictorches.internals.TorchEditor;
-import sorklin.magictorches.internals.TransmitEvent;
 
 public class FinishCmd extends GenericCmd {
     
@@ -56,7 +56,7 @@ public class FinishCmd extends GenericCmd {
         String name = player.getName();
         
         //Can the player afford it?
-        if(Properties.useEconomy){
+        if(Properties.useEconomy && !player.hasPermission(Properties.permAdmin)){
             if(MagicTorches.econ.has(name, price))
                 MagicTorches.econ.withdrawPlayer(name, price);
             else

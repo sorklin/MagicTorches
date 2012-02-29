@@ -10,7 +10,8 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockRedstoneEvent;
 import sorklin.magictorches.MagicTorches;
 import sorklin.magictorches.internals.Messaging;
-import sorklin.magictorches.internals.TransmitEvent;
+import sorklin.magictorches.Events.RecieveEvent;
+import sorklin.magictorches.Events.TransmitEvent;
 
 public class MTBlockListener implements Listener {
     private final MagicTorches pl;
@@ -19,7 +20,7 @@ public class MTBlockListener implements Listener {
         this.pl = mt;
     }
 
-    @EventHandler(priority= EventPriority.MONITOR, ignoreCancelled = true)
+    @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
     public void onBlockBreak(BlockBreakEvent event) {
         Location loc = event.getBlock().getLocation();
         Material mat = event.getBlock().getType();
@@ -35,7 +36,7 @@ public class MTBlockListener implements Listener {
         }
     }
 
-    @EventHandler(priority= EventPriority.MONITOR)
+    @EventHandler(priority=EventPriority.MONITOR)
     public void onBlockRedstoneChange(BlockRedstoneEvent event) {
         //MagicTorches.spam("RS: " + event.getBlock().getLocation().toString());
         if(pl.mtHandler.isMT(event.getBlock().getLocation())){
@@ -43,5 +44,15 @@ public class MTBlockListener implements Listener {
             Bukkit.getServer().getPluginManager()
                     .callEvent(new TransmitEvent(pl.mtHandler.getArray(event.getBlock().getLocation())));
         }
-    }   
+    }
+    
+    @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
+    public void onMTReceive(RecieveEvent event){
+        //MagicTorches.spam("RS: " + event.getBlock().getLocation().toString());
+        if(pl.mtHandler.isMT(event.getLocation())){
+            //MagicTorches.spam("is mt.");
+            Bukkit.getServer().getPluginManager()
+                    .callEvent(new TransmitEvent(pl.mtHandler.getArray(event.getLocation())));
+        }
+    }
 }

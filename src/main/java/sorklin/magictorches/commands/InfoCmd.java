@@ -35,7 +35,6 @@ public class InfoCmd extends GenericCmd {
     public InfoCmd(CommandSender cs, String args[]){
         super(cs, args);
         this.permission = Properties.permAccess;
-        this.mustBePlayer = false;
         this.minArg = 2;
     }
     
@@ -47,11 +46,9 @@ public class InfoCmd extends GenericCmd {
         
         if(ta == null)
             throw new MissingOrIncorrectParametersException("No TorchArray by that name.");
-                
-        if(!MTUtil.hasPermission(player, Properties.permAdmin) || !ta.getOwner().equalsIgnoreCase(player.getName()))
-            throw new InsufficientPermissionsException("That is not your torcharray.");
         
-        Messaging.mlSend(cs, mt.mtHandler
+        //Ownership and perms handled by .getInfo()
+        Messaging.mlSend(player, mt.mtHandler
                 .getInfo(ta.getLocation().getBlock(), player.getName(), 
                 MTUtil.hasPermission(player, Properties.permAdmin), false));
         
