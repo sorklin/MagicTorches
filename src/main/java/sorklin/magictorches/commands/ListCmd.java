@@ -16,39 +16,103 @@
  */
 package sorklin.magictorches.commands;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map.Entry;
+import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import sorklin.magictorches.Exceptions.InsufficientPermissionsException;
 import sorklin.magictorches.Exceptions.MissingOrIncorrectParametersException;
+import sorklin.magictorches.MagicTorches;
+import sorklin.magictorches.internals.MTUtil;
+import sorklin.magictorches.internals.Messaging;
 import sorklin.magictorches.internals.Properties;
+import sorklin.magictorches.internals.TorchArray;
 
 public class ListCmd extends GenericCmd {
-    
-    /*Default the generic to must be executed by a player, and no minimum arguments.
-    String permission = "";
-    boolean mustBePlayer = true;
-    int minArg = 0;
-    */
     
     public ListCmd(CommandSender cs, String args[]){
         super(cs, args);
         this.permission = Properties.permAccess;
+        mustBePlayer = false;
     }
     
     public boolean execute() throws MissingOrIncorrectParametersException, InsufficientPermissionsException{
         errorCheck();
         
-        //DO work, son.
-//        if(cmd.equalsIgnoreCase("list")) {
-//            if(MagicTorches.canCreate(sender) || MagicTorches.isAdmin(sender)){
-//                String intro = (MagicTorches.isAdmin(sender)) ? "All Torches:" : "Your torches:";
-//                sender.sendMessage(pl.g + intro);
-//                sender.sendMessage(pl.g + pl.mt.list(sender, MagicTorches.isAdmin(sender)));
-//            } else {
-//                sender.sendMessage(pl.r + "Insufficient permissions. Say that three times fast.");
-//            }
-//            return true;
-//        } else
-
+        //command: /mt list [name of player] [page in listing]
+        
+        int page = -1;
+        String playerToList = null; //player name to search for
+        boolean isAdmin = MTUtil.isAdmin(cs);
+        
+        if (args.length < 2)
+            page = 1;
+        else if (args.length == 2)
+            try {
+                page = Integer.parseInt(args[1]);
+            } catch (NumberFormatException nfe) {
+                playerToList = args[1];
+                //MagicTorches.spam("nfe (args == 2): " + playerToList);
+            }
+        else if(args.length == 3) {
+            try {
+                page = Integer.parseInt(args[2]);
+            } catch (NumberFormatException nfe) {
+                //MagicTorches.spam("nfe (args == 3): " + args[1] + ", " + args[2]);
+                throw new MissingOrIncorrectParametersException();
+            }
+            playerToList = args[1];
+        } else {
+            //MagicTorches.spam("args.length = " + args.length);
+            throw new MissingOrIncorrectParametersException();
+        }
+        
+        if(page < 1)
+            page = 1;
+          
+        if(!isAdmin)
+            playerToList = player.getName();
+        
+        List<String> torchList = new ArrayList<String>();
+        HashMap<Location, TorchArray> allArrays = mt.mtHandler.getAllArrays();
+        
+        for(Entry<Location, TorchArray> e : allArrays.entrySet()){
+            if(playerToList == null 
+                    || e.getValue().getOwner().equalsIgnoreCase(playerToList)){
+                TorchArray ta = e.getValue();
+                StringBuilder sb = new StringBuilder();
+                
+                sb.append("`Y").append(ta.getName());
+                
+                if(isAdmin)
+                    sb.append(" `w(").append(ta.getOwner()).append(")");
+                
+                sb.append(" `a[");
+                sb.append(ta.getLocation().getWorld().getName()).append(": ");
+                sb.append(ta.getLocation().getBlockX()).append(", ");
+                sb.append(ta.getLocation().getBlockY()).append(", ");
+                sb.append(ta.getLocation().getBlockZ()).append("]");
+                
+                torchList.add(sb.toString());
+            }
+        }
+        
+        if(torchList.isEmpty())
+            torchList.add("`YNo torches found.");
+        
+        if(page > MTUtil.getNumPages(torchList)){
+            Messaging.send(cs, "`rNo such page.");
+            page = 1;
+        }
+        
+        String intro = "`gMagicTorches For `w" + ((playerToList == null) ? "Everyone" : playerToList)
+                + " `g(Page " + page + " of " + MTUtil.getNumPages(torchList) + ")";
+        Messaging.send(cs, intro);
+        Messaging.mlSend(cs, MTUtil.getListPage(torchList, page));
+        
         return true;
     }
 }

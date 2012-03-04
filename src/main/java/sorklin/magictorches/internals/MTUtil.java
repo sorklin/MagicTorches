@@ -16,6 +16,8 @@
  */
 package sorklin.magictorches.internals;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 
@@ -50,5 +52,26 @@ public class MTUtil {
     public static long secondsToTicks(double seconds){
         double t = seconds * 20; //20 ticks per second, in an ideal world.
         return Math.round(t);
+    }
+    
+    // Shows a specific page of the chest list owned by playerName to cs
+    public static List<String> getListPage(List<String> list, int pageNr) throws IndexOutOfBoundsException {
+        
+        // Calculate starting index based on page number and chests per page
+        int i = ((pageNr - 1) * Properties.linesPerPage);
+        
+        // Check if index is within bounds
+        if (i >= list.size())
+            throw new IndexOutOfBoundsException();
+        
+        int j = i + Properties.linesPerPage;
+        j = (j > list.size()) ? list.size() : j;
+        
+        return list.subList(i, j); 
+    }
+    
+    public static int getNumPages(List<String> list){
+        int pages = (int)Math.ceil((float)list.size() / Properties.linesPerPage);
+        return (pages < 1 ? 1 : pages);
     }
 }
