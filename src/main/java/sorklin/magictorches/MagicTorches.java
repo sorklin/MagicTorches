@@ -14,9 +14,9 @@ import sorklin.magictorches.internals.MiniStorage;
 import sorklin.magictorches.internals.Properties;
 import sorklin.magictorches.internals.SimpleTorchHandler;
 import sorklin.magictorches.internals.TorchEditor;
-import sorklin.magictorches.listeners.MTWorldListener;
 import sorklin.magictorches.listeners.MTPlayerListener;
 import sorklin.magictorches.listeners.MTTorchSignalListener;
+import sorklin.magictorches.listeners.MTWorldListener;
 
 /**
 * Copyright (C) 2011 Sorklin <sorklin@gmail.com>
