@@ -101,25 +101,7 @@ public class Messaging {
 * @return <code>String</code> - The parsed string after conversion.
 */
     public static String colorize(String string) {
-        if(!(sender instanceof Player))
-            string = string.replace("`r", "\033[1;31m") .replace("`R", "\033[0;31m")
-                    .replace("`y", "\033[1;33m") .replace("`Y", "\033[0;33m")
-                    .replace("`g", "\033[1;32m") .replace("`G", "\033[0;32m")
-                    .replace("`a", "\033[1;36m") .replace("`A", "\033[0;36m")
-                    .replace("`b", "\033[1;34m") .replace("`B", "\033[0;34m")
-                    .replace("`p", "\033[1;35m") .replace("`P", "\033[0;35m")
-                    .replace("`k", "\033[0;0m") .replace("`s", "\033[0;37m")
-                    .replace("`S", "\033[1;30m") .replace("`w", "\033[1;37m")
-                    .replace("<r>", "\033[0m") .replace("`e", "\033[0m")
-                    .replace("<silver>", "\033[0;37m") .replace("<gray>", "\033[1;30m")
-                    .replace("<rose>","\033[1;31m") .replace("<lime>","\033[1;32m")
-                    .replace("<aqua>","\033[1;36m") .replace("<pink>","\033[1;35m")
-                    .replace("<yellow>","\033[1;33m") .replace("<blue>","\033[1;34m")
-                    .replace("<black>", "\033[0;0m") .replace("<red>", "\033[0;31m")
-                    .replace("<green>", "\033[0;32m") .replace("<teal>", "\033[0;36m")
-                    .replace("<navy>", "\033[0;34m") .replace("<purple>", "\033[0;35m")
-                    .replace("<gold>", "\033[0;33m") .replace("<white>", "\033[1;37m") + "\033[0m";
-    
+        
         string = string.replace("`e", "")
                         .replace("`r", ChatColor.RED.toString()) .replace("`R", ChatColor.DARK_RED.toString())
                         .replace("`y", ChatColor.YELLOW.toString()) .replace("`Y", ChatColor.GOLD.toString())
@@ -142,6 +124,7 @@ public class Messaging {
 
         return string;
     }
+    
 
     /**
 * Helper function to assist with making brackets. Why? Dunno, lazy.
@@ -238,7 +221,10 @@ public class Messaging {
         Messaging.sender = p;
         for (Iterator<String> it = msg.iterator(); it.hasNext();) {
             String s = it.next();
-            sender.sendMessage(parse(s));
+            if(p instanceof Player)
+                sender.sendMessage(parse(s));
+            else
+                sender.sendMessage(ChatColor.stripColor(parse(s)));
         }
     }
     
