@@ -16,65 +16,129 @@
  */
 package sorklin.magictorches.commands;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.bukkit.command.CommandSender;
 import sorklin.magictorches.Exceptions.InsufficientPermissionsException;
 import sorklin.magictorches.Exceptions.MissingOrIncorrectParametersException;
+import sorklin.magictorches.internals.MTUtil;
+import sorklin.magictorches.internals.Messaging;
 import sorklin.magictorches.internals.Properties;
 
 public class HelpCmd extends GenericCmd {
     
-    /*Default the generic to must be executed by a player, and no minimum arguments.
-    String permission = "";
-    boolean mustBePlayer = true;
-    int minArg = 0;
-    */
     
     public HelpCmd(CommandSender cs, String args[]){
         super(cs, args);
         this.permission = Properties.permAccess;
+        mustBePlayer = false;
     }
     
     public boolean execute() throws MissingOrIncorrectParametersException, InsufficientPermissionsException{
         errorCheck();
         
-        //DO work, son.
+        List<String> helpMsg = initializeHelp();
+        int page = -1;
         
-                    
-//        if(cmd.equalsIgnoreCase("help")) {
-//            if(!MagicTorches.canCreate(sender) && !MagicTorches.isAdmin(sender))
-//                return true;
-//            
-//            List<String> help = new ArrayList<String>();
-//
-//            help.add(pl.g + "/mt create [direct|inverse|delay] " + pl.w + "- Creates a MagicTorch ");
-//            help.add("array.  Receiver torches selected will be direct (default), ");
-//            help.add("inverse or delay.");
-//            
-//            help.add(pl.g + "/mt cancel " + pl.w + "- Cancels a torch creation or edit.");
-//            
-//            help.add(pl.g + "/mt finish <name> " + pl.w + "- Finishes the creation of a MagicTorch ");
-//            help.add("array, and names it " + pl.g + "<name>" + pl.w + ".");
-//            
-//            help.add(pl.g + "/mt direct " + pl.w + "- Sets the next receiver torches selected to be");
-//            help.add("direct receivers");
-//                    
-//            help.add(pl.g + "/mt inverse " + pl.w + "- Sets the next receiver torches selected to be");
-//            help.add("inverse receivers");
-//            
-//            help.add(pl.g + "/mt delay " + pl.w + "- Sets the next receiver torches selected to be");
-//            help.add("delay receivers");
-//            
-//            help.add(pl.g + "/mt delete <name> " + pl.w + "- Delete the named torch array.");
-//                    
-//            help.add(pl.g + "/mt info <name> " + pl.w + "- Shows info for the named torch array.");
-//            
-//            if(MagicTorches.isAdmin(sender))
-//                help.add(pl.g + "/mt reload " + pl.w + "- reloads MagicTorches from the database.");
-//            
-//            MagicTorches.listMessage(sender, help);
-//            return true;
-//        } else
+        if (args.length < 2)
+            page = 1;
+        else if (args.length == 2)
+            try {
+                page = Integer.parseInt(args[1]);
+            } catch (NumberFormatException nfe) {
+                throw new MissingOrIncorrectParametersException();
+            }
+        else 
+            throw new MissingOrIncorrectParametersException();
+        
+        if(page < 1)
+            page = 1;
+        
+        if(page > MTUtil.getNumPages(helpMsg)){
+            Messaging.send(cs, "`rNo such page.");
+            page = 1;
+        }
+        
+        String intro = "`gMagicTorches Help (Page " + page + " of " + MTUtil.getNumPages(helpMsg) + ")";
+        Messaging.send(cs, intro);
+        Messaging.mlSend(cs, MTUtil.getListPage(helpMsg, page));
 
         return true;
+    }
+    
+    public List<String> initializeHelp(){
+        List<String> help = new ArrayList<String>();
+        boolean canCreate = MTUtil.hasPermission(cs, Properties.permCreateDelay) 
+                || MTUtil.hasPermission(cs, Properties.permCreateDirect)
+                || MTUtil.hasPermission(cs, Properties.permCreateInverse)
+                || MTUtil.hasPermission(cs, Properties.permCreateTimer)
+                || MTUtil.hasPermission(cs, Properties.permCreateToggle);
+        
+        if(canCreate){
+            help.add("`g/mt instructions `w- Show basic torch creation instructions.");
+            help.add("`g/mt create `s<name> [next receiver type] `w- Creates a MagicTorch ");
+            help.add("array named `s<name>`w.  `s[next receiver type]`w can be Direct,");
+            help.add("Inverse, Toggle, Delay, or Timer.  Default is Direct.");
+            help.add("`g/mt cancel `w- Cancels torch creating or editing.");
+            help.add("`g/mt finish `w- Finishes torch creating or editing.");
+        }
+        
+        if(MTUtil.hasPermission(cs, Properties.permCreateDirect)){
+            help.add("`g/mt direct `w- Sets the next added receiver torches to be");
+            help.add("a direct receiver.");
+        }
+        
+        if(MTUtil.hasPermission(cs, Properties.permCreateInverse)){
+            help.add("`g/mt inverse `w- Sets the next added receiver torches to be");
+            help.add("an inverse receiver.");
+        }
+        
+        if(MTUtil.hasPermission(cs, Properties.permCreateToggle)){
+            help.add("`g/mt toggle `s[time] `w- Sets the next added receiver torches to be");
+            help.add("a toggle receiver. `s[time] `wis the amount of time to wait");
+            help.add("before accepting another signal. Default is `a" + Properties.toggleDelay + " `wseconds.");
+        }
+        
+        if(MTUtil.hasPermission(cs, Properties.permCreateDelay)){
+            help.add("`g/mt delay `s[time] `w- Sets the next added receiver torches to be");
+            help.add("a delay receiver. `s[time] `wis the amount of time to wait");
+            help.add("before processing the signals. Default is `a" + Properties.delayDelay + " `wseconds.");
+        }
+        
+        if(MTUtil.hasPermission(cs, Properties.permCreateTimer)){
+            help.add("`g/mt timer `s[time] `w- Sets the next added receiver torches to be");
+            help.add("a timer receiver. `s[time] `wis the amount of time to wait");
+            help.add("before switching back to the initial state. Default is `a" + Properties.timerDelay + " `wseconds.");
+        }
+        
+        if(canCreate){
+            help.add("`g/mt edit `s<name> `w- Edits the named torch array.");
+        }
+        
+        if(MTUtil.isAdmin(cs)){
+            help.add("`g/mt list `s[player] [page] `w- Lists the torch arrays for");
+            help.add("everyone, or a `s[player] `wyou specify.  `s[page] is the ");
+            help.add("page of the listing.");
+        } else {
+            help.add("`g/mt list [page] `w- Lists the torch arrays that you");
+            help.add("own.`s[page] specifies the page of the listing.");
+        }
+        
+        help.add("`g/mt delete <name> `w- Delete the named torch array.");
+        help.add("`g/mt info <name> `w- Shows info for the named torch array.");
+        
+        if(Properties.useEconomy){
+            help.add("`g/mt price `w- Show the current price for the array you are creating or editing.");
+            help.add("`g/mt rate `w- Show the current rates for creating Torch Arrays.");
+        }
+        
+        if(MTUtil.isAdmin(cs)){
+            help.add("`g/mt enable `w- Reenable all loaded MT Torch arrays, after they have been disabled.");
+            help.add("`g/mt disable `w- Disable all loaded MT Torch arrays.");
+            help.add("`g/mt prune `w- Delete all non-loaded torch arrays.");
+            help.add("`g/mt reload `w- Reloads all torch arrays from db.");
+        }
+        
+        return help;
     }
 }

@@ -35,10 +35,8 @@ import sorklin.magictorches.listeners.MTWorldListener;
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-//TODO: help
-//TODO: list (paged listing)
-//TODO: file unloading and reloading (i.e. miniDB file is staying in memory) needs to work better. -- is this still a problem?
-//TODO: figure out an economical way to work with item detatching from block
+//TODO: Finish help and instructions.  
+//TODO: /mt reload doesn't work right (cached mini, i think). File unloading and reloading (i.e. miniDB file is staying in memory) needs to work better.
 //TODO: better text for removing adding torches (esp when editing).
 
 public class MagicTorches extends JavaPlugin {

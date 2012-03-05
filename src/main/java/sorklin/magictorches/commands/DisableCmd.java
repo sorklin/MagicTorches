@@ -21,7 +21,7 @@ import sorklin.magictorches.Exceptions.InsufficientPermissionsException;
 import sorklin.magictorches.Exceptions.MissingOrIncorrectParametersException;
 import sorklin.magictorches.internals.Properties;
 
-public class ActivateCmd extends GenericCmd {
+public class DisableCmd extends GenericCmd {
     
     /*Default the generic to must be executed by a player, and no minimum arguments.
     String permission = "";
@@ -29,16 +29,15 @@ public class ActivateCmd extends GenericCmd {
     int minArg = 0;
     */
     
-    public ActivateCmd(CommandSender cs, String args[]){
+    public DisableCmd(CommandSender cs, String args[]){
         super(cs, args);
-        this.mustBePlayer = false;
-        this.permission = Properties.permAdmin;
+        this.permission = Properties.permAccess;
     }
     
     public boolean execute() throws MissingOrIncorrectParametersException, InsufficientPermissionsException{
         errorCheck();
         
-        Properties.disableTransmit = false;
+        Properties.disableTransmit = true;
         
         return true;
     }
