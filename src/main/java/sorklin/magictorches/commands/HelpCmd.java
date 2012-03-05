@@ -76,66 +76,63 @@ public class HelpCmd extends GenericCmd {
         
         if(canCreate){
             help.add("`g/mt instructions `w- Show basic torch creation instructions.");
-            help.add("`g/mt create `s<name> [next receiver type] `w- Creates a MagicTorch ");
-            help.add("array named `s<name>`w.  `s[next receiver type]`w can be Direct,");
-            help.add("Inverse, Toggle, Delay, or Timer.  Default is Direct.");
+            help.add("`g/mt create `s<name> [next receiver type] `w- Creates a");
+            help.add("MagicTorch array named `s<name>`w.  `s[next receiver type]`w can be");
+            help.add("Direct, Inverse, Toggle, Delay, or Timer.  Default is Direct.");
+            help.add("`g/mt edit `s<name> `w- Edits the named torch array.");
             help.add("`g/mt cancel `w- Cancels torch creating or editing.");
             help.add("`g/mt finish `w- Finishes torch creating or editing.");
         }
         
         if(MTUtil.hasPermission(cs, Properties.permCreateDirect)){
-            help.add("`g/mt direct `w- Sets the next added receiver torches to be");
-            help.add("a direct receiver.");
+            help.add("`g/mt direct `w- Sets the next added receiver torches to be a");
+            help.add("direct receiver.");
         }
         
         if(MTUtil.hasPermission(cs, Properties.permCreateInverse)){
-            help.add("`g/mt inverse `w- Sets the next added receiver torches to be");
-            help.add("an inverse receiver.");
+            help.add("`g/mt inverse `w- Sets the next added receiver torches to be an");
+            help.add("inverse receiver.");
         }
         
         if(MTUtil.hasPermission(cs, Properties.permCreateToggle)){
-            help.add("`g/mt toggle `s[time] `w- Sets the next added receiver torches to be");
-            help.add("a toggle receiver. `s[time] `wis the amount of time to wait");
+            help.add("`g/mt toggle `s[time] `w- Sets the next added receiver torches to");
+            help.add("be a toggle receiver. `s[time] `wis the amount of time to wait");
             help.add("before accepting another signal. Default is `a" + Properties.toggleDelay + " `wseconds.");
         }
         
         if(MTUtil.hasPermission(cs, Properties.permCreateDelay)){
             help.add("`g/mt delay `s[time] `w- Sets the next added receiver torches to be");
-            help.add("a delay receiver. `s[time] `wis the amount of time to wait");
-            help.add("before processing the signals. Default is `a" + Properties.delayDelay + " `wseconds.");
+            help.add("a delay receiver. `s[time] `wis the amount of time to wait before");
+            help.add("processing the signals. Default is `a" + Properties.delayDelay + " `wseconds.");
         }
         
         if(MTUtil.hasPermission(cs, Properties.permCreateTimer)){
             help.add("`g/mt timer `s[time] `w- Sets the next added receiver torches to be");
-            help.add("a timer receiver. `s[time] `wis the amount of time to wait");
-            help.add("before switching back to the initial state. Default is `a" + Properties.timerDelay + " `wseconds.");
-        }
-        
-        if(canCreate){
-            help.add("`g/mt edit `s<name> `w- Edits the named torch array.");
+            help.add("a timer receiver. `s[time] `wis the amount of time to wait before");
+            help.add("switching back to the initial state. Default is `a" + Properties.timerDelay + " `wseconds.");
         }
         
         if(MTUtil.isAdmin(cs)){
             help.add("`g/mt list `s[player] [page] `w- Lists the torch arrays for");
-            help.add("everyone, or a `s[player] `wyou specify.  `s[page] is the ");
-            help.add("page of the listing.");
-        } else {
-            help.add("`g/mt list [page] `w- Lists the torch arrays that you");
-            help.add("own.`s[page] specifies the page of the listing.");
-        }
+            help.add("everyone, or a `s[player] `wyou specify.");
+        } else 
+            help.add("`g/mt list [page] `w- Lists the torch arrays that you own.");
         
         help.add("`g/mt delete <name> `w- Delete the named torch array.");
         help.add("`g/mt info <name> `w- Shows info for the named torch array.");
         
         if(Properties.useEconomy){
-            help.add("`g/mt price `w- Show the current price for the array you are creating or editing.");
-            help.add("`g/mt rate `w- Show the current rates for creating Torch Arrays.");
+            help.add("`g/mt price `w- Show the current price for the array you are");
+            help.add("creating or editing.");
+            help.add("`g/mt rate `w- Show the current rates for creating or editing");
+            help.add("MagicTorch arrays.");
         }
         
         if(MTUtil.isAdmin(cs)){
-            help.add("`g/mt enable `w- Reenable all loaded MT Torch arrays, after they have been disabled.");
+            help.add("`g/mt enable `w- Reenable all loaded MT Torch arrays, after they");
+            help.add("have been disabled.");
             help.add("`g/mt disable `w- Disable all loaded MT Torch arrays.");
-            help.add("`g/mt prune `w- Delete all non-loaded torch arrays.");
+            //help.add("`g/mt prune `w- Delete all non-loaded torch arrays.");
             help.add("`g/mt reload `w- Reloads all torch arrays from db.");
         }
         

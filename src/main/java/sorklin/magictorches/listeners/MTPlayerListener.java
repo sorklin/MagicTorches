@@ -101,8 +101,8 @@ public class MTPlayerListener implements Listener {
                     
                     if(added){
                         msg.append("`gAdded a `w").append(te.getNextType().toString()).append("`g torch with a ");
-                        msg.append((te.getTimeOut() == -1) ? "default" : te.getTimeOut());
-                        msg.append("s delay ");
+                        msg.append((te.getTimeOut() == -1) ? "default" : te.getTimeOut() + "s");
+                        msg.append("delay ");
                         if(Properties.useEconomy && !player.hasPermission(Properties.permAdmin))
                             msg.append("(").append(priceOfReceiver(te.getNextType())).append(")");
                         msg.append(".");
