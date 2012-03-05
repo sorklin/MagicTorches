@@ -16,10 +16,10 @@
  */
 package sorklin.magictorches.internals.torches;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import sorklin.magictorches.MagicTorches;
 import sorklin.magictorches.internals.MTUtil;
 import sorklin.magictorches.internals.Properties;
@@ -65,6 +65,7 @@ public class DelayReceiver extends Receiver {
         //Create the timed delayed task to process change:
         mt.getServer().getScheduler().scheduleSyncDelayedTask(mt, new Runnable() {
             public void run() {
+                BlockFace facing = getFacing(torchLocation);
                 //Event comes first
                 sendReceiveEvent();
                 if(torch.getType().equals(Material.TORCH)) {
@@ -75,6 +76,7 @@ public class DelayReceiver extends Receiver {
                         || torch.getType().equals(Material.REDSTONE_TORCH_OFF)) {
                     torch.setType(Material.TORCH);
                 }
+                torch.setData(getFacingData(facing));
             }
         }, delayTicks);
         

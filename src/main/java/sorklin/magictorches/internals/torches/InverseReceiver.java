@@ -19,6 +19,7 @@ package sorklin.magictorches.internals.torches;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import sorklin.magictorches.internals.Properties.MtType;
 
 public class InverseReceiver extends Receiver {
@@ -35,17 +36,16 @@ public class InverseReceiver extends Receiver {
      */
     @Override
     public boolean receive(boolean signal){ //torch On = true, off = false
-        //Return true if I can process signal, else false to indicate
-        //something wrong with this torch receiver.
         
         //Lets check for a location and a torch at that location.
-        if(this.torchLocation == null)
+        if(torchInvalid())
             return false;
+        
         Block torch = torchLocation.getBlock();
-        if(!(torch.getType().equals(Material.TORCH) ||
-                torch.getType().equals(Material.REDSTONE_TORCH_ON))) {
-            return false;
-        }
+        
+        //Get the current blockface its facing.
+        BlockFace facing = getFacing(torchLocation);
+        
         //Event must come first.
         sendReceiveEvent();
         if(signal){
@@ -53,7 +53,7 @@ public class InverseReceiver extends Receiver {
         } else {
             torch.setType(Material.TORCH);
         }
-        
+        torch.setData(getFacingData(facing));
         
         return true;
     }

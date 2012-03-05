@@ -19,6 +19,7 @@ package sorklin.magictorches.internals.torches;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import sorklin.magictorches.MagicTorches;
 import sorklin.magictorches.internals.MTUtil;
 import sorklin.magictorches.internals.Properties;
@@ -66,6 +67,9 @@ public class TimerReceiver extends Receiver {
         
         //If the delay is already functioning, ignore the received signal.
         if(!isRunning){
+            //Get the current blockface its facing.
+            BlockFace facing = getFacing(torchLocation);
+            
             //Event comes first.
             sendReceiveEvent();
             
@@ -78,14 +82,18 @@ public class TimerReceiver extends Receiver {
                     || originalMat.equals(Material.REDSTONE_TORCH_OFF)) {
                 torch.setType(Material.TORCH);
             }
+            torch.setData(getFacingData(facing));
             
             isRunning = true;
             
             //Create the timed task to flip it back:
             this.delayTask = mt.getServer().getScheduler().scheduleSyncDelayedTask(mt, new Runnable() {
                 public void run() {
+                    //Get the current blockface its facing.
+                    BlockFace facing = getFacing(torchLocation);
                     sendReceiveEvent();
                     torch.setType(originalMat);
+                    torch.setData(getFacingData(facing));
                     isRunning = false;
                 }
             }, delayTicks);

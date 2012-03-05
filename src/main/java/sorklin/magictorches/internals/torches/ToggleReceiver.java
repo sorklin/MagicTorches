@@ -19,6 +19,7 @@ package sorklin.magictorches.internals.torches;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import sorklin.magictorches.MagicTorches;
 import sorklin.magictorches.internals.MTUtil;
 import sorklin.magictorches.internals.Properties;
@@ -67,6 +68,9 @@ public class ToggleReceiver extends Receiver {
         
         //If the delay is already functioning, ignore the received signal.
         if(!isRunning){
+            //Get the current blockface its facing.
+            BlockFace facing = getFacing(torchLocation);
+            
             //Event comes first
             sendReceiveEvent();
             if(torch.getType().equals(Material.TORCH)) {
@@ -77,6 +81,7 @@ public class ToggleReceiver extends Receiver {
                     || torch.getType().equals(Material.REDSTONE_TORCH_OFF)) {
                 torch.setType(Material.TORCH);
             }
+            torch.setData(getFacingData(facing));
             
             isRunning = true;
             

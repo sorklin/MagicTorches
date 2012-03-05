@@ -19,7 +19,10 @@ package sorklin.magictorches.internals.torches;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
+import org.bukkit.material.Torch;
 import sorklin.magictorches.Events.RecieveEvent;
 import sorklin.magictorches.internals.Properties.MtType;
 import sorklin.magictorches.internals.interfaces.MTReceiver;
@@ -30,7 +33,7 @@ abstract class Receiver implements MTReceiver {
     Location torchLocation;
     Location parentLocation;
     MtType type;
-
+    
     public Receiver (Location loc) {
         this.torchLocation = loc;
     }
@@ -122,5 +125,37 @@ abstract class Receiver implements MTReceiver {
     
     protected void sendReceiveEvent(){
         Bukkit.getServer().getPluginManager().callEvent(new RecieveEvent(torchLocation));
+    }
+    
+    protected BlockFace getFacing(Location l){
+        Block b = l.getBlock();
+        return ((Torch)b.getType().getNewData(b.getData())).getFacing();
+    }
+    
+    protected byte getFacingData (BlockFace bf){
+        
+        byte data;
+        switch (bf) {
+            case SOUTH:
+                data = 0x1;
+                break;
+
+            case NORTH:
+                data = 0x2;
+                break;
+
+            case WEST:
+                data = 0x3;
+                break;
+
+            case EAST:
+                data = 0x4;
+                break;
+
+            case UP:
+            default:
+                data = 0x5;
+        }
+        return data;
     }
 }
