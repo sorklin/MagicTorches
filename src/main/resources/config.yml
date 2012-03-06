@@ -1,3 +1,9 @@
+# DefaultTimes: These are the default time settings for the three time-based torches in seconds.
+# Limits: These determine whether to use distance limits when creating new torches, and whether 
+#   receivers should load the chunk they're in if they receive a signal.
+# Economy: This determine whether to use an economy with the torches.  If set to true, you must 
+#   have Vault enabled and loaded. 
+#   Price: determines the base price for creating or editing, and the per receiver price (for both).
 DefaultTimes:
   Delay: 2.0
   Toggle: 1.5
@@ -5,9 +11,9 @@ DefaultTimes:
 Limits:
   Distance: true
   MaxDistance: 100.0
-  ChunkLoadOnReceive: false
+  ChunkLoadOnReceive: true
 Economy:
-  UseEconomy: true
+  UseEconomy: false
   Price:
     CreateArray: 0.0
     EditArray: 0.0
