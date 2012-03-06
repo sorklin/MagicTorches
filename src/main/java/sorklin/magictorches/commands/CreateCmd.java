@@ -87,6 +87,15 @@ public class CreateCmd extends GenericCmd {
             } else {
                 throw new MissingOrIncorrectParametersException();
             }
+            
+            //Try to parse a time number.
+            if(args.length > 3){
+                try {
+                    te.setTimeOut(Double.parseDouble(args[3]));
+                } catch (NumberFormatException nfe) {
+                    //Don't worry about this, just ignore it.
+                }
+            }
             Messaging.send(player, msg);
         }
         //This will overwrite an existing creator (which we're okay with).
