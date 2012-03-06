@@ -39,11 +39,13 @@ public class EditCmd extends GenericCmd {
     public boolean execute() throws MissingOrIncorrectParametersException, InsufficientPermissionsException{
         errorCheck();
         //MagicTorches.spam("in edit execute.");
-        String msg = "Left click on a torch to set it a transmitter. Right click on"
-                + "%cr%torches to add/remove them from the receiver array.  Hold a "
-                + "%cr%lever and right-click a torch, to receive information about it."
-                + "%cr%Type `Y/mt finish `wto finish editing the array.";
-        if(Properties.useEconomy){
+        String msg = "`aLeft click `won a torch to select a new transmitter. `aRight click `wto"
+                + "%cr%add or remove a receiver torch."
+                + "%cr%To change the type or settings of a receiver torch, you must"
+                + "%cr%first remove the receiver from the array, and then add it"
+                + "%cr%back with the proper settings."
+                + "%cr%Type `Y/mt finish `wor `Y/mt cancel `wto end the edit.";
+        if(!MTUtil.isAdmin(cs) && Properties.useEconomy){
             msg += "%cr%`YBase price for editing an array is `a";
             msg += MagicTorches.econ.format(Properties.priceArrayEdit);
             msg += "`Y.";

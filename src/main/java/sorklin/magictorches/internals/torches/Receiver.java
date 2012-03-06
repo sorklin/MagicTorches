@@ -79,7 +79,9 @@ abstract class Receiver implements MTReceiver {
             return;
         
         //Now that we know its a torch, lets just set it to redstone_on
+        BlockFace facing = getFacing(torchLocation);
         torchLocation.getBlock().setType(Material.REDSTONE_TORCH_ON);
+        torchLocation.getBlock().setData(getFacingData(facing));
     }
     
     @Override

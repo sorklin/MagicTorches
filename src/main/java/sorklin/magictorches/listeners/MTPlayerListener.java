@@ -78,6 +78,10 @@ public class MTPlayerListener implements Listener {
         //Process regular interaction.
         if(rst){
             if(act.equals(Action.LEFT_CLICK_BLOCK)) {
+                event.setCancelled(true);
+                if(te.isTransmitter(loc)) //Avoids double selection message.
+                    return;
+                
                 te.setTransmitter(loc);
                 msg.append ("`gSelected transmitter torch.");
                 if(Properties.useEconomy && !player.hasPermission(Properties.permAdmin))
@@ -86,7 +90,7 @@ public class MTPlayerListener implements Listener {
                 
                 added = true;
                 
-                event.setCancelled(true);
+                
                 
             } else if(act.equals(Action.RIGHT_CLICK_BLOCK)) {
                 if(te.isReceiver(loc)){
@@ -103,7 +107,7 @@ public class MTPlayerListener implements Listener {
                     if(added){
                         msg.append("`gAdded a `w").append(te.getNextType().toString()).append("`g torch with a ");
                         msg.append((te.getTimeOut() == -1) ? "default" : te.getTimeOut() + "s");
-                        msg.append("delay ");
+                        msg.append(" delay ");
                         if(Properties.useEconomy && !player.hasPermission(Properties.permAdmin))
                             msg.append("(").append(priceOfReceiver(te.getNextType())).append(")");
                         msg.append(".");

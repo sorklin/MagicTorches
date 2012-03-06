@@ -42,7 +42,7 @@ public class CreateCmd extends GenericCmd {
                 + "%cr%the receiver array.  Hold a lever to receive information about"
                 + "%cr%any clicked torch.  Type `Y/mt finish `wwhen finished, to create the"
                 + "%cr%array. ";
-        if(Properties.useEconomy){
+        if(!MTUtil.isAdmin(cs) && Properties.useEconomy){
             msg += "`YBase price for creating an array is `a";
             msg += MagicTorches.econ.format(Properties.priceArrayCreate);
             msg += "`Y.";
