@@ -16,6 +16,7 @@
  */
 package sorklin.magictorches.commands;
 
+import java.util.List;
 import org.bukkit.command.CommandSender;
 import sorklin.magictorches.Exceptions.InsufficientPermissionsException;
 import sorklin.magictorches.Exceptions.MissingOrIncorrectParametersException;
@@ -40,17 +41,41 @@ public class InfoCmd extends GenericCmd {
     
     public boolean execute() throws MissingOrIncorrectParametersException, InsufficientPermissionsException{
         errorCheck();
-        // /mt info <name>
+        // /mt info <name> [page]
         
         TorchArray ta = mt.mtHandler.getArray(args[1]);
         
         if(ta == null)
             throw new MissingOrIncorrectParametersException("No TorchArray by that name.");
         
-        //Ownership and perms handled by .getInfo()
-        Messaging.mlSend(player, mt.mtHandler
+        List<String> infoMsg = mt.mtHandler
                 .getInfo(ta.getLocation().getBlock(), player.getName(), 
-                MTUtil.hasPermission(player, Properties.permAdmin), false));
+                MTUtil.hasPermission(player, Properties.permAdmin), false);
+        
+        int page = -1;
+        
+        if (args.length < 3)
+            page = 1;
+        else if (args.length == 3)
+            try {
+                page = Integer.parseInt(args[2]);
+            } catch (NumberFormatException nfe) {
+                throw new MissingOrIncorrectParametersException();
+            }
+        
+        if(page < 1)
+            page = 1;
+        
+        if(page > MTUtil.getNumPages(infoMsg)){
+            Messaging.send(cs, "`rNo such page.");
+            page = 1;
+        }
+        
+        //Ownership and perms handled by .getInfo()
+        String intro = "`Y+-------------- MagicTorches Info (" + page + "/" 
+                + MTUtil.getNumPages(infoMsg) + ") --------------+";
+        Messaging.send(cs, intro);
+        Messaging.mlSend(cs, MTUtil.getListPage(infoMsg, page));
         
         return true;
     }

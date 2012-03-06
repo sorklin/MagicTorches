@@ -59,7 +59,9 @@ public class HelpCmd extends GenericCmd {
             page = 1;
         }
         
-        String intro = "`gMagicTorches Help (Page " + page + " of " + MTUtil.getNumPages(helpMsg) + ")";
+        String intro = "`a+-------------- MagicTorches Help (" + page + "/" 
+                + MTUtil.getNumPages(helpMsg) + ") --------------+";
+        //String intro = "`gMagicTorches Help (Page " + page + " of " + MTUtil.getNumPages(helpMsg) + ")";
         Messaging.send(cs, intro);
         Messaging.mlSend(cs, MTUtil.getListPage(helpMsg, page));
 
@@ -78,7 +80,31 @@ public class HelpCmd extends GenericCmd {
             help.add("`g/mt instructions `w- Show basic torch creation instructions.");
             help.add("`g/mt create `s<name> [next receiver type] `w- Creates a");
             help.add("MagicTorch array named `s<name>`w.  `s[next receiver type]`w can be");
-            help.add("Direct, Inverse, Toggle, Delay, or Timer.  Default is Direct.");
+            
+            List<String> types = new ArrayList<String>();
+            if(MTUtil.hasPermission(cs, Properties.permCreateDirect))
+                types.add("Direct");
+            if(MTUtil.hasPermission(cs, Properties.permCreateInverse))
+                types.add("Inverse");
+            if(MTUtil.hasPermission(cs, Properties.permCreateToggle))
+                types.add("Toggle");
+            if(MTUtil.hasPermission(cs, Properties.permCreateDelay))
+                types.add("Delay");
+            if(MTUtil.hasPermission(cs, Properties.permCreateTimer))
+                types.add("Timer");
+            StringBuilder sb = new StringBuilder();
+            String comma = "";
+            if(types.size() > 1) {
+                for(int i = 0; i < (types.size() -1); i++){
+                    sb.append(comma).append(types.get(i));
+                    comma = ", ";
+                }
+                sb.append(", or ");
+            }
+            
+            sb.append(types.get(types.size()-1)).append(".");
+            help.add(sb.toString());
+            
             help.add("`g/mt edit `s<name> `w- Edits the named torch array.");
             help.add("`g/mt cancel `w- Cancels torch creating or editing.");
             help.add("`g/mt finish `w- Finishes torch creating or editing.");
@@ -116,10 +142,10 @@ public class HelpCmd extends GenericCmd {
             help.add("`g/mt list `s[player] [page] `w- Lists the torch arrays for");
             help.add("everyone, or a `s[player] `wyou specify.");
         } else 
-            help.add("`g/mt list [page] `w- Lists the torch arrays that you own.");
+            help.add("`g/mt list `s[page] `w- Lists the torch arrays that you own.");
         
-        help.add("`g/mt delete <name> `w- Delete the named torch array.");
-        help.add("`g/mt info <name> `w- Shows info for the named torch array.");
+        help.add("`g/mt delete `s<name> `w- Delete the named torch array.");
+        help.add("`g/mt info `s<name> `w- Shows info for the named torch array.");
         
         if(Properties.useEconomy){
             help.add("`g/mt price `w- Show the current price for the array you are");

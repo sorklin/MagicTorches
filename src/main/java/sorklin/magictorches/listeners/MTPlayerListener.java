@@ -49,6 +49,7 @@ public class MTPlayerListener implements Listener {
             if(item.equals(Material.LEVER))
                 if(rst || mat.equals(Material.TORCH)){
                     if(MTUtil.hasPermission(player, Properties.permAccess)){ //i have create, admin or op perms
+                        Messaging.send(player, "`Y+--------------------------------------------------+");
                         Messaging.mlSend(player, pl.mtHandler.getInfo(
                             event.getClickedBlock(), 
                             player.getName(), 
@@ -90,7 +91,7 @@ public class MTPlayerListener implements Listener {
             } else if(act.equals(Action.RIGHT_CLICK_BLOCK)) {
                 if(te.isReceiver(loc)){
                     te.remove(loc);
-                    msg.append("`gRemoved receiver from array.");
+                    msg.append("`gYou `wREMOVED `gthe receiver from the array.");
                     added = true;
                 }
                 else if(te.getNextType() == MtType.DELAY || te.getNextType() == MtType.TIMER || te.getNextType() == MtType.TOGGLE) {
@@ -106,6 +107,7 @@ public class MTPlayerListener implements Listener {
                         if(Properties.useEconomy && !player.hasPermission(Properties.permAdmin))
                             msg.append("(").append(priceOfReceiver(te.getNextType())).append(")");
                         msg.append(".");
+                        msg.append("%cr%`yTo remove a receiver from the array, right click it again.");
                     }
                 } else {
                     if(player.hasPermission(Properties.permAdmin))
@@ -118,6 +120,7 @@ public class MTPlayerListener implements Listener {
                         if(Properties.useEconomy && !player.hasPermission(Properties.permAdmin))
                             msg.append(" (").append(priceOfReceiver(te.getNextType())).append(")");
                         msg.append(".");
+                        msg.append("%cr%`yTo remove a receiver from the array, right click it again.");
                     }
                 }
                 if(added && Properties.useEconomy && !player.hasPermission(Properties.permAdmin))

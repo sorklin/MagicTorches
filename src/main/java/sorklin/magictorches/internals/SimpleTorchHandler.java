@@ -151,7 +151,7 @@ public final class SimpleTorchHandler {
                 sb = (clicked) ? 
                         ("`YTransmitter for the `a" + mtArray.get(loc).getName() +" `Yarray. ") :
                         ("`Y" + getTransmitterInfo(mtArray.get(loc)));
-                result.add(divider);
+                //result.add(divider);
                 result.add(sb);
                 if(isAdmin)
                     result.add("`YOwner: `a" + mtArray.get(loc).getOwner());
@@ -175,7 +175,7 @@ public final class SimpleTorchHandler {
                     TorchArray parent = mtArray.get(tr.getParent());
                     found = true;
                     if(parent.getOwner().equalsIgnoreCase(player) || isAdmin){
-                        result.add(divider);
+                        //result.add(divider);
                         result.add("`YReceiver: `a" + getReceiverInfo(tr) + "`Y.");
                         result.add("`YIt is part of the `a" + mtArray.get(tr.getParent()).getName() + " `Yarray.");
                         result.add("`YIts transmitter is at `a[" + tr.getParent().getWorld().getName() + ": " 

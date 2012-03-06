@@ -67,7 +67,7 @@ public class Properties {
     public static double priceTimer;
     public static double priceToggle;
     
-    public static int linesPerPage = 8;
+    public static int linesPerPage = 9;
     
     //current state
     public static boolean disableTransmit = false;
