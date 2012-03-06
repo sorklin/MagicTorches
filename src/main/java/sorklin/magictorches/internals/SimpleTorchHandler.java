@@ -110,6 +110,7 @@ public final class SimpleTorchHandler {
      */
     public void reload(){
         clearCache();
+        MagicTorches.getMiniDB().initFile();//Reinit the file before reload.
         this.mtArray = MagicTorches.getMiniDB().loadAll();
         for (Entry<Location, TorchArray> ent : this.mtArray.entrySet()){
             allReceiverArray.addAll(ent.getValue().getReceiverArray());

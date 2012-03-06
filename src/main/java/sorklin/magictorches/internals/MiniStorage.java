@@ -44,7 +44,7 @@ public class MiniStorage implements MTStorage {
         initFile();
     }
     
-    private void initFile() {
+    public void initFile() {
         try {
             mini_file = new File(MagicTorches.get().getDataFolder(), Properties.dbFileName);
             if(!mini_file.exists())

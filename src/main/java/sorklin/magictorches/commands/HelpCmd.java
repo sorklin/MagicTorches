@@ -77,7 +77,7 @@ public class HelpCmd extends GenericCmd {
                 || MTUtil.hasPermission(cs, Properties.permCreateToggle);
         
         if(canCreate){
-            help.add("`g/mt instructions `w- Show basic torch creation instructions.");
+            //help.add("`g/mt instructions `w- Show basic torch creation instructions.");
             help.add("`g/mt create `s<name> [next receiver type] `w- Creates a");
             help.add("MagicTorch array named `s<name>`w.  `s[next receiver type]`w can be");
             
@@ -158,7 +158,7 @@ public class HelpCmd extends GenericCmd {
             help.add("`g/mt enable `w- Reenable all loaded MT Torch arrays, after they");
             help.add("have been disabled.");
             help.add("`g/mt disable `w- Disable all loaded MT Torch arrays.");
-            //help.add("`g/mt prune `w- Delete all non-loaded torch arrays.");
+            help.add("`g/mt prune `w- Delete all non-loaded torch arrays.");
             help.add("`g/mt reload `w- Reloads all torch arrays from db.");
         }
         

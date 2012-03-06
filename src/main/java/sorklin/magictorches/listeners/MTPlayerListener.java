@@ -99,7 +99,7 @@ public class MTPlayerListener implements Listener {
                     added = true;
                 }
                 else if(te.getNextType() == MtType.DELAY || te.getNextType() == MtType.TIMER || te.getNextType() == MtType.TOGGLE) {
-                    if(player.hasPermission(Properties.permAdmin))
+                    if(MTUtil.isAdmin(player))
                         added = te.add(loc, te.getNextType(), te.getTimeOut());
                     else 
                         added = te.addCheck(loc, te.getNextType(), te.getTimeOut());
@@ -114,7 +114,7 @@ public class MTPlayerListener implements Listener {
                         msg.append("%cr%`yTo remove a receiver from the array, right click it again.");
                     }
                 } else {
-                    if(player.hasPermission(Properties.permAdmin))
+                    if(MTUtil.isAdmin(player))
                         added = te.add(loc, te.getNextType());
                     else
                         added = te.addCheck(loc, te.getNextType());

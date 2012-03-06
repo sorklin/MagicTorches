@@ -35,10 +35,6 @@ import sorklin.magictorches.listeners.MTWorldListener;
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-//TODO: Finish instructions.
-//TODO: /mt reload doesn't work right (cached mini, i think). File unloading and reloading (i.e. miniDB file is staying in memory) needs to work better.
-//TODO: better text for removing adding torches (esp when editing).
-
 public class MagicTorches extends JavaPlugin {
     
     private final MTPlayerListener playerListener = new MTPlayerListener(this);

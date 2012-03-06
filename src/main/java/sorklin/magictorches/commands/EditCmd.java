@@ -54,7 +54,7 @@ public class EditCmd extends GenericCmd {
         TorchArray ta = mt.mtHandler.getArray(args[1]);
         //MagicTorches.spam("getarray = " + ta.getName());
         if(ta != null){
-            if(!MTUtil.hasPermission(player, Properties.permAdmin) ||
+            if(!MTUtil.isAdmin(cs) &&
                     !ta.getOwner().equalsIgnoreCase(player.getName()))
                 throw new InsufficientPermissionsException("That is not your torcharray.");
             
