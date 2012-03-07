@@ -108,6 +108,8 @@ public class HelpCmd extends GenericCmd {
             help.add("`g/mt edit `s<name> `w- Edits the named torch array.");
             help.add("`g/mt cancel `w- Cancels torch creating or editing.");
             help.add("`g/mt finish `w- Finishes torch creating or editing.");
+            help.add("`g/mt delete `s<name> `w- Delete the named torch array.");
+            help.add("`g/mt info `s<name> `w- Shows info for the named torch array.");
         }
         
         if(MTUtil.hasPermission(cs, Properties.permCreateDirect)){
@@ -143,9 +145,6 @@ public class HelpCmd extends GenericCmd {
             help.add("everyone, or a `s[player] `wyou specify.");
         } else 
             help.add("`g/mt list `s[page] `w- Lists the torch arrays that you own.");
-        
-        help.add("`g/mt delete `s<name> `w- Delete the named torch array.");
-        help.add("`g/mt info `s<name> `w- Shows info for the named torch array.");
         
         if(Properties.useEconomy){
             help.add("`g/mt price `w- Show the current price for the array you are");
