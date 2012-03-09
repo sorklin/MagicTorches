@@ -16,7 +16,6 @@
  */
 package sorklin.magictorches.commands;
 
-import java.util.HashMap;
 import org.bukkit.command.CommandSender;
 import sorklin.magictorches.Exceptions.InsufficientPermissionsException;
 import sorklin.magictorches.Exceptions.MissingOrIncorrectParametersException;
@@ -40,7 +39,8 @@ public class ReloadCmd extends GenericCmd {
     public boolean execute() throws MissingOrIncorrectParametersException, InsufficientPermissionsException{
         errorCheck();
         
-        Messaging.send(cs, "Reloading arrays.");
+        Messaging.send(cs, "Reloading config and MT arrays.");
+        mt.configReload();
         mt.mtHandler.reload();
 
         return true;

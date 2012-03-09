@@ -111,6 +111,13 @@ public class MagicTorches extends JavaPlugin {
         return miniDB;
     }
     
+    public void configReload(){
+        log(Level.INFO, "Reloading config");
+        reloadConfig();
+        loadConfig(getConfig());
+        saveConfig();
+    }
+    
     public MTTorchSignalListener getSignalListener(){
         return this.signalListener;
     }
