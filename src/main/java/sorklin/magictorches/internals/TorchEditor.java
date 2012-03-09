@@ -101,15 +101,6 @@ public class TorchEditor extends TorchArray {
         return this.message;
     }
     
-    /**
-     * Turns all receivers into Redstone torches (for editing)
-     */
-    public void resetReceivers() {
-        for(MTReceiver r : receiverArray){
-            r.reset();
-        }
-    }
-    
     public double priceArray() {
         
         double subTotal;

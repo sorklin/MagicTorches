@@ -69,6 +69,7 @@ public final class SimpleTorchHandler {
             return false;
         TorchArray ta = mtArray.get(loc);
         message = ta.getName(); //for the deletion message.
+        ta.resetReceivers(); //Turn them all to redstone torches for the delete.
         allReceiverArray.removeAll(ta.getReceiverArray());
         mtArray.remove(loc);
         return true;

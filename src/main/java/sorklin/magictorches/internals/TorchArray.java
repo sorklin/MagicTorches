@@ -261,6 +261,15 @@ public class TorchArray {
     }
     
     /**
+     * Turns all receivers into Redstone torches (for editing)
+     */
+    public void resetReceivers() {
+        for(MTReceiver r : receiverArray){
+            r.reset();
+        }
+    }
+    
+    /**
      * Transmit torch state to all receivers.
      * @return <code>true</code> success, <code>false</code> failure.
      */
