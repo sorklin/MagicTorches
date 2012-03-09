@@ -11,3 +11,26 @@ commands:
     usage: |
            /<command> <parameter> [optional arguments]
            Type "/mt help" for more information.
+permissions:
+  magictorches.*:
+    description: Gives all permissions for MagicTorches
+    default: op
+    children:
+      magictorches.use:
+        description: Gives full non-admin access to players
+        children:
+          magictorches.access:
+            description: Allows player to access many MagicTorch commands, such as help
+          magictorches.create.direct:
+            description: Allows player to create a Direct MagicTorch Receiver
+          magictorches.create.inverse:
+            description: Allows player to create an Inverse MagicTorch Receiver
+          magictorches.create.toggle:
+            description: Allows player to create a Toggle MagicTorch Receiver
+          magictorches.create.delay:
+            description: Allows player to create a Delay MagicTorch Receiver
+          magictorches.create.timer:
+            description: Allows player to create a Timer MagicTorch Receiver
+      magictorches.admin:
+        description: Allows player to administrate MagicTorchs
+        
