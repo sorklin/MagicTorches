@@ -89,11 +89,15 @@ public class TimerReceiver extends Receiver {
             //Create the timed task to flip it back:
             this.delayTask = mt.getServer().getScheduler().scheduleSyncDelayedTask(mt, new Runnable() {
                 public void run() {
-                    //Get the current blockface its facing.
-                    BlockFace facing = getFacing(torchLocation);
-                    sendReceiveEvent();
-                    torch.setType(originalMat);
-                    torch.setData(getFacingData(facing));
+                    //See if the torch was destroyed in the interval.
+                    if(!torchInvalid()){
+                        //Get the current blockface its facing.
+                        BlockFace facing = getFacing(torchLocation);
+                        sendReceiveEvent();
+                        torch.setType(originalMat);
+                        if(facing != null)
+                            torch.setData(getFacingData(facing));
+                    }
                     isRunning = false;
                 }
             }, delayTicks);

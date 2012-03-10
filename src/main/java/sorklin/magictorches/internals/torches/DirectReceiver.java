@@ -52,7 +52,8 @@ public class DirectReceiver extends Receiver {
         } else {
             torch.setType(Material.REDSTONE_TORCH_ON);
         }
-        torch.setData(getFacingData(facing));
+        if(facing != null)
+            torch.setData(getFacingData(facing));
         
         return true;
     }

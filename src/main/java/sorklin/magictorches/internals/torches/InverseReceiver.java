@@ -53,7 +53,8 @@ public class InverseReceiver extends Receiver {
         } else {
             torch.setType(Material.TORCH);
         }
-        torch.setData(getFacingData(facing));
+        if(facing != null)
+            torch.setData(getFacingData(facing));
         
         return true;
     }

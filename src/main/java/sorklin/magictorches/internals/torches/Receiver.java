@@ -131,7 +131,11 @@ abstract class Receiver implements MTReceiver {
     
     protected BlockFace getFacing(Location l){
         Block b = l.getBlock();
-        return ((Torch)b.getType().getNewData(b.getData())).getFacing();
+        try{
+            return ((Torch)b.getType().getNewData(b.getData())).getFacing();
+        } catch (Exception ex) {
+            return null;
+        }
     }
     
     protected byte getFacingData (BlockFace bf){

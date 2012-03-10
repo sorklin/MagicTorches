@@ -76,7 +76,8 @@ public class DelayReceiver extends Receiver {
                         || torch.getType().equals(Material.REDSTONE_TORCH_OFF)) {
                     torch.setType(Material.TORCH);
                 }
-                torch.setData(getFacingData(facing));
+                if(facing != null)
+                    torch.setData(getFacingData(facing));
             }
         }, delayTicks);
         
