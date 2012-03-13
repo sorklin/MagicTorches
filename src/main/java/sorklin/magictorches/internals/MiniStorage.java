@@ -179,7 +179,7 @@ public class MiniStorage implements MTStorage {
     }
     
     private Location locationFromString(String data) throws NullPointerException {
-        //World: (?<=name=)\w+
+        //World: (?<=name=)\w+  -- (?<=name=).*?(?=}) (For spaces)
         //Coords: (?<==)-?\d+\.\d+  (returns 5 matches (x, y, z, yaw, pitch).
         
         //NPE if the world is NULL i.e., if MV or other multiverse plugin not loaded.
@@ -188,7 +188,7 @@ public class MiniStorage implements MTStorage {
         List<String> coords = new ArrayList<String>();
         Location result = null;
         
-        Pattern p = Pattern.compile("(?<=name=)\\w+");
+        Pattern p = Pattern.compile("(?<=name=).*?(?=})");
         Matcher m = p.matcher(data);
         if(m.find()){
             world = m.group();
