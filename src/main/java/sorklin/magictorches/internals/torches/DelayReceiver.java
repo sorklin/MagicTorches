@@ -39,7 +39,7 @@ public class DelayReceiver extends Receiver {
     
     public DelayReceiver (Location loc, double delay){
         super(loc);
-        this.type = MtType.TIMER;
+        this.type = MtType.DELAY;
         this.delay = delay;
         if(delay < 0)
             this.delayTicks = MTUtil.secondsToTicks(Properties.delayDelay);
