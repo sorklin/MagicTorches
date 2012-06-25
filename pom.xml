@@ -4,7 +4,7 @@
 
   <groupId>sorklin</groupId>
   <artifactId>MagicTorches</artifactId>
-  <version>1.0.2</version>
+  <version>1.0.4</version>
   <packaging>jar</packaging>
 
   <name>MagicTorches</name>
@@ -34,7 +34,7 @@
             <!-- Grabs from Bukkit Artifactory -->
             <groupId>org.bukkit</groupId>
             <artifactId>bukkit</artifactId>
-            <version>1.2.3-R0.1</version>
+            <version>1.2.5-R4.0</version>
             <type>jar</type>
             <scope>compile</scope>
         </dependency>
