@@ -38,8 +38,10 @@ public class InverseCmd extends GenericCmd {
     public boolean execute() throws MissingOrIncorrectParametersException, InsufficientPermissionsException{
         errorCheck();
         
-        if(!mt.editQueue.containsKey(player))
+        if(!mt.editQueue.containsKey(player)){
+            Messaging.send(player, "`rYou need to be creating or editing an array to use that command.");
             return true;
+        }
         
         mt.editQueue.get(player).setNextType(Properties.MtType.INVERSE);
         Messaging.send(player, "`gReceiver type set to `wINVERSE`g.");

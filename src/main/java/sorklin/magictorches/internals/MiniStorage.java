@@ -68,12 +68,12 @@ public class MiniStorage implements MTStorage {
         Arguments entry = mb_database.getArguments(name);
         owner = entry.getValue("owner");
         data = entry.getValue("data");
-        MagicTorches.log(Level.FINER, "LoadDB data: " + data);
+        //MagicTorches.log(Level.FINER, "LoadDB data: " + data);
         try {
             loc = trLocationFromData(data);
             ta = torchArrayFromData(data, name, owner);
             if(loc != null && ta != null) {
-                MagicTorches.log(Level.FINE, "Loaded torch: " + name);
+                //MagicTorches.log(Level.FINE, "Loaded torch: " + name);
             } else {
                 MagicTorches.log(Level.INFO, name + "'s entry was malformed, or the transmitting" +
                         "torch is missing. Deleting entry from DB.");
@@ -94,7 +94,7 @@ public class MiniStorage implements MTStorage {
         //here to determine good v. bad arrays.
         String name = ta.getName();
         String data = ta.toString();
-        MagicTorches.log(Level.FINER, "Saving to DB:" + ta.getName() + ", " + ta.toString());
+        //MagicTorches.log(Level.FINER, "Saving to DB:" + ta.getName() + ", " + ta.toString());
         Arguments entry = new Arguments(name.toLowerCase());
         entry.setValue("owner", ta.getOwner());
         entry.setValue("data", data);

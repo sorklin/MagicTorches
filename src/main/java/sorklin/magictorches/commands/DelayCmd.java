@@ -38,7 +38,12 @@ public class DelayCmd extends GenericCmd {
     
     public boolean execute() throws MissingOrIncorrectParametersException, InsufficientPermissionsException{
         errorCheck();
-
+        
+        if(!mt.editQueue.containsKey(player)){
+            Messaging.send(player, "`rYou need to be creating or editing an array to use that command.");
+            return true;
+        }
+        
         TorchEditor te = mt.editQueue.get(player);
         
         if(args.length > 1){
@@ -48,9 +53,6 @@ public class DelayCmd extends GenericCmd {
                 throw new MissingOrIncorrectParametersException("Unable to parse number: " + args[1]);
             }
         }
-        
-        if(!mt.editQueue.containsKey(player))
-            return true;
         
         mt.editQueue.get(player).setNextType(Properties.MtType.DELAY);
         Messaging.send(player, "`gReceiver type set to `wDELAY`g.");
