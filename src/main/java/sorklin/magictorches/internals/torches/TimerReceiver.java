@@ -82,7 +82,8 @@ public class TimerReceiver extends Receiver {
                     || originalMat.equals(Material.REDSTONE_TORCH_OFF)) {
                 torch.setType(Material.TORCH);
             }
-            torch.setData(getFacingData(facing));
+            if(facing != null)
+                torch.setData(getFacingData(facing));
             
             isRunning = true;
             

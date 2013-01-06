@@ -68,6 +68,7 @@ public class Properties {
     public static double priceToggle;
     
     public static int linesPerPage = 9;
+    public static long stutterDelay = 500L; //Blocks repeat info events if under this amoutn of time (half second)
     
     //current state
     public static boolean disableTransmit = false;

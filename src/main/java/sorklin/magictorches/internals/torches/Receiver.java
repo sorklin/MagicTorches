@@ -142,19 +142,19 @@ abstract class Receiver implements MTReceiver {
         
         byte data;
         switch (bf) {
-            case SOUTH:
+            case EAST:
                 data = 0x1;
                 break;
 
-            case NORTH:
+            case WEST:
                 data = 0x2;
                 break;
 
-            case WEST:
+            case SOUTH:
                 data = 0x3;
                 break;
 
-            case EAST:
+            case NORTH:
                 data = 0x4;
                 break;
 

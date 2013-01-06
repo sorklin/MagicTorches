@@ -17,6 +17,7 @@ import sorklin.magictorches.internals.TorchEditor;
 
 public class MTPlayerListener implements Listener {
     private final MagicTorches pl;
+    private long lastClicked = 0L;
 
     public MTPlayerListener(MagicTorches mt) {
         this.pl = mt;
@@ -30,6 +31,7 @@ public class MTPlayerListener implements Listener {
         Location loc = event.getClickedBlock().getLocation();
         Material mat = event.getClickedBlock().getType();
         Material item = Material.AIR;
+        long tmpTime = System.currentTimeMillis();
         
         StringBuilder msg = new StringBuilder();
         
@@ -48,13 +50,16 @@ public class MTPlayerListener implements Listener {
             //Lets check for a switch in the hand (which indicates info request).
             if(item.equals(Material.LEVER))
                 if(rst || mat.equals(Material.TORCH)){
-                    if(MTUtil.hasPermission(player, Properties.permAccess)){ //i have create, admin or op perms
-                        Messaging.send(player, "`Y+--------------------------------------------------+");
-                        Messaging.mlSend(player, pl.mtHandler.getInfo(
-                            event.getClickedBlock(), 
-                            player.getName(), 
-                            MTUtil.hasPermission(player, Properties.permAdmin), 
-                            true));
+                    if(tmpTime > lastClicked + Properties.stutterDelay) {
+                        if(MTUtil.hasPermission(player, Properties.permAccess)){ //i have create, admin or op perms
+                            Messaging.send(player, "`Y+--------------------------------------------------+");
+                            Messaging.mlSend(player, pl.mtHandler.getInfo(
+                                event.getClickedBlock(), 
+                                player.getName(), 
+                                MTUtil.hasPermission(player, Properties.permAdmin), 
+                                true));
+                        }
+                        lastClicked = System.currentTimeMillis();
                     }
                     event.setCancelled(true);
                 }
@@ -67,7 +72,10 @@ public class MTPlayerListener implements Listener {
         //Now lets see if we're doing an info event.
         if(item.equals(Material.LEVER)){
             if(rst){ //editing changes all torches to redstone, so I don't screen for regular torches.
-                Messaging.mlSend(player, te.getInfo(event.getClickedBlock().getLocation()));
+                if(tmpTime > lastClicked + Properties.stutterDelay) {
+                    Messaging.mlSend(player, te.getInfo(event.getClickedBlock().getLocation()));
+                    lastClicked = System.currentTimeMillis();
+                }
                 event.setCancelled(true);
             }
             return;
